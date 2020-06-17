@@ -1,0 +1,14 @@
+sequenceDiagram
+  participant Browser
+  participant API
+  participant Audit log service
+	Browser->>API: Request to upload document, including metadata
+	API->>DB: Check permissions
+  API->>DB: Store document metadata
+  API->>Blob Storage: Generate authenticated link
+  API->>EventHub: Publish event "document created"
+  API-->>Browser: (authenticated link)
+  Browser->>Blob Storage: Upload document using authenticated link
+  EventHub->>Synapse Analytics: Forward event
+  EventHub->>Audit log service: Forward event
+  Audit log service->>DB: Store audit log entry
