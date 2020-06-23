@@ -1,0 +1,55 @@
+name: frontend-master
+#change this to push before merging
+on:
+  pull_request:
+    branches:
+      - master
+    paths:
+      - frontend/**
+      - .github/workflows/frontend-master.yml
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone Platform repo
+        uses: actions/checkout@v2
+      - name: "Login to docker"
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+      - name: "Build & Push image"
+        run: |
+          cd frontend
+          docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/frontend:${{ github.sha }}
+          docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/frontend:${{ github.sha }}
+      - name: Clone Deployments repo
+        uses: actions/checkout@v2
+        with:
+          repository: FutureNHS/futurenhs-deployments
+          path: futurenhs-deployments
+          token: ${{ secrets.DEPLOYMENTS_REPO_TOKEN }} #github deploy key
+      - name: Clone deployment.yml
+      #do someting here
+      - name: Update image tag and deploy
+        uses: stefanprodan/kube-tools@v1
+        with:
+          kustomize: 3.4.0
+          command: |
+            set -eux
+            cd deployments/do i create a folder?
+
+            kustomize edit set image $DIGEST
+            git config --local user.email "tracy.wu@red-badger.com"
+            git config --local user.name "FutureNHS CI/CD"
+            git diff-index --quiet HEAD || git commit -am "CI: Update production image for $TAG"
+            declare -i n
+            n=0
+            until [ $n -ge 5 ]
+            do
+              git push && break
+              n+=1
+              git pull --rebase
+            done
