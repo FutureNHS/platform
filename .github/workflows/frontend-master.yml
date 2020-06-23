@@ -30,16 +30,20 @@ jobs:
         with:
           repository: FutureNHS/futurenhs-deployments
           path: futurenhs-deployments
-          #github deploy key
-      #   - name: Clone deployment.yml
-      #   #do someting here
+          #github deploy key?
+      - name: Clone Deployment yaml
+        uses: actions/checkout@v2
+        with:
+          repository: FutureNHS/futurenhs-platform
+          path: futurenhs-platform/frontend/manifests/deployement.yml
+          #do something here?
       - name: Update image tag and deploy
         uses: stefanprodan/kube-tools@v1
         with:
           kustomize: 3.4.0
           command: |
             set -eux
-            cd deployments
+            cd futurenhs-deployments
 
             kustomize edit set image $DIGEST
             git config --local user.email "tracy.wu@red-badger.com"
