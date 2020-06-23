@@ -30,13 +30,7 @@ jobs:
         with:
           repository: FutureNHS/futurenhs-deployments
           path: futurenhs-deployments
-          #github deploy key?
-      - name: Clone Deployment yaml
-        uses: actions/checkout@v2
-        with:
-          repository: FutureNHS/futurenhs-platform
-          path: futurenhs-platform/frontend/manifests/deployement.yml
-          #do something here?
+          token: ${{secrets.DEPLOYMENT_TOKEN}}
       - name: Update image tag and deploy
         uses: stefanprodan/kube-tools@v1
         with:
@@ -45,7 +39,7 @@ jobs:
             set -eux
             cd futurenhs-deployments
 
-            kustomize edit set image $DIGEST
+            date > hi.txt ; git add hi.txt
             git config --local user.email "tracy.wu@red-badger.com"
             git config --local user.name "FutureNHS CI/CD"
             git diff-index --quiet HEAD || git commit -am "CI: Update production image for $TAG"
