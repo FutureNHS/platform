@@ -31,8 +31,8 @@ jobs:
           repository: FutureNHS/futurenhs-deployments
           path: futurenhs-deployments
           token: ${{ secrets.DEPLOYMENTS_REPO_TOKEN }} #github deploy key
-      - name: Clone deployment.yml
-      #do someting here
+      #   - name: Clone deployment.yml
+      #   #do someting here
       - name: Update image tag and deploy
         uses: stefanprodan/kube-tools@v1
         with:
