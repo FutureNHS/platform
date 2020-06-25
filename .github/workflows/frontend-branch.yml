@@ -1,4 +1,4 @@
-name: frontend
+name: frontend-branch
 
 on:
   pull_request:

@@ -20,31 +20,43 @@ jobs:
           login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
+
       - name: "Build & Push image"
         run: |
           cd frontend
           docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/frontend:${{ github.sha }}
           docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/frontend:${{ github.sha }}
+
       - name: Clone Deployments repo
         uses: actions/checkout@v2
         with:
           repository: FutureNHS/futurenhs-deployments
           path: futurenhs-deployments
           token: ${{secrets.DEPLOYMENT_TOKEN}}
+
+      - name: Copy deployment.yml
+        run: |
+          cd $GITHUB_WORKSPACE/futurenhs-platform/frontend/manifests
+          cp deployment.yml $GITHUB_WORKSPACE/futurenhs-deployments/deployment.yml
+
       - name: Update image tag and deploy
         uses: stefanprodan/kube-tools@v1
         with:
           kustomize: 3.5.5
           command: |
             set -eux
-            cd futurenhs-deployments
+            cd $GITHUB_WORKSPACE/futurenhs-deployments
 
-            echo "Run conftest"
-            kustomize build test/kustomize | conftest test -p test/policy -
+            # TODO:
+            # echo "Run conftest"
+            # kustomize build test/kustomize | conftest test -p test/policy -
 
+            date > timestamp.txt
+            git add timestamp.txt
             git config --local user.email "tracy.wu@red-badger.com"
             git config --local user.name "FutureNHS CI/CD"
-            git diff-index --quiet HEAD || git commit -am "CI: Update production image for $TAG"
+            git diff-index --quiet HEAD || git commit -am "CI: Update production image for TAG"
+
             declare -i n
             n=0
             until [ $n -ge 5 ]
