@@ -24,12 +24,15 @@ jobs:
           login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
-
-      #   - name: "Build & Push image"
-      #     run: |
-      #       cd frontend
-      #       docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/frontend:${{ github.sha }}
-      #       docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/frontend:${{ github.sha }}
+      - name: "Build & Push image"
+        run: |
+          cd $GITHUB_WORKSPACE/futurenhs-platform/frontend
+          TAG="$(git rev-parse --short=7 ${{ github.sha }})"
+          docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/frontend:${TAG}
+          docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/frontend:${TAG}
+          DIGEST="$(docker inspect --format='{{index .RepoDigests 0}}' ${{ secrets.REGISTRY_LOGIN_SERVER }}/frontend:${TAG})"
+          echo ::set-env name=TAG::$TAG
+          echo ::set-env name=DIGEST::$DIGEST
 
       - name: Clone Deployments repo
         uses: actions/checkout@v2
@@ -43,7 +46,7 @@ jobs:
           set -eux
 
           cd $GITHUB_WORKSPACE/futurenhs-platform/frontend/manifests
-          cp deployment.yml $GITHUB_WORKSPACE/futurenhs-deployments/deployment.yml
+          cp deployment.yml kustomization.yaml $GITHUB_WORKSPACE/futurenhs-deployments/
 
       - name: Update image tag and deploy
         uses: stefanprodan/kube-tools@v1
@@ -53,15 +56,12 @@ jobs:
             set -eux
             cd $GITHUB_WORKSPACE/futurenhs-deployments
 
-            # TODO:
-            # echo "Run conftest"
-            # kustomize build test/kustomize | conftest test -p test/policy -
+            kustomize edit set image $DIGEST
 
-            date > timestamp.txt
-            git add timestamp.txt
             git config --local user.email "tracy.wu@red-badger.com"
             git config --local user.name "FutureNHS CI/CD"
-            git diff-index --quiet HEAD || git commit -am "CI: Update production image for TAG"
+            git add -A
+            git diff-index --quiet HEAD || git commit -am "CI: Update production image for ${TAG}"
 
             declare -i n
             n=0
