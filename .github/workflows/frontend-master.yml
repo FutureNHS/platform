@@ -14,6 +14,10 @@ jobs:
     steps:
       - name: Clone Platform repo
         uses: actions/checkout@v2
+        with:
+          repository: FutureNHS/futurenhs-platform
+          path: futurenhs-platform
+          token: ${{secrets.DEPLOYMENT_TOKEN}}
       - name: "Login to docker"
         uses: azure/docker-login@v1
         with:
