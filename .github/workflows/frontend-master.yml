@@ -40,11 +40,8 @@ jobs:
 
       - name: Copy deployment.yml
         run: |
-          echo $GITHUB_WORKSPACE
-          ls $GITHUB_WORKSPACE
-          ls $GITHUB_WORKSPACE/futurenhs-platform
-          ls $GITHUB_WORKSPACE/futurenhs-platform/frontend
-          ls $GITHUB_WORKSPACE/futurenhs-platform/frontend/manifests
+          set -eux
+
           cd $GITHUB_WORKSPACE/futurenhs-platform/frontend/manifests
           cp deployment.yml $GITHUB_WORKSPACE/futurenhs-deployments/deployment.yml
 
