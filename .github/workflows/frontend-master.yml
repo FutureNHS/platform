@@ -1,7 +1,7 @@
 name: frontend-master
-#change this to push before merging
+
 on:
-  pull_request:
+  push:
     branches:
       - master
     paths:
@@ -57,7 +57,7 @@ jobs:
             cd $GITHUB_WORKSPACE/futurenhs-deployments
 
             kustomize edit set image $DIGEST
-
+            # TODO create service account, swap out email, update deployment_token secret
             git config --local user.email "tracy.wu@red-badger.com"
             git config --local user.name "FutureNHS CI/CD"
             git add -A
