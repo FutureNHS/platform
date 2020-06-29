@@ -6,7 +6,7 @@ on:
       - master
     paths:
       - frontend/**
-      - .github/workflows/frontend.yml
+      - .github/workflows/frontend-branch.yml
 
 jobs:
   ci:
