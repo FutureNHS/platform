@@ -5,6 +5,8 @@ Through a combination of automated tests and effective manual testing, our empha
 
 We aim to deliver a high quality platform and migrate users in the shortest time possible. To enable this we are proposing to pursue testing strategies that will enable quick delivery, without sacrificing quality. Through test-driven development (TTD), incorporating comprehensive automation testing and targeted, effective manual testing locally and in Production, we are confident that we can minimise the number of issues that users will encounter. 
 
+This change is a test.
+
 ## Contents
 
 - [Proposed Testing Flow](#proposed-testing-flow)
