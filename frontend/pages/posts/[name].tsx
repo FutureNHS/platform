@@ -26,13 +26,10 @@ const FirstPost = ({ greeting }: { greeting: object }) => {
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
         />
-        <button
-          onClick={() => {
-            window.location.href = `/posts/${inputValue}`;
-          }}
-        >
-          greet
-        </button>
+
+        <Link href="/posts/[name]" as={`/posts/${inputValue}`}>
+          <button>greet</button>
+        </Link>
       </section>
       <section>
         <Link href="/">
