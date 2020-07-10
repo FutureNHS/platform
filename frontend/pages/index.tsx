@@ -16,8 +16,8 @@ const Home = () => {
       </Head>
       <section className={utilStyles.headingMd}>
         <p>FutureNHS</p>
-        <Link href="/posts/tracy">
-          <a>Click here for posts</a>
+        <Link href="/greetings/tracy">
+          <a>Click here for greetings</a>
         </Link>
         <p>
           (This is a sample website about how eggs are suitable for vegans -

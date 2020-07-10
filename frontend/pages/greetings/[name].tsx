@@ -1,11 +1,17 @@
 import React, { useState } from "react";
 import Link from "next/link";
+import fetch from "node-fetch";
 
-import { getGreeting } from "../../lib/posts";
 import { GetServerSideProps } from "next";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const greeting = await getGreeting(context?.params?.name);
+  const res = await fetch(
+    `http://hello-world.hello-world/hello/${context?.params?.name}`
+  );
+
+  console.log("*****8888", typeof window);
+
+  const greeting = await res.text();
 
   return {
     props: {
@@ -14,7 +20,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   };
 };
 
-const FirstPost = ({ greeting }: { greeting: object }) => {
+const GreetingForm = ({ greeting }: { greeting: object }) => {
   const [inputValue, setInputValue] = useState("");
   return (
     <>
@@ -27,7 +33,7 @@ const FirstPost = ({ greeting }: { greeting: object }) => {
           onChange={(e) => setInputValue(e.target.value)}
         />
 
-        <Link href="/posts/[name]" as={`/posts/${inputValue}`}>
+        <Link href="/greetings/[name]" as={`/greetings/${inputValue}`}>
           <button>greet</button>
         </Link>
       </section>
@@ -40,4 +46,4 @@ const FirstPost = ({ greeting }: { greeting: object }) => {
   );
 };
 
-export default FirstPost;
+export default GreetingForm;
