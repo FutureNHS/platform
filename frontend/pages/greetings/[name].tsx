@@ -52,7 +52,8 @@ const GreetingForm = ({
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
         />
-        {/* shallow - Update the path of the current page without rerunning */}
+        {/* Shallow routing allows you to change the URL without running data fetching methods again, that includes getServerSideProps, getStaticProps, and getInitialProps.
+        ou'll receive the updated pathname and the query via the router object (added by useRouter or withRouter), without losing state. https://nextjs.org/docs/routing/shallow-routing */}
         <Link href="/greetings/[name]" as={`/greetings/${inputValue}`}>
           <button>greet</button>
         </Link>
