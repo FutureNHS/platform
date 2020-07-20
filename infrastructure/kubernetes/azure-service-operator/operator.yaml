@@ -14,7 +14,7 @@
 #             --set image.repository="mcr.microsoft.com/k8s/azureserviceoperator:0.1.11139" \
 #             --dry-run
 #     )
-# and then removing the secrets section
+# and then removing the secrets section and sealing it as azure-service-operator-secrets-sealed.yaml
 ---
 # Source: azure-service-operator/templates/generated/rbac.authorization.k8s.io_v1_clusterrole_azureoperator-manager-role.yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -23,902 +23,902 @@ metadata:
   creationTimestamp: null
   name: azureoperator-manager-role-azureoperator-system
 rules:
-- apiGroups:
-  - apps
-  resources:
-  - deployments
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - apps
-  resources:
-  - deployments/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - AzureSQLUsers
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - AzureSQLUsers/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - apimgmtapis
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - apimgmtapis/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - apimservices
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - apimservices/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - appinsights
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - appinsights/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - appinsightsapikeys
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - appinsightsapikeys/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - azureloadbalancers
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - azureloadbalancers/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - azurenetworkinterfaces
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - azurenetworkinterfaces/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - azurepublicipaddresses
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - azurepublicipaddresses/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - azuresqlactions
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - azuresqlactions/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - azuresqldatabases
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - azuresqldatabases/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - azuresqlfailovergroups
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - azuresqlfailovergroups/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - azuresqlfirewallrules
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - azuresqlfirewallrules/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - azuresqlmanagedusers
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - azuresqlmanagedusers/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - azuresqlservers
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - azuresqlservers/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - azuresqlusers
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - azuresqlusers/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - azuresqlvnetrules
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - azuresqlvnetrules/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - azurevirtualmachineextensions
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - azurevirtualmachineextensions/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - azurevirtualmachines
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - azurevirtualmachines/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - azurevmscalesets
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - azurevmscalesets/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - blobcontainers
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - blobcontainers/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - consumergroups
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - consumergroups/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - cosmosdbs
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - cosmosdbs/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - eventhubnamespaces
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - eventhubnamespaces/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - eventhubs
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - eventhubs/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - events
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - keyvaultkeys
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - keyvaultkeys/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - keyvaults
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - keyvaults/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - mysqldatabases
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - mysqldatabases/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - mysqlfirewallrules
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - mysqlfirewallrules/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - mysqlservers
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - mysqlservers/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - mysqlusers
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - mysqlusers/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - mysqlvnetrules
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - mysqlvnetrules/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - postgresqldatabases
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - postgresqldatabases/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - postgresqlfirewallrules
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - postgresqlfirewallrules/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - postgresqlservers
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - postgresqlservers/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - postgresqlusers
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - postgresqlusers/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - postgresqlvnetrules
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - postgresqlvnetrules/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - rediscacheactions
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - rediscacheactions/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - rediscachefirewallrules
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - rediscachefirewallrules/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - rediscaches
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - rediscaches/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - resourcegroups
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - resourcegroups/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - storageaccounts
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - storageaccounts/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - virtualnetworks
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - azure.microsoft.com
-  resources:
-  - virtualnetworks/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - ""
-  resources:
-  - events
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - ""
-  resources:
-  - secrets
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
+  - apiGroups:
+      - apps
+    resources:
+      - deployments
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - apps
+    resources:
+      - deployments/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - AzureSQLUsers
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - AzureSQLUsers/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - apimgmtapis
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - apimgmtapis/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - apimservices
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - apimservices/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - appinsights
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - appinsights/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - appinsightsapikeys
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - appinsightsapikeys/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - azureloadbalancers
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - azureloadbalancers/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - azurenetworkinterfaces
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - azurenetworkinterfaces/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - azurepublicipaddresses
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - azurepublicipaddresses/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - azuresqlactions
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - azuresqlactions/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - azuresqldatabases
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - azuresqldatabases/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - azuresqlfailovergroups
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - azuresqlfailovergroups/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - azuresqlfirewallrules
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - azuresqlfirewallrules/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - azuresqlmanagedusers
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - azuresqlmanagedusers/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - azuresqlservers
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - azuresqlservers/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - azuresqlusers
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - azuresqlusers/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - azuresqlvnetrules
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - azuresqlvnetrules/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - azurevirtualmachineextensions
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - azurevirtualmachineextensions/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - azurevirtualmachines
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - azurevirtualmachines/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - azurevmscalesets
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - azurevmscalesets/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - blobcontainers
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - blobcontainers/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - consumergroups
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - consumergroups/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - cosmosdbs
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - cosmosdbs/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - eventhubnamespaces
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - eventhubnamespaces/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - eventhubs
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - eventhubs/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - events
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - keyvaultkeys
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - keyvaultkeys/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - keyvaults
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - keyvaults/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - mysqldatabases
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - mysqldatabases/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - mysqlfirewallrules
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - mysqlfirewallrules/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - mysqlservers
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - mysqlservers/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - mysqlusers
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - mysqlusers/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - mysqlvnetrules
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - mysqlvnetrules/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - postgresqldatabases
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - postgresqldatabases/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - postgresqlfirewallrules
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - postgresqlfirewallrules/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - postgresqlservers
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - postgresqlservers/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - postgresqlusers
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - postgresqlusers/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - postgresqlvnetrules
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - postgresqlvnetrules/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - rediscacheactions
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - rediscacheactions/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - rediscachefirewallrules
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - rediscachefirewallrules/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - rediscaches
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - rediscaches/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - resourcegroups
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - resourcegroups/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - storageaccounts
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - storageaccounts/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - virtualnetworks
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - azure.microsoft.com
+    resources:
+      - virtualnetworks/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
 ---
 # Source: azure-service-operator/templates/generated/rbac.authorization.k8s.io_v1_clusterrole_azureoperator-proxy-role.yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -926,18 +926,18 @@ kind: ClusterRole
 metadata:
   name: azureoperator-proxy-role-azureoperator-system
 rules:
-- apiGroups:
-  - authentication.k8s.io
-  resources:
-  - tokenreviews
-  verbs:
-  - create
-- apiGroups:
-  - authorization.k8s.io
-  resources:
-  - subjectaccessreviews
-  verbs:
-  - create
+  - apiGroups:
+      - authentication.k8s.io
+    resources:
+      - tokenreviews
+    verbs:
+      - create
+  - apiGroups:
+      - authorization.k8s.io
+    resources:
+      - subjectaccessreviews
+    verbs:
+      - create
 ---
 # Source: azure-service-operator/templates/generated/rbac.authorization.k8s.io_v1_clusterrolebinding_azureoperator-manager-rolebinding.yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -949,9 +949,9 @@ roleRef:
   kind: ClusterRole
   name: azureoperator-manager-role-azureoperator-system
 subjects:
-- kind: ServiceAccount
-  name: default
-  namespace: azureoperator-system
+  - kind: ServiceAccount
+    name: default
+    namespace: azureoperator-system
 ---
 # Source: azure-service-operator/templates/generated/rbac.authorization.k8s.io_v1_clusterrolebinding_azureoperator-proxy-rolebinding.yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -963,9 +963,9 @@ roleRef:
   kind: ClusterRole
   name: azureoperator-proxy-role-azureoperator-system
 subjects:
-- kind: ServiceAccount
-  name: default
-  namespace: azureoperator-system
+  - kind: ServiceAccount
+    name: default
+    namespace: azureoperator-system
 ---
 # Source: azure-service-operator/templates/generated/rbac.authorization.k8s.io_v1_role_azureoperator-leader-election-role.yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -974,26 +974,26 @@ metadata:
   name: azureoperator-leader-election-role
   namespace: azureoperator-system
 rules:
-- apiGroups:
-  - ""
-  resources:
-  - configmaps
-  verbs:
-  - get
-  - list
-  - watch
-  - create
-  - update
-  - patch
-  - delete
-- apiGroups:
-  - ""
-  resources:
-  - configmaps/status
-  verbs:
-  - get
-  - update
-  - patch
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - patch
+      - delete
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps/status
+    verbs:
+      - get
+      - update
+      - patch
 ---
 # Source: azure-service-operator/templates/generated/rbac.authorization.k8s.io_v1_rolebinding_azureoperator-leader-election-rolebinding.yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -1006,9 +1006,9 @@ roleRef:
   kind: Role
   name: azureoperator-leader-election-role
 subjects:
-- kind: ServiceAccount
-  name: default
-  namespace: azureoperator-system
+  - kind: ServiceAccount
+    name: default
+    namespace: azureoperator-system
 ---
 # Source: azure-service-operator/templates/generated/~g_v1_service_azureoperator-controller-manager-metrics-service.yaml
 apiVersion: v1
@@ -1024,9 +1024,9 @@ metadata:
   namespace: azureoperator-system
 spec:
   ports:
-  - name: https
-    port: 8443
-    targetPort: https
+    - name: https
+      port: 8443
+      targetPort: https
   selector:
     control-plane: controller-manager
 ---
@@ -1038,8 +1038,8 @@ metadata:
   namespace: azureoperator-system
 spec:
   ports:
-  - port: 443
-    targetPort: 443
+    - port: 443
+      targetPort: 443
   selector:
     control-plane: controller-manager
 ---
@@ -1064,89 +1064,89 @@ spec:
         control-plane: controller-manager
     spec:
       containers:
-      - args:
-        - --secure-listen-address=0.0.0.0:8443
-        - --upstream=http://127.0.0.1:8080/
-        - --logtostderr=true
-        - --v=10
-        image: gcr.io/kubebuilder/kube-rbac-proxy:v0.5.0
-        name: kube-rbac-proxy
-        ports:
-        - containerPort: 8443
-          name: https
-      - args:
-        - --metrics-addr=127.0.0.1:8080
-        command:
-        - /manager
-        env:
-        - name: AZURE_CLIENT_ID
-          valueFrom:
-            secretKeyRef:
-              key: AZURE_CLIENT_ID
-              name: azureoperatorsettings
-              optional: true
-        - name: AZURE_CLIENT_SECRET
-          valueFrom:
-            secretKeyRef:
-              key: AZURE_CLIENT_SECRET
-              name: azureoperatorsettings
-              optional: true
-        - name: AZURE_TENANT_ID
-          valueFrom:
-            secretKeyRef:
-              key: AZURE_TENANT_ID
-              name: azureoperatorsettings
-        - name: AZURE_SUBSCRIPTION_ID
-          valueFrom:
-            secretKeyRef:
-              key: AZURE_SUBSCRIPTION_ID
-              name: azureoperatorsettings
-        - name: AZURE_USE_MI
-          valueFrom:
-            secretKeyRef:
-              key: AZURE_USE_MI
-              name: azureoperatorsettings
-              optional: true
-        - name: AZURE_OPERATOR_KEYVAULT
-          valueFrom:
-            secretKeyRef:
-              key: AZURE_OPERATOR_KEYVAULT
-              name: azureoperatorsettings
-              optional: true
-        - name: AZURE_CLOUD_ENV
-          valueFrom:
-            secretKeyRef:
-              key: AZURE_CLOUD_ENV
-              name: azureoperatorsettings
-              optional: true
-        - name: REQUEUE_AFTER
-          value: "30"
-        image: mcr.microsoft.com/k8s/azureserviceoperator:0.1.11139
-        name: manager
-        ports:
-        - containerPort: 443
-          name: webhook-server
-          protocol: TCP
-        - containerPort: 8081
-          name: liveness-port
-          protocol: TCP
-        resources:
-          limits:
-            cpu: 500m
-            memory: 512Mi
-          requests:
-            cpu: 200m
-            memory: 256Mi
-        volumeMounts:
-        - mountPath: /tmp/k8s-webhook-server/serving-certs
-          name: cert
-          readOnly: true
+        - args:
+            - --secure-listen-address=0.0.0.0:8443
+            - --upstream=http://127.0.0.1:8080/
+            - --logtostderr=true
+            - --v=10
+          image: gcr.io/kubebuilder/kube-rbac-proxy:v0.5.0
+          name: kube-rbac-proxy
+          ports:
+            - containerPort: 8443
+              name: https
+        - args:
+            - --metrics-addr=127.0.0.1:8080
+          command:
+            - /manager
+          env:
+            - name: AZURE_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  key: AZURE_CLIENT_ID
+                  name: azureoperatorsettings
+                  optional: true
+            - name: AZURE_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  key: AZURE_CLIENT_SECRET
+                  name: azureoperatorsettings
+                  optional: true
+            - name: AZURE_TENANT_ID
+              valueFrom:
+                secretKeyRef:
+                  key: AZURE_TENANT_ID
+                  name: azureoperatorsettings
+            - name: AZURE_SUBSCRIPTION_ID
+              valueFrom:
+                secretKeyRef:
+                  key: AZURE_SUBSCRIPTION_ID
+                  name: azureoperatorsettings
+            - name: AZURE_USE_MI
+              valueFrom:
+                secretKeyRef:
+                  key: AZURE_USE_MI
+                  name: azureoperatorsettings
+                  optional: true
+            - name: AZURE_OPERATOR_KEYVAULT
+              valueFrom:
+                secretKeyRef:
+                  key: AZURE_OPERATOR_KEYVAULT
+                  name: azureoperatorsettings
+                  optional: true
+            - name: AZURE_CLOUD_ENV
+              valueFrom:
+                secretKeyRef:
+                  key: AZURE_CLOUD_ENV
+                  name: azureoperatorsettings
+                  optional: true
+            - name: REQUEUE_AFTER
+              value: "30"
+          image: mcr.microsoft.com/k8s/azureserviceoperator:0.1.11139
+          name: manager
+          ports:
+            - containerPort: 443
+              name: webhook-server
+              protocol: TCP
+            - containerPort: 8081
+              name: liveness-port
+              protocol: TCP
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 200m
+              memory: 256Mi
+          volumeMounts:
+            - mountPath: /tmp/k8s-webhook-server/serving-certs
+              name: cert
+              readOnly: true
       terminationGracePeriodSeconds: 10
       volumes:
-      - name: cert
-        secret:
-          defaultMode: 420
-          secretName: webhook-server-cert
+        - name: cert
+          secret:
+            defaultMode: 420
+            secretName: webhook-server-cert
 ---
 # Source: azure-service-operator/templates/generated/cert-manager.io_v1alpha2_certificate_azureoperator-serving-cert.yaml
 apiVersion: cert-manager.io/v1alpha2
@@ -1156,8 +1156,8 @@ metadata:
   namespace: azureoperator-system
 spec:
   dnsNames:
-  - azureoperator-webhook-service.azureoperator-system.svc
-  - azureoperator-webhook-service.azureoperator-system.svc.cluster.local
+    - azureoperator-webhook-service.azureoperator-system.svc
+    - azureoperator-webhook-service.azureoperator-system.svc.cluster.local
   issuerRef:
     kind: Issuer
     name: azureoperator-selfsigned-issuer
