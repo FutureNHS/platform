@@ -2,15 +2,15 @@
 # and then running:
 #     (
 #         set -eux
-#         CREDENTIAL_DIR="$HOME/Desktop/votes-creds"
+#         CREDENTIAL_DIR="."
 #         helm upgrade --install aso https://github.com/Azure/azure-service-operator/raw/master/charts/azure-service-operator-0.1.0.tgz \
 #             --namespace=azureoperator-system \
 #             --create-namespace \
-#             --set azureSubscriptionID=$(az account show | jq -r .id) \
-#             --set azureTenantID=$(az account show | jq -r .homeTenantId) \
-#             --set azureTenantID=$(cat $CREDENTIAL_DIR/operator_sp_creds.json | jq -r .tenantId) \
-#             --set azureClientID=$(cat $CREDENTIAL_DIR/operator_sp_creds.json | jq -r .clientId) \
-#             --set azureClientSecret=$(cat $CREDENTIAL_DIR/operator_sp_creds.json | jq -r .clientSecret) \
+#             --set azureSubscriptionID=`az account show | jq -r .id` \
+#             --set azureTenantID=`az account show | jq -r .homeTenantId` \
+#             --set azureTenantID=`cat ./operator_sp_creds.json | jq -r .tenantId` \
+#             --set azureClientID=`cat ./operator_sp_creds.json | jq -r .clientId` \
+#             --set azureClientSecret=`cat ./operator_sp_creds.json | jq -r .clientSecret` \
 #             --set image.repository="mcr.microsoft.com/k8s/azureserviceoperator:0.1.11139" \
 #             --dry-run
 #     )

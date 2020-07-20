@@ -5,11 +5,14 @@ import os
 from string import Template
 
 repo_root = os.path.join(os.path.dirname(__file__), '../..')
+
+# FIXME: This is duplicated in .github/workflows/infrastructure-branch.yaml
 services = [
     'frontend/manifests',
     'hello-world/manifests',
     'infrastructure/kubernetes/argocd/apps',
     'infrastructure/kubernetes/cert-manager',
+    'infrastructure/kubernetes/azure-service-operator',
     'infrastructure/kubernetes/ingress',
 ]
 

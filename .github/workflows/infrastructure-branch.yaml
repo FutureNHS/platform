@@ -47,6 +47,9 @@ jobs:
           set -eux
           cd $GITHUB_WORKSPACE/futurenhs-deployments
           $GITHUB_WORKSPACE/futurenhs-platform/infrastructure/scripts/create-dev-overlays.py
+          # FIXME: this is a lot of copy-paste, and duplicates the array that lives in create-dev-overlays.py
+          mkdir -p $GITHUB_WORKSPACE/futurenhs-deployments/azure-service-operator
+          cp -r $GITHUB_WORKSPACE/futurenhs-platform/infrastructure/kubernetes/azure-service-operator/* $GITHUB_WORKSPACE/futurenhs-deployments/azure-service-operator
           mkdir -p $GITHUB_WORKSPACE/futurenhs-deployments/cert-manager
           cp -r $GITHUB_WORKSPACE/futurenhs-platform/infrastructure/kubernetes/cert-manager/* $GITHUB_WORKSPACE/futurenhs-deployments/cert-manager
           mkdir -p $GITHUB_WORKSPACE/futurenhs-deployments/ingress
