@@ -21,17 +21,17 @@ jobs:
           terraform_version: 0.12.25
       - name: Check Terraform format
         run: terraform fmt -recursive -check
-        working-directory: infrastructure
+        working-directory: futurenhs-platform/infrastructure
       - name: Validate Terraform of dev environment
         run: |
           terraform init -backend=false
           terraform validate
-        working-directory: infrastructure/environments/dev
+        working-directory: futurenhs-platform/infrastructure/environments/dev
       - name: Validate Terraform of production environment
         run: |
           terraform init -backend=false
           terraform validate
-        working-directory: infrastructure/environments/production
+        working-directory: futurenhs-platform/infrastructure/environments/production
       - name: Test dev overlay creation
         run: infrastructure/scripts/create-dev-overlays.py
 
