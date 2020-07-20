@@ -1,8 +1,8 @@
-
 apiVersion: azure.microsoft.com/v1alpha1
 kind: PostgreSQLServer
 metadata:
   name: postgresqlserver-sample
+  namespace: hello-world
 spec:
   location: westeurope
   resourceGroup: platform-dev-david
@@ -14,7 +14,7 @@ spec:
     family: Gen5
     size: "51200"
     capacity: 2
-  # Use the field below to optionally specify a different keyvault 
+  # Use the field below to optionally specify a different keyvault
   # to store the server admin credential secrets in
   #keyVaultToStoreSecrets: asoSecretKeyVault
 ---
@@ -22,6 +22,7 @@ apiVersion: azure.microsoft.com/v1alpha1
 kind: PostgreSQLDatabase
 metadata:
   name: postgresqldatabase-sample
+  namespace: hello-world
 spec:
   resourceGroup: platform-dev-david
   server: postgresqlserver-sample
@@ -30,9 +31,11 @@ apiVersion: azure.microsoft.com/v1alpha1
 kind: PostgreSQLFirewallRule
 metadata:
   name: postgresqlfirewallrule-sample
+  namespace: hello-world
 spec:
   resourceGroup: platform-dev-david
   server: postgresqlserver-sample
+  # FIXME: make this not open to the entire world
   startIpAddress: 0.0.0.0
   endIpAddress: 0.0.0.0
 ---
@@ -41,6 +44,7 @@ apiVersion: azure.microsoft.com/v1alpha1
 kind: PostgreSQLUser
 metadata:
   name: psqluser-sample
+  namespace: hello-world
 spec:
   server: postgresqlserver-sample
   dbName: postgresqldatabase-sample
@@ -51,13 +55,12 @@ spec:
   # your server admin user
   roles:
     - "azure_pg_admin"
-   # Specify a specific username for the user
+    # Specify a specific username for the user
   username: psqluser-sample
-  # Specify adminSecret and adminSecretKeyVault if you want to 
+  # Specify adminSecret and adminSecretKeyVault if you want to
   # read the PSQL server admin creds from a specific keyvault secret
   # adminSecret: postgresqlserver-sample
   # adminSecretKeyVault: asokeyvault
-  
-  # Use the field below to optionally specify a different keyvault 
+  # Use the field below to optionally specify a different keyvault
   # to store the secrets in
   # keyVaultToStoreSecrets: asokeyvault
