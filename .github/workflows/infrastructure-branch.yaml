@@ -64,9 +64,11 @@ jobs:
           git config --local user.name "FutureNHS CI/CD"
 
           git add -A
+          # FIXME: can we make this commit message reflect the message at the tip of the platform repo?
           git diff-index --quiet HEAD || git commit -am "CI: Update cert-manager and ingress"
 
           git status
           
+          # TODO: we probably will need the `push || pull --rebase` dance in here again.
           git push origin "HEAD:pr-$GITHUB_HEAD_REF" --force
           git push origin "HEAD:pr-$GITHUB_ACTOR" --force
