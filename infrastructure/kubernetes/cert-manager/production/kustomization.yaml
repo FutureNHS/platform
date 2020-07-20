@@ -4,4 +4,3 @@ resources:
   - namespace.yaml
   - cert-manager.yaml
   - issuer.yaml
-  - postgresql.yaml
