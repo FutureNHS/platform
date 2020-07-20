@@ -5,3 +5,4 @@ metadata:
 spec:
   source:
     path: ./cert-manager/dev-$NAME
+    targetRevision: $BRANCH

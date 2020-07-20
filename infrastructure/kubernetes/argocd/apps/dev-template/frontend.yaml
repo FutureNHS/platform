@@ -5,3 +5,4 @@ metadata:
 spec:
   source:
     path: ./frontend/dev-$NAME
+    targetRevision: $BRANCH

@@ -1,20 +1,26 @@
 {
   "david": {
+    "BRANCH": "pr-deploy-login-microservice",
     "INSTRUMENTATION_KEY": "todo"
   },
   "jan": {
+    "BRANCH": "master",
     "INSTRUMENTATION_KEY": "14fe00c5-310f-4e84-aa83-5db7bd5b2797"
   },
   "matt": {
+    "BRANCH": "pr-deploy-login-microservice",
     "INSTRUMENTATION_KEY": "todo"
   },
   "potts": {
+    "BRANCH": "master",
     "INSTRUMENTATION_KEY": "todo"
   },
   "tracy": {
+    "BRANCH": "master",
     "INSTRUMENTATION_KEY": "todo"
   },
   "declan": {
+    "BRANCH": "master",
     "INSTRUMENTATION_KEY": "b9ba8f32-a8f1-471b-9bc2-a1c7a74bc6c0"
   }
 }
