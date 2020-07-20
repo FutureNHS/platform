@@ -46,10 +46,6 @@ jobs:
         run: |
           set -eux
           cd $GITHUB_WORKSPACE/futurenhs-deployments
-          env
-          BRANCH_NAME="${GITHUB_REF#refs/heads/}"
-          git checkout -b "pr-${BRANCH_NAME}"
-
           $GITHUB_WORKSPACE/futurenhs-platform/infrastructure/scripts/create-dev-overlays.py
           mkdir -p $GITHUB_WORKSPACE/futurenhs-deployments/cert-manager
           cp -r $GITHUB_WORKSPACE/futurenhs-platform/infrastructure/kubernetes/cert-manager/* $GITHUB_WORKSPACE/futurenhs-deployments/cert-manager
@@ -68,5 +64,6 @@ jobs:
           git diff-index --quiet HEAD || git commit -am "CI: Update cert-manager and ingress"
 
           git status
-          exit 1
-          # git push origin HEAD --force
+          
+          git push origin "HEAD:pr-$GITHUB_HEAD_REF" --force
+          git push origin "HEAD:pr-$GITHUB_ACTOR" --force
