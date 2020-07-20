@@ -33,7 +33,7 @@ jobs:
           terraform validate
         working-directory: futurenhs-platform/infrastructure/environments/production
       - name: Test dev overlay creation
-        run: infrastructure/scripts/create-dev-overlays.py
+        run: $GITHUB_WORKSPACE/futurenhs-platform/infrastructure/scripts/create-dev-overlays.py
 
       - name: Clone Deployments repo
         uses: actions/checkout@v2
