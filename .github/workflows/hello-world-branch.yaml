@@ -15,7 +15,10 @@ jobs:
   ci:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Clone Platform repo
+        uses: actions/checkout@v2
+        with:
+          path: futurenhs-platform
       - name: "Login to docker"
         uses: azure/docker-login@v1
         with:
@@ -31,7 +34,7 @@ jobs:
           DIGEST="$(docker inspect --format='{{index .RepoDigests 0}}' ${{ secrets.REGISTRY_LOGIN_SERVER }}/hello-world:${TAG})"
           echo ::set-env name=TAG::$TAG
           echo ::set-env name=DIGEST::$DIGEST
-      - name: Test dev overlay creation
+      - name: Update image tag and test dev overlay creation
         run: |
           cd $HOME
           curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
@@ -40,7 +43,7 @@ jobs:
           $HOME/kustomize edit set image $DIGEST
           infrastructure/scripts/create-dev-overlays.py
 
-      - name: Clone Deployments repo (RACY - MUST HAPPEN AFTER infrastructure-branch ACTION)
+      - name: Clone Deployments repo (FIXME - RACY - MUST HAPPEN AFTER infrastructure-branch ACTION)
         uses: actions/checkout@v2
         with:
           repository: FutureNHS/futurenhs-deployments
