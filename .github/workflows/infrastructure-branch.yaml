@@ -46,6 +46,7 @@ jobs:
         run: |
           set -eux
           cd $GITHUB_WORKSPACE/futurenhs-deployments
+          env
           BRANCH_NAME="${GITHUB_REF#refs/heads/}"
           git checkout -b "pr-${BRANCH_NAME}"
 
