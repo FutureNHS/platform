@@ -122,6 +122,28 @@ as opposed to sharing a staging environment.
    az aks get-credentials --resource-group platform-dev-$FNHSNAME --name dev-$FNHSNAME
    ```
 
+1. To be able to read existing sealed secrets, you must add the sealed secret certificate to your cluster as a secret. Run the following to retrieve it from the Key Vault and apply to the cluster, and then add the controller:
+
+  ```bash
+  az keyvault secret show --vault-name "fnhs-shared-dev" --name "sealed-secret-yaml" | jq -r '.value'  | kubectl apply -f -
+  ```
+
+  ```bash
+  kubectl apply -f ./infrastructure/kubernetes/sealed-secrets/controller.yaml
+  ```
+
+  If everything works then your log should only contain:
+  ```
+  $ kubectl -n kube-system logs -l name=sealed-secrets-controller
+  controller version: v0.12.4+dirty
+  2020/07/21 14:52:04 Starting sealed-secrets controller version: v0.12.4+dirty
+  2020/07/21 14:52:04 Searching for existing private keys
+  2020/07/21 14:52:04 ----- sealed-secret-key
+  2020/07/21 14:52:04 HTTP server serving on :8080
+  ```
+  If you see something about it failing to find a private key and generating one then you might need to recreate it.
+  See https://github.com/bitnami-labs/sealed-secrets/blob/master/docs/bring-your-own-certificates.md for details.
+
 1. To install the [Linkerd](https://linkerd.io/) control plane, run the `install-linkerd.sh` script that can be found within `infrastructure/scripts` directory.
 
    ```bash
@@ -166,13 +188,23 @@ as opposed to sharing a staging environment.
    argocd login --username admin --password $(kubectl get pods -n argocd | grep --only-matching 'argocd-server-[^ ]*')
    ```
 
-   If you want to view the Argo CD UI, do:
+   If you want to view the Argo CD UI, either do:
 
    ```bash
    kubectl port-forward svc/argocd-server -n argocd 8080:443
    ```
 
    and browse to http://localhost:8080.
+
+   or do
+   ```bash
+   brew install kubefwd
+   sudo kubefwd services -n argocd
+   ```
+   and browse to:
+   ```
+   https://argocd-server.argocd/
+   ```
 
    If you want to see the frontend app browse to <https://fnhs-dev-$FNHSNAME.westeurope.cloudapp.azure.com>.
 
@@ -181,16 +213,6 @@ as opposed to sharing a staging environment.
    ```bash
    kubectl apply -f ./infrastructure/kubernetes/logging/container-azm-ms-agentconfig.yaml
    ```
-
-1. To be able to read existing sealed secrets, you must add the sealed secret certificate to your cluster as a secret. Run the following to retrieve it from the Key Vault and apply to the cluster, and then add the controller:
-
-  ```bash
-  az keyvault secret show --vault-name "fnhs-shared-dev" --name "sealed-secret-yaml" | jq -r '.value'  | kubectl apply -f -
-  ```
-
-  ```bash
-  kubectl apply -f ./infrastructure/kubernetes/sealed-secrets/controller.yaml
-  ```
 
 
 To reduce infrastructure costs for the NHS, please destroy your environment when you no longer need it.
