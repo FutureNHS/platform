@@ -88,6 +88,7 @@ jobs:
           done
 
           if [ $n -ge 5 ]
+          then
             echo "ran out of retries"
             exit 1
           fi
