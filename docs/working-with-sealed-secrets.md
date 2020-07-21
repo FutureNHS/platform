@@ -16,7 +16,7 @@ $ kubectl create secret generic favouritecuisine \
    --dry-run \
    --namespace=hello-world \
    --from-literal=favouritecuisine=spanish \
-   -o yaml
+   -o yaml \
    | kubeseal --format yaml > favouritecuisine-sealed.yaml
 ```
 `favourite-cuisine-sealed.yaml` should now be added to `<app>manifests/dev-template` directory, and the file referenced in dev-template/kustomisation.yaml
