@@ -13,5 +13,5 @@ spec:
             - name: FAVOURITE_CUISINE
               valueFrom:
                 secretKeyRef:
-                  name: favourite-cuisine
+                  name: favouritecuisine
                   key: favouritecuisine

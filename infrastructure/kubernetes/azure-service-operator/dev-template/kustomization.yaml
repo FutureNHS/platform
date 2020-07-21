@@ -4,3 +4,4 @@ resources:
   - namespace.yaml
   - operator.yaml
   - azure-service-operator-secrets-sealed.yaml
+  - namespace.yaml

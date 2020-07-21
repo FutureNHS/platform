@@ -4,5 +4,5 @@ metadata:
   name: azure-service-operator
 spec:
   source:
-    path: ./azure-service-operator/dev-$NAME
+    path: ./azure-service-operator/dev-$NAME # This path is relative to the root of the 'deployments repo'.
     targetRevision: $BRANCH
