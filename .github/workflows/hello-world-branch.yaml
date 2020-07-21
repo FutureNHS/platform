@@ -34,11 +34,12 @@ jobs:
           DIGEST="$(docker inspect --format='{{index .RepoDigests 0}}' ${{ secrets.REGISTRY_LOGIN_SERVER }}/hello-world:${TAG})"
           echo ::set-env name=TAG::$TAG
           echo ::set-env name=DIGEST::$DIGEST
+          echo ::set-env name=DEPLOYMENTS_BRANCH::pr-$GITHUB_HEAD_REF
       - name: Clone Deployments repo
         uses: actions/checkout@v2
         with:
           repository: FutureNHS/futurenhs-deployments
-          ref: pr-${{ env.GITHUB_HEAD_REF }}
+          ref: ${{ env.DEPLOYMENTS_BRANCH }}
           path: futurenhs-deployments
           ssh-key: ${{ secrets.DEPLOY_KEY }}
       - name: Update image tag and test dev overlay creation
