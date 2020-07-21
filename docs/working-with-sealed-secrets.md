@@ -12,12 +12,12 @@ az keyvault secret show --vault-name "fnhs-shared-dev" --name "sealed-secret-yam
 
 Create a yaml-encoded Kubernetes Secret: (note use of `--dry-run` - this is just a local file and should be deleted afterwards)
 ```
-$ kubectl create secret generic favouritecuisine --dry-run --from-literal=favouritecuisine=indian -o yaml > favourite-cuisine.yaml
-```
-Add required data to the secret you have just created, such as the correct namespace within the metadata object, and encrypt it:
-
-```
-$ cat favourite-cuisine.yaml | kubeseal --format yaml > favourite-cuisine-sealed.yaml
+$ kubectl create secret generic favouritecuisine \
+   --dry-run \
+   --namespace=hello-world \
+   --from-literal=favouritecuisine=spanish \
+   -o yaml
+   | kubeseal --format yaml > favouritecuisine-sealed.yaml
 ```
 `favourite-cuisine-sealed.yaml` should now be added to `<app>manifests/dev-template` directory, and the file referenced in dev-template/kustomisation.yaml
 
