@@ -64,6 +64,11 @@ const GreetingForm = ({
         </Link>
       </section>
       <section>
+        <Link href="/login">
+          <a>login</a>
+        </Link>
+      </section>
+      <section>
         <div>Client side rendering example</div>
         <div>Enter a name</div>
 
