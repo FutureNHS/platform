@@ -14,7 +14,9 @@
 #             --set image.repository="mcr.microsoft.com/k8s/azureserviceoperator:0.1.11139" \
 #             --include-crds
 #     )
-# and then removing the secrets section and sealing it as azure-service-operator-secrets-sealed.yaml
+# and then removing the secrets section (specifically the block that starts
+#     Source: azure-service-operator/templates/secret.yaml
+# ) and sealing it as azure-service-operator-secrets-sealed.yaml
 ---
 # Source: crds/apiextensions.k8s.io_v1beta1_customresourcedefinition_apimgmtapis.azure.microsoft.com.yaml
 apiVersion: apiextensions.k8s.io/v1beta1
