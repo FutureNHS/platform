@@ -41,6 +41,11 @@ jobs:
           repository: FutureNHS/futurenhs-deployments
           path: futurenhs-deployments
           ssh-key: ${{ secrets.DEPLOY_KEY }}
+      - name: Checkout the correct Deployments repo branch
+        working-directory: futurenhs-deployments
+        run: |
+          git checkout -b pr-$GITHUB_HEAD_REF
+          git pull origin pr-$GITHUB_HEAD_REF
 
       - name: Copy manifests
         run: |
@@ -69,6 +74,12 @@ jobs:
 
           git status
           
-          # TODO: we probably will need the `push || pull --rebase` dance in here again.
-          git push origin "HEAD:pr-$GITHUB_HEAD_REF" --force
-          git push origin "HEAD:pr-$GITHUB_ACTOR" --force
+          declare -i n
+          n=0
+          until [ $n -ge 5 ]
+          do
+            # TODO: also push to pr-$GITHUB_ACTOR branch. Can do this as a force-push at the end?
+            git push "HEAD:pr-$GITHUB_HEAD_REF" && break
+            n+=1
+            git pull --rebase
+          done
