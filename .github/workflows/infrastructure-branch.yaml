@@ -44,8 +44,11 @@ jobs:
       - name: Checkout the correct Deployments repo branch
         working-directory: futurenhs-deployments
         run: |
-          git checkout -b pr-$GITHUB_HEAD_REF
-          git pull origin pr-$GITHUB_HEAD_REF
+          if git fetch origin pr-$GITHUB_HEAD_REF ; then
+            git checkout origin/pr-$GITHUB_HEAD_REF -b pr-$GITHUB_HEAD_REF
+          else
+            git checkout HEAD -b pr-$GITHUB_HEAD_REF
+          fi
 
       - name: Copy manifests
         run: |
@@ -81,5 +84,5 @@ jobs:
             # TODO: also push to pr-$GITHUB_ACTOR branch. Can do this as a force-push at the end?
             git push "HEAD:pr-$GITHUB_HEAD_REF" && break
             n+=1
-            git pull --rebase
+            git pull --rebase origin pr-$GITHUB_HEAD_REF
           done
