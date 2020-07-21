@@ -46,10 +46,15 @@ jobs:
         run: |
           cd $HOME
           curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
-          cd $GITHUB_WORKSPACE/futurenhs-deployments/hello-world/dev-template
 
+          # it might actually be possible to kustomize the production version
+          # and let the other overlays pick up the change.
+          # FIXME: would be nice if the deployments repo followed the same structure
+          # as the platform repo, but only contained manifests.
+          cd $GITHUB_WORKSPACE/futurenhs-platform/hello-world/manifests/dev-template
           $HOME/kustomize edit set image $DIGEST
-          infrastructure/scripts/create-dev-overlays.py
+
+          $GITHUB_WORKSPACE/futurenhs-platform/infrastructure/scripts/create-dev-overlays.py
 
 
       - name: Copy manifests
