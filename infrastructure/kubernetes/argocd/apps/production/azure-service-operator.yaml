@@ -4,7 +4,7 @@ metadata:
   name: azure-service-operator
 spec:
   destination:
-    namespace: azure-service-operator
+    namespace: azureoperator-system 
     server: https://kubernetes.default.svc
   project: default
   source:
