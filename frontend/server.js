@@ -18,7 +18,7 @@ const devProxy = {
   // another one that hits ory/kratos refer to http-proxy-middleware docs to understand the format
 };
 
-const port = parseInt(process.env.PORT, 10) || 3000;
+const port = parseInt(process.env.PORT, 10) || 4455;
 if (process.env.NODE_ENV !== "development") {
   console.error(
     "This server should only be used by `yarn dev`, and should never be used in production."

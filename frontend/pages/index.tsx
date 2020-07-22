@@ -19,6 +19,9 @@ const Home = () => {
         <Link href="/greetings/tracy">
           <a>Click here for greetings</a>
         </Link>
+        <Link href="auth/login">
+          <a>Login</a>
+        </Link>
         <p>
           (This is a sample website about how eggs are suitable for vegans -
           polly - you’ll be building a site like this in{" "}
