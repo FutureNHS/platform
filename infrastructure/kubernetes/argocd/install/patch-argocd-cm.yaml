@@ -1,0 +1,74 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-cm
+data:
+  resource.customizations: |
+    azure.microsoft.com/PostgreSQLServer:
+      health.lua: |
+        hs = {}
+        if obj.status ~= nil then
+          hs.message = obj.status.message
+          if obj.status.failedProvisioning then
+            hs.status = "Degraded"
+            return hs
+          end
+          if obj.status.provisioned then
+            hs.status = "Healthy"
+            return hs
+          end
+        end
+
+        hs.status = "Progressing"
+        return hs
+    azure.microsoft.com/PostgreSQLDatabase:
+      health.lua: |
+        hs = {}
+        if obj.status ~= nil then
+          hs.message = obj.status.message
+          if obj.status.failedProvisioning then
+            hs.status = "Degraded"
+            return hs
+          end
+          if obj.status.provisioned then
+            hs.status = "Healthy"
+            return hs
+          end
+        end
+
+        hs.status = "Progressing"
+        return hs
+    azure.microsoft.com/PostgreSQLFirewallRule:
+      health.lua: |
+        hs = {}
+        if obj.status ~= nil then
+          hs.message = obj.status.message
+          if obj.status.failedProvisioning then
+            hs.status = "Degraded"
+            return hs
+          end
+          if obj.status.provisioned then
+            hs.status = "Healthy"
+            return hs
+          end
+        end
+
+        hs.status = "Progressing"
+        return hs
+    azure.microsoft.com/PostgreSQLUser:
+      health.lua: |
+        hs = {}
+        if obj.status ~= nil then
+          hs.message = obj.status.message
+          if obj.status.failedProvisioning then
+            hs.status = "Degraded"
+            return hs
+          end
+          if obj.status.provisioned then
+            hs.status = "Healthy"
+            return hs
+          end
+        end
+
+        hs.status = "Progressing"
+        return hs
