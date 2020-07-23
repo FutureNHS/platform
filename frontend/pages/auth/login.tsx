@@ -13,14 +13,14 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
   return {
     props: {
-      loggedIn: !!request,
+      inLoginFlow: !!request,
     },
   };
 };
-const Login = ({ loggedIn }: { loggedIn: boolean }) => {
+const Login = ({ inLoginFlow }: { inLoginFlow: boolean }) => {
   return (
     <>
-      {loggedIn ? (
+      {inLoginFlow ? (
         <form action="" method="get">
           <div>
             <label>Username: </label>
