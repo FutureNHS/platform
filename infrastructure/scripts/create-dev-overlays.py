@@ -11,6 +11,7 @@ services = [
     'infrastructure/kubernetes/argocd/apps',
     'infrastructure/kubernetes/cert-manager',
     'infrastructure/kubernetes/ingress',
+    'infrastructure/kubernetes/azure-service-operator',
 ]
 
 def create_overlays(name, variables):
