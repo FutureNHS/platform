@@ -8,7 +8,7 @@
     "INSTRUMENTATION_KEY": "14fe00c5-310f-4e84-aa83-5db7bd5b2797"
   },
   "matt": {
-    "BRANCH": "azure-service-operator",
+    "BRANCH": "pr-azure-service-operator",
     "INSTRUMENTATION_KEY": "77d50155-9ccf-42b4-85f8-e8e236ad962d"
   },
   "potts": {
