@@ -12,11 +12,11 @@ spec:
     repoURL: https://github.com/FutureNHS/futurenhs-deployments.git
     targetRevision: master
   ignoreDifferences:
-    - group: admissionregistration.k8s.io
+    - group: apiextensions.k8s.io
       version: v1beta1
-      kind: ValidatingWebhookConfiguration
+      kind: CustomResourceDefinition
       jsonPointers:
-        - /webhooks/0/namespaceSelector/matchExpressions
+        - /status
   syncPolicy:
     automated:
       prune: true
