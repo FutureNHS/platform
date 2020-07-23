@@ -4,5 +4,6 @@ bases:
   - ../base
 patchesStrategicMerge:
   - deployment.yaml
+  - postgresql.yaml
 resources:
   - favourite-cuisine-sealed.yaml
