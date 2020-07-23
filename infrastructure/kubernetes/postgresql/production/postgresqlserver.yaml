@@ -1,0 +1,19 @@
+apiVersion: azure.microsoft.com/v1alpha1
+kind: PostgreSQLServer
+metadata:
+  name: postgresqlserver
+  namespace: postgresql
+spec:
+  location: westeurope
+  resourceGroup: platform-production
+  serverVersion: "10"
+  sslEnforcement: Enabled
+  sku:
+    name: B_Gen5_2
+    tier: Basic
+    family: Gen5
+    size: "51200"
+    capacity: 2
+  # Use the field below to optionally specify a different keyvault
+  # to store the server admin credential secrets in
+  #keyVaultToStoreSecrets: asoSecretKeyVault

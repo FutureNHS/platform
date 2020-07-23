@@ -6,3 +6,4 @@ resources:
   - hello-world.yaml
   - frontend.yaml
   - azure-service-operator.yaml
+  - postgresql.yaml

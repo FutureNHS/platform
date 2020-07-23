@@ -1,0 +1,16 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: postgresql
+spec:
+  destination:
+    namespace: postgresql
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    path: ./postgresql/production
+    repoURL: https://github.com/FutureNHS/futurenhs-deployments.git
+    targetRevision: master
+  syncPolicy:
+    automated:
+      prune: true
