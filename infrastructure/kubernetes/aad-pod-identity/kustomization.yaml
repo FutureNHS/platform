@@ -1,0 +1,27 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - deployment-rbac.yaml
+  - mic-exception.yaml
+patchesJSON6902:
+  - path: patch-featureflags.yaml
+    target:
+      group: apps
+      version: v1
+      kind: DaemonSet
+      name: nmi
+      namespace: default
+  - path: patch-namespaced.yaml
+    target:
+      group: apps
+      version: v1
+      kind: DaemonSet
+      name: nmi
+      namespace: default
+  - path: patch-namespaced.yaml
+    target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: mic
+      namespace: default

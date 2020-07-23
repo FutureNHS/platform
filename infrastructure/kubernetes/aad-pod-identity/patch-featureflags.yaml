@@ -1,0 +1,7 @@
+# See: https://github.com/Azure/aad-pod-identity/blob/master/docs/readmes/README.featureflags.md
+- op: add
+  path: /spec/template/spec/containers/0/args/-
+  value: --enableScaleFeatures=true
+- op: add
+  path: /spec/template/spec/containers/0/args/-
+  value: --metadata-header-required=true

@@ -1,0 +1,8 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: aad-pod-identity
+spec:
+  source:
+    path: ./aad-pod-identity/dev-$NAME
+    targetRevision: $BRANCH

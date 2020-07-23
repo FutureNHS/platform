@@ -79,6 +79,16 @@ resource "azurerm_kubernetes_cluster" "cluster" {
   }
 }
 
+# Give the cluster managed identity permissions to read and assign
+# managed identities. This is required for AAD Pod Identity.
+# See: https://github.com/Azure/aad-pod-identity/blob/master/docs/readmes/README.role-assignment.md
+resource "azurerm_role_assignment" "managed_identity_operator_cluster" {
+  scope                            = azurerm_resource_group.platform.id
+  role_definition_name             = "Managed Identity Operator"
+  principal_id                     = azurerm_kubernetes_cluster.cluster.kubelet_identity.0.object_id
+  skip_service_principal_aad_check = true
+}
+
 resource "azurerm_log_analytics_workspace" "cluster" {
   name                = "cluster-${var.environment}"
   location            = var.location
