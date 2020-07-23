@@ -3,4 +3,4 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - operator.yaml
-  # - azure-service-operator-secrets-sealed.yaml
+  - azure-service-operator-sealed-secret.yaml
