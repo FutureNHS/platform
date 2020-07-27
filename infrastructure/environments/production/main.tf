@@ -19,10 +19,9 @@ terraform {
 }
 
 module platform {
-  source                  = "../../modules/platform"
-  environment             = "production"
-  location                = var.location
-  ip_whitelist_postgresql = var.ip_whitelist_postgresql
+  source      = "../../modules/platform"
+  environment = "production"
+  location    = var.location
 }
 
 module analytics {

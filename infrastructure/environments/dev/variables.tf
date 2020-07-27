@@ -13,8 +13,3 @@ variable "location" {
   description = "Azure region"
   default     = "westeurope"
 }
-
-variable "ip_whitelist_postgresql" {
-  description = "List of allowed IPs for use with PostgreSQL for local development. Check infrastructure/README.md for instructions on how to fill this in."
-  type        = map(string)
-}

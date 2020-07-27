@@ -17,8 +17,7 @@ terraform {
 }
 
 module platform {
-  source                  = "../../modules/platform"
-  environment             = "dev-${var.USERNAME}"
-  location                = var.location
-  ip_whitelist_postgresql = var.ip_whitelist_postgresql
+  source      = "../../modules/platform"
+  environment = "dev-${var.USERNAME}"
+  location    = var.location
 }
