@@ -21,7 +21,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const csrfToken = formattedDetails.methods.password.config.fields.find(
     (element) => element.name === "csrf_token"
   ).value;
-  console.log("*********Config", JSON.stringify(formattedDetails, null, 4));
+
   return {
     props: {
       request,
