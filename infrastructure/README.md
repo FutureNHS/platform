@@ -81,13 +81,10 @@ as opposed to sharing a staging environment.
    cd infrastructure/environments/dev
    ```
 
-1. If you intend to use Synapse or PostgreSQL locally, add your IP to the list in terraform.tfvars
+1. If you intend to use Synapse locally, add your IP to the list in terraform.tfvars
 
    ```hcl-terraform
    ip_whitelist_insights = {
-     john = "123.45.678.90",
-   }
-   ip_whitelist_postgresql = {
      john = "123.45.678.90",
    }
    ```
