@@ -1,6 +1,6 @@
 import React from "react";
 import { GetServerSideProps } from "next";
-import "isomorphic-fetch";
+import axios from "axios";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const request = context.query.request;
@@ -12,11 +12,10 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     context.res.end();
   }
 
-  const res = await fetch(
+  const res = await axios.get(
     `http://127.0.0.1:4434/self-service/browser/flows/requests/login?request=${request}`
   );
-  const formattedDetails = await res.json();
-  console.log("*********Details", formattedDetails);
+  const formattedDetails = await res.data;
   //@ts-ignore
   const csrfToken = formattedDetails.methods.password.config.fields.find(
     (element) => element.name === "csrf_token"
