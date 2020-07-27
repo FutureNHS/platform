@@ -1,0 +1,7 @@
+apiVersion: azure.microsoft.com/v1alpha1
+kind: PostgreSQLServer
+metadata:
+  name: postgresqlserver-sample
+  namespace: hello-world
+spec:
+  resourceGroup: platform-production
