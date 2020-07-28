@@ -15,10 +15,10 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const res = await axios.get(
     `http://127.0.0.1:4434/self-service/browser/flows/requests/login?request=${request}`
   );
-  const formattedDetails = await res.data;
-  //@ts-ignore
+  const formattedDetails = res.data;
+
   const csrfToken = formattedDetails.methods.password.config.fields.find(
-    (element) => element.name === "csrf_token"
+    (element: any) => element.name === "csrf_token"
   ).value;
 
   return {

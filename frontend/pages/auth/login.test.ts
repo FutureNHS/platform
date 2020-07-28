@@ -33,18 +33,15 @@ describe("getServerSideProps", () => {
 
   const requestValue = "test123";
 
-  const res: Pick<ServerResponse, "writeHead" | "end"> = {
-    writeHead: jest.fn(),
-    end: jest.fn(),
-  };
-
-  //   const context: Pick<GetServerSidePropsContext, "query"> &
-  //     Pick<ServerResponse | "writeHead" | "end"> = {
-  //     query: {
-  //       request: requestValue,
-  //     },
-  //     res,
-  //   };
+  const context: GetServerSidePropsContext = ({
+    query: {
+      request: requestValue,
+    },
+    res: ({
+      writeHead: jest.fn(),
+      end: jest.fn(),
+    } as unknown) as ServerResponse,
+  } as unknown) as GetServerSidePropsContext;
 
   test("redirects when there is no request id", async () => {
     getServerSideProps({ ...context, query: {} });
