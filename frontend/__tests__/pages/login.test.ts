@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from "axios";
-import { getServerSideProps } from "./login";
 import { GetServerSidePropsContext } from "next";
 import { ServerResponse } from "http";
+import { getServerSideProps } from "../../pages/auth/login";
 
 jest.mock("axios");
 
