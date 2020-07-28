@@ -13,3 +13,11 @@ metadata:
   namespace: hello-world
 spec:
   resourceGroup: platform-dev
+---
+apiVersion: azure.microsoft.com/v1alpha1
+kind: PostgreSQLUser
+metadata:
+  name: psqluser-hello-world
+  namespace: hello-world
+spec:
+  resourceGroup: platform-dev
