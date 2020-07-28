@@ -1,7 +1,7 @@
 apiVersion: azure.microsoft.com/v1alpha1
 kind: PostgreSQLServer
 metadata:
-  name: postgresqlserver-sample
+  name: postgresqlserver-hello-world
   namespace: hello-world
 spec:
   location: westeurope
@@ -20,18 +20,18 @@ spec:
 apiVersion: azure.microsoft.com/v1alpha1
 kind: PostgreSQLDatabase
 metadata:
-  name: postgresqldatabase-sample
+  name: postgresqldatabase-hello-world
   namespace: hello-world
 spec:
-  server: postgresqlserver-sample
+  server: postgresqlserver-hello-world
 ---
 apiVersion: azure.microsoft.com/v1alpha1
 kind: PostgreSQLFirewallRule
 metadata:
-  name: postgresqlfirewallrule-sample
+  name: postgresqlfirewallrule-hello-world
   namespace: hello-world
 spec:
-  server: postgresqlserver-sample
+  server: postgresqlserver-hello-world
   # FIXME: make this not open to the entire world
   startIpAddress: 0.0.0.0
   endIpAddress: 0.0.0.0
@@ -40,11 +40,11 @@ spec:
 apiVersion: azure.microsoft.com/v1alpha1
 kind: PostgreSQLUser
 metadata:
-  name: psqluser-sample
+  name: psqluser-hello-world
   namespace: hello-world
 spec:
-  server: postgresqlserver-sample
-  dbName: postgresqldatabase-sample
+  server: postgresqlserver-hello-world
+  dbName: postgresqldatabase-hello-world
   # The Azure Database for PostgreSQL server is created with the 3 default roles defined.
   # azure_pg_admin
   # azure_superuser
@@ -52,10 +52,10 @@ spec:
   roles:
     - "azure_pg_admin"
     # Specify a specific username for the user
-  username: psqluser-sample
+  username: psqluser-hello-world
   # Specify adminSecret and adminSecretKeyVault if you want to
   # read the PSQL server admin creds from a specific keyvault secret
-  # adminSecret: postgresqlserver-sample
+  # adminSecret: postgresqlserver-hello-world
   # adminSecretKeyVault: asokeyvault
   # Use the field below to optionally specify a different keyvault
   # to store the secrets in
