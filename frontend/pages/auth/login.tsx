@@ -28,7 +28,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     },
   };
 };
-const Login = ({
+
+export const Login = ({
   request,
   csrfToken,
 }: {
@@ -66,5 +67,3 @@ const Login = ({
     </>
   );
 };
-
-export default Login;
