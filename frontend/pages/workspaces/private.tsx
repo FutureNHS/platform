@@ -27,7 +27,7 @@ const PrivatePage = ({
   return (
     <>
       <div>Private Page</div>
-      <div>{ory_kratos_session}</div>
+      <div>This is my cookie {ory_kratos_session}</div>
     </>
   );
 };

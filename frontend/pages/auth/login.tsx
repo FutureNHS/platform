@@ -7,8 +7,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
   if (!request && context.res) {
     context.res.writeHead(302, {
-      Location:
-        "/.ory/kratos/public/self-service/browser/flows/login?return_to=/greetings/tracy",
+      Location: "/.ory/kratos/public/self-service/browser/flows/login",
     });
     context.res.end();
   }
