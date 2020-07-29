@@ -4,7 +4,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "NODE_ENV=development NODE_OPTIONS='--require ./tracing.js' node server.js",
+    "dev": "NODE_ENV=development node server.js",
+    "dev:trace": "NODE_ENV=development NODE_OPTIONS='--require ./tracing.js' node server.js",
     "build": "next build",
     "start": "NODE_OPTIONS='--require ./tracing.js' next start",
     "test": "jest",
@@ -20,6 +21,7 @@
     "axios": "^0.19.2",
     "isomorphic-fetch": "^2.2.1",
     "next": "9.4.1",
+    "next-cookies": "^2.0.3",
     "node-fetch": "^2.6.0",
     "react": "16.13.1",
     "react-dom": "16.13.1"
