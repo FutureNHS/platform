@@ -4,7 +4,6 @@ import { requireAuthentication } from "../../utils/pages/auth";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   await requireAuthentication(context);
-
   return {
     props: {},
   };
@@ -13,8 +12,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 const PrivatePage = () => {
   return (
     <>
-      <div>Private Page</div>
-      <div>This is my cookie</div>
+      <div>Private Pharmacy Page</div>
+      <div>This is a different private page</div>
     </>
   );
 };

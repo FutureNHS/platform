@@ -29,6 +29,11 @@ const Home = () => {
             <a>Private Workspace</a>
           </Link>
         </div>
+        <div>
+          <Link href="workspaces/pharmacy">
+            <a>Pharmacy Workspace</a>
+          </Link>
+        </div>
         <p>
           (This is a sample website about how eggs are suitable for vegans -
           polly - you’ll be building a site like this in{" "}
