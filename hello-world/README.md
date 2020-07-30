@@ -21,6 +21,10 @@ Rust is used because it helps us write safe, reliable and fast services. It also
 1. Run docker image `make docker-run`
 1. Fork the repo, and submit a PR if you want to
 
+## Linting
+
+[rustfmt](https://github.com/rust-lang/rustfmt) is used for formatting our rust code.
+
 ## Benchmarks
 
 1. Development build
