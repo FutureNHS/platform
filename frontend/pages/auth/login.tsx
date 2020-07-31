@@ -1,9 +1,10 @@
 import React from "react";
 import { GetServerSideProps } from "next";
-import axios from "axios";
+import { generateCsrfToken } from "../../lib/login";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const request = context.query.request;
+  console.log(context.req.headers.referer);
 
   if (!request && context.res) {
     context.res.writeHead(302, {
@@ -12,14 +13,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     context.res.end();
   }
 
-  const res = await axios.get(
-    `http://kratos-admin.kratos/self-service/browser/flows/requests/login?request=${request}`
-  );
-  const formattedDetails = res.data;
-
-  const csrfToken = formattedDetails.methods.password.config.fields.find(
-    (element: any) => element.name === "csrf_token"
-  ).value;
+  const csrfToken = await generateCsrfToken(context);
 
   return {
     props: {
@@ -38,6 +32,7 @@ const Login = ({
 }) => {
   return (
     <>
+      {!csrfToken && <div>Something has gone wrong, try again </div>}
       {request ? (
         <form
           action={`/.ory/kratos/public/self-service/browser/flows/login/strategies/password?request=${request}`}
