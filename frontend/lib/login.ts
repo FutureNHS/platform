@@ -1,7 +1,27 @@
 import axios from "axios";
 import { GetServerSidePropsContext } from "next";
 
-export const generateCsrfToken = async (context: GetServerSidePropsContext) => {
+export type FormConfig = {
+  action: string;
+  method: "GET" | "POST";
+  fields: Array<{
+    name: string;
+    type: string;
+    required: boolean;
+    value?: string;
+  }>;
+
+  messages?: Array<{
+    id: number;
+    text: string;
+    type: string;
+    context: {};
+  }>;
+};
+
+export const generateFields = async (
+  context: GetServerSidePropsContext
+): Promise<FormConfig> => {
   const request = context.query.request;
   try {
     const res = await axios.get(
@@ -9,13 +29,11 @@ export const generateCsrfToken = async (context: GetServerSidePropsContext) => {
     );
     const formattedDetails = res.data;
 
-    const csrfToken = formattedDetails.methods.password.config.fields.find(
-      (element: any) => element.name === "csrf_token"
-    ).value;
+    const config = formattedDetails.methods.password.config;
 
-    return csrfToken;
+    return config;
   } catch (error) {
     console.error(error.response.statusText);
-    return null;
+    throw error;
   }
 };

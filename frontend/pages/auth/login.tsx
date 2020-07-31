@@ -1,6 +1,6 @@
 import React from "react";
 import { GetServerSideProps } from "next";
-import { generateCsrfToken } from "../../lib/login";
+import { generateFields, FormConfig } from "../../lib/login";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const request = context.query.request;
@@ -13,45 +13,53 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     context.res.end();
   }
 
-  const csrfToken = await generateCsrfToken(context);
-
+  const formFields = await generateFields(context);
+  console.log(JSON.stringify(formFields, null, 4));
   return {
     props: {
       request,
-      csrfToken,
+      formFields,
     },
   };
 };
 
 const Login = ({
   request,
-  csrfToken,
+  formFields,
 }: {
   request: string;
-  csrfToken: string;
+  formFields: FormConfig;
 }) => {
   return (
     <>
-      {!csrfToken && <div>Something has gone wrong, try again </div>}
+      {formFields.messages?.map(({ text }) => {
+        return (
+          <>
+            <div>{text}</div>
+          </>
+        );
+      })}
       {request ? (
         <form
           action={`/.ory/kratos/public/self-service/browser/flows/login/strategies/password?request=${request}`}
           method="POST"
         >
-          <input
-            name="csrf_token"
-            type="hidden"
-            required={true}
-            value={csrfToken}
-          />
-          <div>
-            <label>Username: </label>
-            <input type="text" name="identifier" id="identifier" required />
-          </div>
-          <div>
-            <label>Password: </label>
-            <input type="password" name="password" id="password" required />
-          </div>
+          {formFields.fields.map(({ name, type, required, value }) => {
+            return (
+              <>
+                {/* do proper label */}
+                <div>
+                  {type !== "hidden" ? <label>{name}</label> : null}
+                  <input
+                    name={name}
+                    type={type}
+                    required={required}
+                    defaultValue={value}
+                  />
+                </div>
+              </>
+            );
+          })}
           <div>
             <input type="submit" value="Submit!" />
           </div>
