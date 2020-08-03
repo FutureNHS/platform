@@ -69,9 +69,6 @@ spec:
           args: [
               "serve",
               "all",
-              # FIXME remove the --dev flag somehow. Might be possible to make the localhost dev server be secure + self-signed?
-              # https://www.ory.sh/kratos/docs/debug/csrf/#ory-kratos-running-over-http-without-dev-mode-enabled
-              "--dev",
               "--config",
               "/etc/config/config.yaml",
             ]

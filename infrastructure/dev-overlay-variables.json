@@ -5,7 +5,7 @@
       "Should be of the form 'pr-$LOCALBRANCH'"],
     "KRATOS_WEB_ROOT": [
       "Set this to 'https://fnhs-dev-$YOURNAME.westeurope.cloudapp.azure.com' for testing your cluster",
-      "or 'http://localhost:4455' for local testing.",
+      "or 'https://localhost:4433' for local testing.",
       "This is a work-around until https://github.com/ory/kratos/pull/617 gets finished and released."
     ],
     "INSTRUMENTATION_KEY": [
