@@ -16,6 +16,10 @@ selfservice:
       enabled: true
 
   flows:
+    recovery:
+      enabled: true
+      ui_url: $KRATOS_WEB_ROOT/recovery
+
     logout:
       after:
         default_browser_return_url: $KRATOS_WEB_ROOT/auth/login

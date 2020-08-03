@@ -16,6 +16,10 @@ selfservice:
       enabled: true
 
   flows:
+    recovery:
+      enabled: true
+      ui_url: https://fnhs.westeurope.cloudapp.azure.com/recovery
+
     logout:
       after:
         default_browser_return_url: https://fnhs.westeurope.cloudapp.azure.com/auth/login
