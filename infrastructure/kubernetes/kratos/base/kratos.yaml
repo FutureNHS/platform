@@ -66,12 +66,7 @@ spec:
           image: "oryd/kratos:v0.4.6"
           imagePullPolicy: IfNotPresent
           command: ["kratos"]
-          args: [
-              "serve",
-              "all",
-              "--config",
-              "/etc/config/config.yaml",
-            ]
+          args: ["serve", "all", "--config", "/etc/config/config.yaml"]
           volumeMounts:
             - name: kratos-config-volume
               mountPath: /etc/config
