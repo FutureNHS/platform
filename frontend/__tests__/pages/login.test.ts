@@ -8,7 +8,24 @@ jest.mock("axios");
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 describe("getServerSideProps", () => {
-  const token = "hello123";
+  const formFields = {
+    fields: [
+      {
+        name: "identifier",
+        type: "text",
+        required: true,
+        value: "tracy@gmail.com",
+      },
+      { name: "password", type: "password", required: true },
+      {
+        name: "csrf_token",
+        type: "hidden",
+        required: true,
+        value:
+          "OktXW1Xvbj2wUI+o0iB0OxJOEFlLQ5hQ4rL2c/za9TibZlb7CnBU6DfiMQ//t4llq24KFhnq3Kiagmz2wTinwQ==",
+      },
+    ],
+  };
   const testJson = {
     expires_at: "2020-07-27T14:40:28.4155578Z",
     forced: false,
@@ -17,7 +34,7 @@ describe("getServerSideProps", () => {
     messages: null,
     methods: {
       password: {
-        config: { fields: [{ name: "csrf_token", value: token }] },
+        config: formFields,
         method: "password",
       },
     },
@@ -58,7 +75,21 @@ describe("getServerSideProps", () => {
     const props = await getServerSideProps(context);
 
     expect(props).toEqual({
-      props: { request: requestValue, csrfToken: token },
+      props: {
+        request: requestValue,
+        formFields: formFields,
+      },
+    });
+  });
+  test("throws error", async () => {
+    mockedAxios.get.mockRejectedValue({
+      response: { statusText: "something went wrong" },
+    });
+
+    const result = await getServerSideProps(context).catch((e) => e);
+
+    expect(result).toEqual({
+      response: { statusText: "something went wrong" },
     });
   });
 });

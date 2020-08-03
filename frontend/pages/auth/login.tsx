@@ -4,7 +4,6 @@ import { generateFields, FormConfig } from "../../lib/login";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const request = context.query.request;
-  console.log(context.req.headers.referer);
 
   if (!request && context.res) {
     context.res.writeHead(302, {
@@ -14,7 +13,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   }
 
   const formFields = await generateFields(context);
-  console.log(JSON.stringify(formFields, null, 4));
+
   return {
     props: {
       request,
@@ -40,17 +39,16 @@ const Login = ({
         );
       })}
       {request ? (
-        <form
-          action={`/.ory/kratos/public/self-service/browser/flows/login/strategies/password?request=${request}`}
-          method="POST"
-        >
+        <form action={formFields.action} method={formFields.method}>
           {formFields.fields.map(({ name, type, required, value }) => {
             return (
               <>
-                {/* do proper label */}
                 <div>
-                  {type !== "hidden" ? <label>{name}</label> : null}
+                  {type !== "hidden" ? (
+                    <label htmlFor={name}>{name}</label>
+                  ) : null}
                   <input
+                    id={name}
                     name={name}
                     type={type}
                     required={required}

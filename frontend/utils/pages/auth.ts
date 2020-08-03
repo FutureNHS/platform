@@ -1,14 +1,27 @@
 import cookies from "next-cookies";
 import { GetServerSidePropsContext } from "next";
+import axios from "axios";
 
 export const requireAuthentication = async (
   context: GetServerSidePropsContext
 ) => {
   const { ory_kratos_session } = cookies(context);
-  if (!ory_kratos_session && context.res) {
-    context.res.writeHead(302, {
-      Location: `/.ory/kratos/public/self-service/browser/flows/login?return_to=${context.req.url}`,
+  try {
+    const sessionResponse = await axios.request({
+      url: "http://127.0.0.1:4433/sessions/whoami",
+      method: "get",
+      headers: {
+        Cookie: `ory_kratos_session=${ory_kratos_session}`,
+      },
     });
-    context.res.end();
+
+    return sessionResponse;
+  } catch (error) {
+    if (context.res) {
+      context.res.writeHead(302, {
+        Location: `/.ory/kratos/public/self-service/browser/flows/login?return_to=${context.req.url}`,
+      });
+      context.res.end();
+    }
   }
 };
