@@ -25,7 +25,7 @@ export const generateFields = async (
   const request = context.query.request;
   try {
     const res = await axios.get(
-      `http://127.0.0.1:4434/self-service/browser/flows/requests/login?request=${request}`
+      `http://kratos-admin.kratos/self-service/browser/flows/requests/login?request=${request}`
     );
     const formattedDetails = res.data;
 

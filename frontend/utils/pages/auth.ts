@@ -15,7 +15,7 @@ export const requireAuthentication = async (
   }
   try {
     const sessionResponse = await axios.request({
-      url: "http://127.0.0.1:4433/sessions/whoami",
+      url: "http://kratos-public.kratos/sessions/whoami",
       method: "get",
       headers: {
         Cookie: `ory_kratos_session=${ory_kratos_session}`,
