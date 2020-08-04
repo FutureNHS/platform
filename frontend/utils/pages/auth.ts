@@ -6,6 +6,13 @@ export const requireAuthentication = async (
   context: GetServerSidePropsContext
 ) => {
   const { ory_kratos_session } = cookies(context);
+
+  if (context.res && !ory_kratos_session) {
+    context.res.writeHead(302, {
+      Location: `/.ory/kratos/public/self-service/browser/flows/login?return_to=${context.req.url}`,
+    });
+    context.res.end();
+  }
   try {
     const sessionResponse = await axios.request({
       url: "http://127.0.0.1:4433/sessions/whoami",
@@ -17,11 +24,7 @@ export const requireAuthentication = async (
 
     return sessionResponse;
   } catch (error) {
-    if (context.res) {
-      context.res.writeHead(302, {
-        Location: `/.ory/kratos/public/self-service/browser/flows/login?return_to=${context.req.url}`,
-      });
-      context.res.end();
-    }
+    console.error(error);
+    throw error;
   }
 };
