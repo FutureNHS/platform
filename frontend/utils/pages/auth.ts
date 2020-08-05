@@ -1,10 +1,14 @@
 import cookies from "next-cookies";
 import { GetServerSidePropsContext } from "next";
-import axios from "axios";
+import { PublicApi, Session } from "@oryd/kratos-client";
+import http from "http";
 
 export const requireAuthentication = async (
   context: GetServerSidePropsContext
-) => {
+): Promise<{
+  response: http.IncomingMessage;
+  body: Session;
+}> => {
   const { ory_kratos_session } = cookies(context);
 
   if (context.res && !ory_kratos_session) {
@@ -14,15 +18,11 @@ export const requireAuthentication = async (
     context.res.end();
   }
   try {
-    const sessionResponse = await axios.request({
-      url: "http://kratos-public.kratos/sessions/whoami",
-      method: "get",
-      headers: {
-        Cookie: `ory_kratos_session=${ory_kratos_session}`,
-      },
+    const api = new PublicApi("http://kratos-public.kratos");
+    const response = await api.whoami({
+      headers: { Cookie: `ory_kratos_session=${ory_kratos_session}` },
     });
-
-    return sessionResponse;
+    return response;
   } catch (error) {
     console.error(error);
     throw error;

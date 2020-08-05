@@ -11,8 +11,11 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     });
     context.res.end();
   }
+  if (!request || Array.isArray(request)) {
+    return { props: {} };
+  }
 
-  const formFields = await generateFields(context);
+  const formFields = await generateFields(request);
 
   return {
     props: {
