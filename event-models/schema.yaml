@@ -1,0 +1,18 @@
+openapi: "3.0.3"
+info:
+  version: "1.0.0"
+  title: "FutureNHS Events"
+paths: {}
+components:
+  schemas:
+    LoginAttempt:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+        age:
+          type: integer
+          format: int32
+          minimum: 0

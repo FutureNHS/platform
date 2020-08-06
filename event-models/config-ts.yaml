@@ -1,0 +1,5 @@
+legacyDiscriminatorBehavior: false
+npmName: fnhs-event-models
+npmVersion: 0.0.1
+nullSafeAdditionalProps: true
+supportsES6: true
