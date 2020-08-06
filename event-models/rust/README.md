@@ -28,7 +28,10 @@ Class | Method | HTTP request | Description
 
 ## Documentation For Models
 
- - [LoginAttempt](docs/LoginAttempt.md)
+ - [Event](docs/Event.md)
+ - [LoginFailed](docs/LoginFailed.md)
+ - [LoginFailedData](docs/LoginFailedData.md)
+ - [LoginSuccess](docs/LoginSuccess.md)
 
 
 To get access to the crate's generated documentation, use:

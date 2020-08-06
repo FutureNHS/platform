@@ -12,18 +12,15 @@
 
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct LoginAttempt {
-    #[serde(rename = "name")]
-    pub name: String,
-    #[serde(rename = "age", skip_serializing_if = "Option::is_none")]
-    pub age: Option<i32>,
+pub struct LoginFailedData {
+    #[serde(rename = "messages")]
+    pub messages: Vec<String>,
 }
 
-impl LoginAttempt {
-    pub fn new(name: String) -> LoginAttempt {
-        LoginAttempt {
-            name,
-            age: None,
+impl LoginFailedData {
+    pub fn new(messages: Vec<String>) -> LoginFailedData {
+        LoginFailedData {
+            messages,
         }
     }
 }

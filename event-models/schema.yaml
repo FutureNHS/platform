@@ -5,14 +5,51 @@ info:
 paths: {}
 components:
   schemas:
-    LoginAttempt:
+    Event:
+      oneOf:
+        - $ref: "#/components/schemas/LoginFailed"
+        - $ref: "#/components/schemas/LoginSuccess"
+      discriminator:
+        propertyName: eventType
+        mapping:
+          LoginFailed: "#/components/schemas/LoginFailed"
+          LoginSuccess: "#/components/schemas/LoginSuccess"
+    LoginFailed:
       type: object
       required:
-        - name
+        - subject
+        - eventType
+        - data
+        - dataVersion
       properties:
-        name:
+        subject:
           type: string
-        age:
-          type: integer
-          format: int32
-          minimum: 0
+        eventType:
+          type: string
+        data:
+          type: object
+          required:
+            - messages
+          properties:
+            messages:
+              type: array
+              items:
+                type: string
+        dataVersion:
+          type: string
+    LoginSuccess:
+      type: object
+      required:
+        - subject
+        - eventType
+        - data
+        - dataVersion
+      properties:
+        subject:
+          type: string
+        eventType:
+          type: string
+        data:
+          type: object
+        dataVersion:
+          type: string

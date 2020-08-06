@@ -1,26 +1,15 @@
 {
-    "name": "fnhs-event-models",
-    "version": "0.0.1",
-    "description": "NodeJS client for fnhs-event-models",
-    "repository": "GIT_USER_ID/GIT_REPO_ID",
-    "main": "dist/api.js",
-    "types": "dist/api.d.ts",
-    "scripts": {
-        "clean": "rm -Rf node_modules/ *.js",
-        "build": "tsc",
-        "test": "npm run build && node dist/client.js"
-    },
-    "author": "OpenAPI-Generator Contributors",
-    "license": "Unlicense",
-    "dependencies": {
-        "bluebird": "^3.5.0",
-        "request": "^2.81.0",
-        "@types/bluebird": "*",
-        "@types/request": "*",
-        "rewire": "^3.0.2"
-    },
-    "devDependencies": {
-        "typescript": "^2.4.2",
-        "@types/node": "8.10.34"
-    }
+  "name": "fnhs-event-models",
+  "version": "0.0.1",
+  "description": "OpenAPI client for fnhs-event-models",
+  "author": "OpenAPI-Generator",
+  "main": "./dist/index.js",
+  "typings": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build"
+  },
+  "devDependencies": {
+    "typescript": "^2.4"
+  }
 }
