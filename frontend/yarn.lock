@@ -1495,10 +1495,10 @@
     "@opentelemetry/core" "^0.9.0"
     "@opentelemetry/resources" "^0.9.0"
 
-"@oryd/kratos-client@^0.0.0-next.25312ebaee96":
-  version "0.0.0-next.25312ebaee96"
-  resolved "https://registry.yarnpkg.com/@oryd/kratos-client/-/kratos-client-0.0.0-next.25312ebaee96.tgz#26e5ca8fe583b24608b7bc4ec892b56ffd2ca50c"
-  integrity sha512-uVcBuaPXKSbli8PrlXBWB9pHZs1zdLQiF2726DOHOIpE5KkE6V/WTRrOAKarxrVqkUEVvkkSZwDAIk/3LIzBzw==
+"@oryd/kratos-client@^0.4.6-alpha.1":
+  version "0.4.6-alpha.1"
+  resolved "https://registry.yarnpkg.com/@oryd/kratos-client/-/kratos-client-0.4.6-alpha.1.tgz#a60c265746b5bd783384873eb6a1ad993fbbdd1c"
+  integrity sha512-Ec77OQfv1JJatAX/YE61pzXvZO1qVpaBIYOEtYv6F8Ah6dWgGwfBXwHA0LKYMasWz0VKH31BpFPk7EClB/85gQ==
   dependencies:
     "@types/bluebird" "*"
     "@types/request" "*"

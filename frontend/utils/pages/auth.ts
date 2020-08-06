@@ -1,7 +1,8 @@
 import cookies from "next-cookies";
 import { GetServerSidePropsContext } from "next";
-import { PublicApi, Session } from "@oryd/kratos-client";
+import { Session } from "@oryd/kratos-client";
 import http from "http";
+import { publicApi } from "../kratos";
 
 export const requireAuthentication = async (
   context: GetServerSidePropsContext
@@ -18,8 +19,7 @@ export const requireAuthentication = async (
     context.res.end();
   }
   try {
-    const api = new PublicApi("http://kratos-public.kratos");
-    const response = await api.whoami({
+    const response = await publicApi.whoami({
       headers: { Cookie: `ory_kratos_session=${ory_kratos_session}` },
     });
     return response;

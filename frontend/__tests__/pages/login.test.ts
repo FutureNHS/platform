@@ -1,51 +1,40 @@
-import axios, { AxiosResponse } from "axios";
 import { GetServerSidePropsContext } from "next";
 import { ServerResponse } from "http";
 import { getServerSideProps } from "../../pages/auth/login";
+import { publicApi } from "../../utils/kratos";
+import { LoginRequest } from "@oryd/kratos-client";
 
-jest.mock("axios");
+jest.mock("../../utils/kratos");
 
-const mockedAxios = axios as jest.Mocked<typeof axios>;
+const mockedPublicApi = publicApi as jest.Mocked<typeof publicApi>;
 
 describe("getServerSideProps", () => {
-  const formFields = {
-    fields: [
-      {
-        name: "identifier",
-        type: "text",
-        required: true,
-        value: "tracy@gmail.com",
-      },
-      { name: "password", type: "password", required: true },
-      {
-        name: "csrf_token",
-        type: "hidden",
-        required: true,
-        value:
-          "OktXW1Xvbj2wUI+o0iB0OxJOEFlLQ5hQ4rL2c/za9TibZlb7CnBU6DfiMQ//t4llq24KFhnq3Kiagmz2wTinwQ==",
-      },
-    ],
-  };
-  const testJson = {
-    expires_at: "2020-07-27T14:40:28.4155578Z",
-    forced: false,
-    id: "4a62445d-e238-46dd-95ca-611a2df94960",
-    issued_at: "2020-07-27T14:30:28.4155723Z",
-    messages: null,
+  const formFields = [
+    { name: "identifier", type: "text" },
+    { name: "password", type: "password" },
+    {
+      name: "csrf_token",
+      type: "hidden",
+    },
+  ];
+
+  const body: LoginRequest = {
+    active: "password",
+    expiresAt: new Date(),
+    id: "598a45d2-e107-41ba-885a-c5c39e4a26d5",
+    issuedAt: new Date(),
+    messages: undefined,
     methods: {
       password: {
-        config: formFields,
+        config: {
+          action: "http://url.com",
+          fields: formFields,
+          method: "post",
+        },
         method: "password",
       },
     },
-    request_url: "http://localhost:4455/self-service/browser/flows/login",
-  };
-  const axiosResponse: AxiosResponse = {
-    data: testJson,
-    status: 200,
-    statusText: "OK",
-    config: {},
-    headers: {},
+    requestUrl: "http://localhost:4455/self-service/browser/flows/login",
   };
 
   const requestValue = "test123";
@@ -70,7 +59,8 @@ describe("getServerSideProps", () => {
   });
 
   test("with request id ", async () => {
-    mockedAxios.get.mockResolvedValue(axiosResponse);
+    mockedPublicApi.getSelfServiceBrowserLoginRequest.mockResolvedValue(body);
+    //TYPE ERROR: Argument of type 'LoginRequest' is not assignable to parameter of type '{ response: IncomingMessage; body: LoginRequest; } | Promise<{ response: IncomingMessage; body: LoginRequest; }>'.
 
     const props = await getServerSideProps(context);
 
@@ -82,7 +72,7 @@ describe("getServerSideProps", () => {
     });
   });
   test("throws error", async () => {
-    mockedAxios.get.mockRejectedValue({
+    mockedPublicApi.getSelfServiceBrowserLoginRequest.mockRejectedValue({
       response: { statusText: "something went wrong" },
     });
 

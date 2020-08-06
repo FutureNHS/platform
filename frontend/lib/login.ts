@@ -1,4 +1,5 @@
-import { AdminApi, LoginRequestMethodConfig } from "@oryd/kratos-client";
+import { LoginRequest } from "@oryd/kratos-client";
+import { adminApi } from "../utils/kratos";
 
 export type FormConfig = {
   action: string;
@@ -20,18 +21,19 @@ export type FormConfig = {
 
 export const generateFields = async (
   request: string
-): Promise<LoginRequestMethodConfig> => {
+): Promise<LoginRequest> => {
   try {
-    const api = new AdminApi("http://kratos-admin.kratos");
-    const res = await api.getSelfServiceLoginRequest(request);
+    const res = await adminApi.getSelfServiceBrowserLoginRequest(request);
 
     const formattedDetails = res.body;
 
-    const config = formattedDetails.methods.password.config;
+    console.log("******body", formattedDetails);
 
-    return config;
+    // const config = formattedDetails.methods.password.config;
+    // console.log("CONFIG", config);
+    return formattedDetails;
   } catch (error) {
-    console.error(error.response.statusText);
+    console.error(error);
     throw error;
   }
 };

@@ -15,7 +15,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     return { props: {} };
   }
 
-  const formFields = await generateFields(request);
+  const formattedDetails = await generateFields(request);
+  const formFields = formattedDetails.methods.password.config;
 
   return {
     props: {
