@@ -36,7 +36,7 @@
   },
   "tracy": {
     "BRANCH": "master",
-    "KRATOS_WEB_ROOT": "https://fnhs-dev-tracy.westeurope.cloudapp.azure.com",
+    "KRATOS_WEB_ROOT": "http://localhost:4455",
     "INSTRUMENTATION_KEY": "todo"
   },
   "declan": {
