@@ -1,22 +1,26 @@
 import { GetServerSidePropsContext } from "next";
 import { ServerResponse } from "http";
 import { getServerSideProps } from "../../pages/auth/login";
-import { publicApi } from "../../utils/kratos";
+import { adminApi } from "../../utils/kratos";
 import { LoginRequest } from "@oryd/kratos-client";
 
 jest.mock("../../utils/kratos");
 
-const mockedPublicApi = publicApi as jest.Mocked<typeof publicApi>;
+const mockedAdminApi = adminApi as jest.Mocked<typeof adminApi>;
 
 describe("getServerSideProps", () => {
-  const formFields = [
-    { name: "identifier", type: "text" },
-    { name: "password", type: "password" },
-    {
-      name: "csrf_token",
-      type: "hidden",
-    },
-  ];
+  const formConfig = {
+    action: "http://url.com",
+    fields: [
+      { name: "identifier", type: "text" },
+      { name: "password", type: "password" },
+      {
+        name: "csrf_token",
+        type: "hidden",
+      },
+    ],
+    method: "post",
+  };
 
   const body: LoginRequest = {
     active: "password",
@@ -26,11 +30,7 @@ describe("getServerSideProps", () => {
     messages: undefined,
     methods: {
       password: {
-        config: {
-          action: "http://url.com",
-          fields: formFields,
-          method: "post",
-        },
+        config: formConfig,
         method: "password",
       },
     },
@@ -59,27 +59,29 @@ describe("getServerSideProps", () => {
   });
 
   test("with request id ", async () => {
-    mockedPublicApi.getSelfServiceBrowserLoginRequest.mockResolvedValue(body);
-    //TYPE ERROR: Argument of type 'LoginRequest' is not assignable to parameter of type '{ response: IncomingMessage; body: LoginRequest; } | Promise<{ response: IncomingMessage; body: LoginRequest; }>'.
+    mockedAdminApi.getSelfServiceBrowserLoginRequest.mockResolvedValue({
+      response: null as any,
+      body: body,
+    });
 
     const props = await getServerSideProps(context);
 
     expect(props).toEqual({
       props: {
         request: requestValue,
-        formFields: formFields,
+        formConfig: formConfig,
       },
     });
   });
   test("throws error", async () => {
-    mockedPublicApi.getSelfServiceBrowserLoginRequest.mockRejectedValue({
-      response: { statusText: "something went wrong" },
+    mockedAdminApi.getSelfServiceBrowserLoginRequest.mockRejectedValue({
+      body: { messages: "something went wrong" },
     });
 
     const result = await getServerSideProps(context).catch((e) => e);
 
     expect(result).toEqual({
-      response: { statusText: "something went wrong" },
+      body: { messages: "something went wrong" },
     });
   });
 });

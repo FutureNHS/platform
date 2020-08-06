@@ -1,6 +1,5 @@
-import cookies from "next-cookies";
+import cookie from "cookie";
 import { GetServerSidePropsContext } from "next";
-import { Session } from "@oryd/kratos-client";
 import http from "http";
 import { publicApi } from "../kratos";
 
@@ -8,9 +7,10 @@ export const requireAuthentication = async (
   context: GetServerSidePropsContext
 ): Promise<{
   response: http.IncomingMessage;
-  body: Session;
 }> => {
-  const { ory_kratos_session } = cookies(context);
+  const { ory_kratos_session } = cookie.parse(
+    context.req?.headers?.cookie || ""
+  );
 
   if (context.res && !ory_kratos_session) {
     context.res.writeHead(302, {

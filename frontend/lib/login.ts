@@ -27,10 +27,6 @@ export const generateFields = async (
 
     const formattedDetails = res.body;
 
-    console.log("******body", formattedDetails);
-
-    // const config = formattedDetails.methods.password.config;
-    // console.log("CONFIG", config);
     return formattedDetails;
   } catch (error) {
     console.error(error);

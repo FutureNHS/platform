@@ -16,26 +16,26 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   }
 
   const formattedDetails = await generateFields(request);
-  const formFields = formattedDetails.methods.password.config;
+  const formConfig = formattedDetails.methods.password.config;
 
   return {
     props: {
       request,
-      formFields,
+      formConfig,
     },
   };
 };
 
 const Login = ({
   request,
-  formFields,
+  formConfig,
 }: {
   request: string;
-  formFields: FormConfig;
+  formConfig: FormConfig;
 }) => {
   return (
     <>
-      {formFields.messages?.map(({ text }) => {
+      {formConfig.messages?.map(({ text }) => {
         return (
           <>
             <div>{text}</div>
@@ -43,8 +43,8 @@ const Login = ({
         );
       })}
       {request ? (
-        <form action={formFields.action} method={formFields.method}>
-          {formFields.fields.map(({ name, type, required, value }) => {
+        <form action={formConfig.action} method={formConfig.method}>
+          {formConfig.fields.map(({ name, type, required, value }) => {
             return (
               <>
                 <div>
