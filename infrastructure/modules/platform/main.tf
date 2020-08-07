@@ -164,3 +164,39 @@ resource "azurerm_postgresql_firewall_rule" "whitelist_cluster" {
   start_ip_address    = azurerm_public_ip.cluster_outbound.ip_address
   end_ip_address      = azurerm_public_ip.cluster_outbound.ip_address
 }
+
+resource "azurerm_eventgrid_topic" "platform" {
+  name                = "platform-${var.environment}"
+  location            = var.location
+  resource_group_name = azurerm_resource_group.platform.name
+
+  tags = {
+    environment = var.environment
+  }
+}
+
+resource "azurerm_eventhub_namespace" "platform" {
+  name                = "platform-${var.environment}"
+  location            = var.location
+  resource_group_name = azurerm_resource_group.platform.name
+  sku                 = "Standard"
+  capacity            = 1
+
+  tags = {
+    environment = var.environment
+  }
+}
+
+resource "azurerm_eventhub" "analytics" {
+  name                = "analytics"
+  namespace_name      = azurerm_eventhub_namespace.platform.name
+  resource_group_name = azurerm_resource_group.platform.name
+  partition_count     = 1
+  message_retention   = 1
+}
+
+resource "azurerm_eventgrid_event_subscription" "analytics" {
+  name                 = "analytics-events"
+  scope                = azurerm_eventgrid_topic.platform.id
+  eventhub_endpoint_id = azurerm_eventhub.analytics.id
+}

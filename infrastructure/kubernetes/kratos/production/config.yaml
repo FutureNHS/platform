@@ -1,15 +1,15 @@
 serve:
   public:
-    base_url: https://fnhs.westeurope.cloudapp.azure.com/.ory/kratos/public/
+    base_url: https://beta.future.nhs.uk/.ory/kratos/public/
     port: 4433
   admin:
     base_url: http://kratos:4434/
     port: 4434
 
 selfservice:
-  default_browser_return_url: https://fnhs.westeurope.cloudapp.azure.com/
+  default_browser_return_url: https://beta.future.nhs.uk/
   whitelisted_return_urls:
-    - https://fnhs.westeurope.cloudapp.azure.com/
+    - https://beta.future.nhs.uk/
 
   strategies:
     password:
@@ -18,10 +18,10 @@ selfservice:
   flows:
     logout:
       after:
-        default_browser_return_url: https://fnhs.westeurope.cloudapp.azure.com/auth/login
+        default_browser_return_url: https://beta.future.nhs.uk/auth/login
 
     login:
-      ui_url: https://fnhs.westeurope.cloudapp.azure.com/auth/login
+      ui_url: https://beta.future.nhs.uk/auth/login
       request_lifespan: 10m
 
     registration:

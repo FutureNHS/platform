@@ -23,5 +23,15 @@ output "postgresql_admin" {
 }
 
 output "postgresql_admin_password" {
-  value = azurerm_postgresql_server.postgresql_server.administrator_login_password
+  value     = azurerm_postgresql_server.postgresql_server.administrator_login_password
+  sensitive = true
+}
+
+output "eventgrid_topic_endpoint" {
+  value = azurerm_eventgrid_topic.platform.endpoint
+}
+
+output "eventgrid_topic_key" {
+  value     = azurerm_eventgrid_topic.platform.primary_access_key
+  sensitive = true
 }

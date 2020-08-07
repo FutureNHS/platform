@@ -1,9 +1,10 @@
-import { GetServerSidePropsContext } from "next";
 import { ServerResponse } from "http";
+import { GetServerSidePropsContext } from "next";
+import { LoginRequest } from "@oryd/kratos-client";
 import { getServerSideProps } from "../../pages/auth/login";
 import { adminApi } from "../../utils/kratos";
-import { LoginRequest } from "@oryd/kratos-client";
 
+jest.mock("../../lib/events");
 jest.mock("../../utils/kratos");
 
 const mockedAdminApi = adminApi as jest.Mocked<typeof adminApi>;
@@ -50,7 +51,7 @@ describe("getServerSideProps", () => {
   } as unknown) as GetServerSidePropsContext;
 
   test("redirects when there is no request id", async () => {
-    getServerSideProps({ ...context, query: {} });
+    await getServerSideProps({ ...context, query: {} });
 
     expect(context.res.writeHead).toHaveBeenCalledWith(302, {
       Location: "/.ory/kratos/public/self-service/browser/flows/login",
@@ -73,6 +74,7 @@ describe("getServerSideProps", () => {
       },
     });
   });
+
   test("throws error", async () => {
     mockedAdminApi.getSelfServiceBrowserLoginRequest.mockRejectedValue({
       body: { messages: "something went wrong" },

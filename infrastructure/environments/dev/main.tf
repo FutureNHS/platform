@@ -50,7 +50,9 @@ provider "postgresql" {
 }
 
 module databases {
-  source                 = "../../modules/databases"
-  environment            = "dev-${var.USERNAME}"
-  postgresql_server_name = module.platform.postgresql_server_name
+  source                   = "../../modules/databases"
+  environment              = "dev-${var.USERNAME}"
+  postgresql_server_name   = module.platform.postgresql_server_name
+  eventgrid_topic_endpoint = module.platform.eventgrid_topic_endpoint
+  eventgrid_topic_key      = module.platform.eventgrid_topic_key
 }

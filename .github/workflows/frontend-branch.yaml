@@ -41,6 +41,8 @@ jobs:
         working-directory: futurenhs-deployments
         run: |
           set -eux
+          git config --local user.email "futurenhs-devs@red-badger.com"
+          git config --local user.name "FutureNHS CI/CD"
           if git fetch --unshallow origin pr-$GITHUB_HEAD_REF master ; then
             git checkout origin/pr-$GITHUB_HEAD_REF -b pr-$GITHUB_HEAD_REF
             git merge origin/master --strategy=recursive --strategy-option=ours
@@ -69,9 +71,6 @@ jobs:
         working-directory: futurenhs-deployments
         run: |
           set -eux
-
-          git config --local user.email "futurenhs-devs@red-badger.com"
-          git config --local user.name "FutureNHS CI/CD"
 
           git add -A
           # TODO: can we make this commit message reflect the message at the tip of the platform repo?

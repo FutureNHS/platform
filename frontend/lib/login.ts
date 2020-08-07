@@ -22,14 +22,9 @@ export type FormConfig = {
 export const generateFields = async (
   request: string
 ): Promise<LoginRequest> => {
-  try {
-    const res = await adminApi.getSelfServiceBrowserLoginRequest(request);
+  const res = await adminApi.getSelfServiceBrowserLoginRequest(request);
 
-    const formattedDetails = res.body;
+  const formattedDetails = res.body;
 
-    return formattedDetails;
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
+  return formattedDetails;
 };

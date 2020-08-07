@@ -42,6 +42,7 @@ resource "kubernetes_namespace" "kratos" {
     }
   }
 }
+
 resource "kubernetes_secret" "kratos_db_creds" {
   metadata {
     name      = "kratos"
@@ -61,5 +62,34 @@ resource "kubernetes_secret" "kratos_db_creds" {
       }.postgres.database.azure.com:5432/${
       postgresql_database.kratos.name
     }"
+  }
+}
+
+resource "kubernetes_namespace" "frontend" {
+  metadata {
+    name = "frontend"
+    annotations = {
+      "linkerd.io/inject" = "enabled"
+    }
+  }
+}
+
+resource "kubernetes_secret" "frontend" {
+  metadata {
+    name      = "frontend"
+    namespace = kubernetes_namespace.frontend.metadata[0].name
+  }
+  data = {
+    eventgrid_topic_endpoint = var.eventgrid_topic_endpoint
+    eventgrid_topic_key      = var.eventgrid_topic_key
+  }
+}
+
+resource "kubernetes_namespace" "hello_world" {
+  metadata {
+    name = "hello-world"
+    annotations = {
+      "linkerd.io/inject" = "enabled"
+    }
   }
 }

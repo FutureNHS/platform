@@ -1,4 +1,4 @@
 {
-  "baseUrl": "https://fnhs.westeurope.cloudapp.azure.com/",
+  "baseUrl": "https://beta.future.nhs.uk/",
   "integrationFolder": "./cypress/integration/"
 }

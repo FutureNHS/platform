@@ -15,6 +15,17 @@ spec:
       containers:
         - name: frontend
           image: fnhsproduction.azurecr.io/frontend
+          env:
+            - name: EVENTGRID_TOPIC_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  name: frontend
+                  key: eventgrid_topic_endpoint
+            - name: EVENTGRID_TOPIC_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: frontend
+                  key: eventgrid_topic_key
           ports:
             - containerPort: 3000
           resources:
@@ -26,14 +37,14 @@ spec:
               memory: 100Mi
           readinessProbe:
             httpGet:
-              path: /
+              path: /api/health
               port: 3000
             initialDelaySeconds: 5
             periodSeconds: 15
             timeoutSeconds: 30
           livenessProbe:
             httpGet:
-              path: /
+              path: /api/health
               port: 3000
             initialDelaySeconds: 5
             periodSeconds: 20

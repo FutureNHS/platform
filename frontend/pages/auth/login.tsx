@@ -1,6 +1,7 @@
 import React from "react";
 import { GetServerSideProps } from "next";
 import { generateFields, FormConfig } from "../../lib/login";
+import { sendEvent } from "../../lib/events";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const request = context.query.request;
@@ -10,6 +11,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       Location: "/.ory/kratos/public/self-service/browser/flows/login",
     });
     context.res.end();
+    return { props: {} };
   }
   if (!request || Array.isArray(request)) {
     return { props: {} };
@@ -17,6 +19,14 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
   const formattedDetails = await generateFields(request);
   const formConfig = formattedDetails.methods.password.config;
+
+  // TODO: This is just an example event. We need to figure out the schema for custom events and change this to events we really need.
+  await sendEvent({
+    subject: "frontend",
+    eventType: "frontend.login.attempt",
+    data: { messages: formFields.messages?.map((msg) => msg.text) },
+    dataVersion: "1",
+  });
 
   return {
     props: {
