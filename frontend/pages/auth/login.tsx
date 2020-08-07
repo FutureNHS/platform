@@ -24,7 +24,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   await sendEvent({
     subject: "frontend",
     eventType: "frontend.login.attempt",
-    data: { messages: formFields.messages?.map((msg) => msg.text) },
+    data: { messages: formConfig.messages?.map((msg) => msg.text ?? "") },
     dataVersion: "1",
   });
 
