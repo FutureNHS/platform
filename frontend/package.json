@@ -26,9 +26,13 @@
     "ms-rest-azure": "^3.0.0",
     "next": "9.5.2",
     "next-cookies": "^2.0.3",
+    "nhsuk-frontend": "^3.1.0",
+    "nhsuk-react-components": "^1.0.0-rc.4",
     "node-fetch": "^2.6.0",
     "react": "16.13.1",
     "react-dom": "16.13.1",
+    "sass": "^1.26.10",
+    "styled-components": "^5.1.1",
     "uuid": "^8.3.0"
   },
   "devDependencies": {
@@ -38,6 +42,7 @@
     "@types/jest": "^26.0.10",
     "@types/node": "^14.6.0",
     "@types/node-fetch": "^2.5.7",
+<<<<<<< HEAD
     "@types/react": "^16.9.46",
     "@types/uuid": "^8.3.0",
     "@typescript-eslint/eslint-plugin": "^3.9.0",
@@ -45,6 +50,17 @@
     "babel-jest": "^26.3.0",
     "eslint": "^7.7.0",
     "eslint-plugin-react": "^7.20.6",
+=======
+    "@types/react": "^16.9.35",
+    "@types/styled-components": "^5.1.2",
+    "@types/uuid": "^8.0.1",
+    "@typescript-eslint/eslint-plugin": "^2.34.0",
+    "@typescript-eslint/parser": "^2.34.0",
+    "babel-jest": "^26.0.1",
+    "babel-plugin-styled-components": "^1.11.1",
+    "eslint": "^7.0.0",
+    "eslint-plugin-react": "^7.20.0",
+>>>>>>> c2706272... setting up styles
     "express": "^4.15.3",
     "http-proxy-middleware": "^1.0.5",
     "husky": "^4.2.5",
