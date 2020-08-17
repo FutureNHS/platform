@@ -7,7 +7,7 @@ edition = "2018"
 dotenv = "0.15.0"
 futures = "0.3.5"
 opentelemetry-application-insights = "0.3.0"
-opentelemetry = "0.7.0"
+opentelemetry = "0.8.0"
 sqlx = { git = "https://github.com/frigus02/sqlx", rev = "106a6a83952bfc0e3316d54f99d865e469dcc15a", default-features = false, features = [ "runtime-tokio", "macros", "migrate", "postgres", "tls","uuid" ]  }
 tide = "0.13.0"
 tokio = { version = "0.2.22", features = ["macros", "time", "rt-core", "stream"] }

@@ -1784,6 +1784,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "opentelemetry"
+version = "0.8.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "acbf68b6b34b5d869342732c0dc05f74b7bdb4f17f2302d16d799231a6106441"
+dependencies = [
+ "futures 0.3.5",
+ "lazy_static",
+ "percent-encoding",
+ "pin-project",
+ "prometheus",
+ "rand",
+]
+
+[[package]]
 name = "opentelemetry-application-insights"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1791,7 +1805,7 @@ checksum = "5e6c43e00bdb5dbd1c542426522215f8589f1ce7ef839961ebdff4e7b8f6f4e5"
 dependencies = [
  "chrono",
  "log",
- "opentelemetry",
+ "opentelemetry 0.7.0",
  "serde",
  "serde_json",
  "ureq",
@@ -2881,7 +2895,7 @@ version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f3f09516de2236884dc95fefc309a73316878fe76fe6c6f0051abb317714b6c9"
 dependencies = [
- "opentelemetry",
+ "opentelemetry 0.7.0",
  "rand",
  "tracing",
  "tracing-core",
@@ -3246,7 +3260,7 @@ dependencies = [
  "dotenv",
  "futures 0.3.5",
  "http-types",
- "opentelemetry",
+ "opentelemetry 0.8.0",
  "opentelemetry-application-insights",
  "smol",
  "sqlx",
