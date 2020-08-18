@@ -1,5 +1,17 @@
 {
   "devDependencies": {
+    "husky": "^4.2.5",
+    "lint-staged": ">=10",
     "prettier": "2.0.5"
+  },
+  "lint-staged": {
+    "*.{js,ts,tsx}": "eslint --cache --fix",
+    "*.{sh}": "shfmt -w",
+    "*.{js,ts,tsx,md,yaml,graphql}": "prettier --write"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
   }
 }

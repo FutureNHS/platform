@@ -47,19 +47,8 @@
     "eslint-plugin-react": "^7.20.6",
     "express": "^4.15.3",
     "http-proxy-middleware": "^1.0.5",
-    "husky": "^4.2.5",
     "ignore-loader": "^0.1.2",
     "jest": "^26.4.0",
-    "lint-staged": ">=10",
     "typescript": "^3.9.7"
-  },
-  "lint-staged": {
-    "*.{js,ts,tsx}": "eslint --cache --fix",
-    "*.{js,ts,tsx,md,yaml,graphql}": "prettier --write"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
   }
 }
