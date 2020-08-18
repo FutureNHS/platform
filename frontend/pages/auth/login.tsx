@@ -4,6 +4,8 @@ import { getLoginFields } from "../../lib/auth";
 import { sendEvent } from "../../lib/events";
 import { LoginRequestMethodConfig } from "@oryd/kratos-client";
 import { redirect } from "../../utils/pages/redirect";
+import { Button } from "nhsuk-react-components";
+import { GetStartedButton } from "../../components/Button";
 
 type LoginProps = {
   request: string;
@@ -79,6 +81,9 @@ const Login = ({ request, formConfig }: LoginProps) => {
       ) : (
         <div>Nothing</div>
       )}
+
+      <GetStartedButton />
+      <Button>NHS Component</Button>
     </>
   );
 };
