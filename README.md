@@ -17,4 +17,5 @@ The following are used within CI to verify formatting. You may find it useful to
 - [prettier](https://prettier.io)
 - [eslint](https://eslint.org/)
 
-Note: Prettier formats all relevent code in this repo, and therefore is installed at the top level. - run `yarn` to install.
+Note: Prettier formats all relevent code in this repo, and therefore is installed at the top level.
+We also use husky for our precommit hooks. Run `yarn` in the top level to install these tools.
