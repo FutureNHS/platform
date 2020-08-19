@@ -1,0 +1,115 @@
+---
+# Source: fusionauth/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: fusionauth-spike
+  labels:
+    app.kubernetes.io/name: fusionauth
+    helm.sh/chart: fusionauth-0.4.5
+    app.kubernetes.io/instance: fusionauth-spike
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9011
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: fusionauth
+    app.kubernetes.io/instance: fusionauth-spike
+---
+# Source: fusionauth/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fusionauth-spike
+  labels:
+    app.kubernetes.io/name: fusionauth
+    helm.sh/chart: fusionauth-0.4.5
+    app.kubernetes.io/instance: fusionauth-spike
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: fusionauth
+      app.kubernetes.io/instance: fusionauth-spike
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: fusionauth
+        app.kubernetes.io/instance: fusionauth-spike
+    spec:
+      initContainers:
+        - name: wait-for-db
+          image: "busybox:latest"
+          args:
+            - /bin/sh
+            - -c
+            - >
+              set -x;
+              while [[ "$(nc -zv 'postgresql-dev-david.postgres.database.azure.com' 5432 &> /dev/null; echo $?)" != 0 ]]; do
+                echo '.'
+                sleep 15;
+              done
+      containers:
+        - name: fusionauth
+          image: "fusionauth/fusionauth-app:1.18.5"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 9011
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          startupProbe:
+            failureThreshold: 20
+            httpGet:
+              path: /
+              port: http
+            periodSeconds: 10
+          env:
+            - name: DATABASE_USER
+              value: fusionauth_user@postgresql-dev-david
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: fusionauth
+                  key: password
+            - name: DATABASE_URL
+              value: "jdbc:postgresql://postgresql-dev-david.postgres.database.azure.com:5432/fusionauth"
+            - name: FUSIONAUTH_SEARCH_ENGINE_TYPE
+              value: database
+            - name: FUSIONAUTH_MEMORY
+              value: 256M
+          resources: {}
+      restartPolicy: Always
+---
+# Source: fusionauth/templates/tests/test-connection.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "fusionauth-spike-test-connection"
+  labels:
+    app.kubernetes.io/name: fusionauth
+    helm.sh/chart: fusionauth-0.4.5
+    app.kubernetes.io/instance: fusionauth-spike
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": test-success
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ["wget"]
+      args: ["fusionauth-spike:9011"]
+  restartPolicy: Never

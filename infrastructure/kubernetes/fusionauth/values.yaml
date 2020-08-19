@@ -15,7 +15,7 @@
 # for now.
 #
 # TODO:
-# * figure out how to switch namespace.
+# * figure out how to switch namespace (helm template's --namespace flag is apparently a noop).
 # * make a separate database user vs root user for postgres if needed?
 # * Run db migrations manually:
 #     curl https://files.fusionauth.io/products/fusionauth/1.18.5/fusionauth-database-schema-1.18.5.zip \
