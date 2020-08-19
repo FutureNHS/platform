@@ -5,7 +5,8 @@ import { sendEvent } from "../../lib/events";
 import { LoginRequestMethodConfig } from "@oryd/kratos-client";
 import { redirect } from "../../utils/pages/redirect";
 import { Button } from "nhsuk-react-components";
-import { GetStartedButton } from "../../components/Button";
+import { PageLayout } from "../../components/PageLayout";
+import { Header } from "../../components/Header";
 
 type LoginProps = {
   request: string;
@@ -46,45 +47,46 @@ export const getServerSideProps: GetServerSideProps = async (
 
 const Login = ({ request, formConfig }: LoginProps) => {
   return (
-    <>
-      {formConfig.messages?.map(({ text }) => {
-        return (
-          <>
-            <div>{text}</div>
-          </>
-        );
-      })}
-      {request ? (
-        <form action={formConfig.action} method={formConfig.method}>
-          {formConfig.fields.map(({ name, type, required, value }) => {
-            return (
-              <>
-                <div>
-                  {type !== "hidden" ? (
-                    <label htmlFor={name}>{name}</label>
-                  ) : null}
-                  <input
-                    id={name}
-                    name={name}
-                    type={type}
-                    required={required}
-                    defaultValue={(value as unknown) as string}
-                  />
-                </div>
-              </>
-            );
-          })}
-          <div>
-            <input type="submit" value="Submit!" />
-          </div>
-        </form>
-      ) : (
-        <div>Nothing</div>
-      )}
-
-      <GetStartedButton />
-      <Button>NHS Component</Button>
-    </>
+    <PageLayout>
+      <Header imageLeft="FutureNHS.png" imageRight="NHS.png" />
+      <div>
+        {formConfig.messages?.map(({ text }) => {
+          return (
+            <>
+              <div>{text}</div>
+            </>
+          );
+        })}
+        {request && (
+          <form action={formConfig.action} method={formConfig.method}>
+            {formConfig.fields.map(({ name, type, required, value }) => {
+              return (
+                <>
+                  <div>
+                    {type !== "hidden" ? (
+                      <label htmlFor={name}>{name}</label>
+                    ) : null}
+                    <input
+                      id={name}
+                      name={name}
+                      type={type}
+                      required={required}
+                      defaultValue={(value as unknown) as string}
+                    />
+                  </div>
+                </>
+              );
+            })}
+            <div>
+              <input type="submit" value="Submit!" />
+            </div>
+          </form>
+        )}
+      </div>
+      <Button>NHS Component primary</Button>
+      <Button secondary>NHS Component secondary</Button>
+      <Button reverse>NHS Component reverse</Button>
+    </PageLayout>
   );
 };
 

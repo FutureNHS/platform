@@ -16,43 +16,32 @@
 
 // sass-lint:disable no-color-hex
 
-//
-// Primary colours
-//
 $color_nhsuk-blue: #005eb8;
 $color_nhsuk-white: #ffffff;
-$color_nhsuk-warm-yellow: #ffb81c;
 $color_nhsuk-black: #212b32;
-
-//need to check
-// $color_nhsuk-purple: #330072;
-// $color_nhsuk-dark-pink: #7c2855;
+$color_nhsuk-green: #007f3b;
+$color_nhsuk-red: #d5281b;
+$color_nhsuk-yellow: #ffeb3b;
+$color_nhsuk-purple: #330072;
+$color_nhsuk-dark-pink: #7c2855;
 
 //
 // Secondary colours
 //
 
-$color_nhsuk-dark-blue: #002d88;
-$color_nhsuk-orange: #ed8b00;
-$color_nhsuk-dark-green: #003514;
-$color_nhsuk-green: #007f3b;
-$color_nhsuk-yellow: #ffeb3b;
-$color_nhsuk-pale-yellow: #fffbce;
-$color_nhsuk-red: #da291c;
-
-// $color_nhsuk-aqua-green: #00A499;
+$color_nhsuk-pale-yellow: #fff9c4;
+$color_nhsuk-warm-yellow: #ffb81c;
+$color_nhsuk-aqua-green: #00a499;
 
 //
-// Neutrals
+// Greyscale
 //
 
-$color_nhsuk-grey-1: #425462;
+$color_nhsuk-grey-1: #4c6272;
 $color_nhsuk-grey-2: #768692;
 $color_nhsuk-grey-3: #aeb7bd;
 $color_nhsuk-grey-4: #d8dde0;
 $color_nhsuk-grey-5: #f0f4f5;
-$color_nhsuk-grey-6: #f7f9fa;
-//grey 6 is extra and grey 1 is different
 
 //
 // RGB and alpha values
@@ -142,7 +131,7 @@ $nhsuk-form-element-background-color: $color_nhsuk-white;
 // Buttons
 //
 
-$nhsuk-button-color: $color_nhsuk-blue;
+$nhsuk-button-color: $color_nhsuk-green;
 $nhsuk-button-hover-color: shade($nhsuk-button-color, 20%);
 $nhsuk-button-active-color: shade($nhsuk-button-color, 50%);
 $nhsuk-button-shadow-color: shade($nhsuk-button-color, 50%);

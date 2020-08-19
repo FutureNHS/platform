@@ -1,14 +1,21 @@
 import React from "react";
 import App from "next/app";
 import { withApplicationInsights } from "../components/next-applicationinsights";
-import "../styles/global.css";
 import "./_app.scss";
+import { ThemeProvider } from "styled-components";
+
+// Extract our Sass variables into a JS object
+const theme = require('sass-extract-loader?{"plugins": ["sass-extract-js"]}!./_app.scss');
 
 class MyApp extends App {
   render() {
     const { Component, pageProps } = this.props;
 
-    return <Component {...pageProps} />;
+    return (
+      <ThemeProvider theme={theme}>
+        <Component {...pageProps} />
+      </ThemeProvider>
+    );
   }
 }
 

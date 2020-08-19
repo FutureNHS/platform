@@ -29,9 +29,13 @@
     "nhsuk-frontend": "^3.1.0",
     "nhsuk-react-components": "^1.0.0-rc.4",
     "node-fetch": "^2.6.0",
+    "node-sass": "^4.14.1",
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "sass": "^1.26.10",
+    "sass-extract": "^2.1.0",
+    "sass-extract-js": "^0.4.0",
+    "sass-extract-loader": "^1.1.0",
     "styled-components": "^5.1.1",
     "uuid": "^8.3.0"
   },
