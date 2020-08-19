@@ -1,28 +1,25 @@
-import cookie from "cookie";
 import { GetServerSidePropsContext } from "next";
-import http from "http";
-import { publicApi } from "../kratos";
+// @ts-ignore https://github.com/nextauthjs/next-auth/pull/220 is not merged yet.
+import { getSession } from "next-auth/client";
 
 export const requireAuthentication = async (
   context: GetServerSidePropsContext
-): Promise<{
-  response: http.IncomingMessage;
-}> => {
-  const { ory_kratos_session } = cookie.parse(
-    context.req?.headers?.cookie || ""
-  );
+): Promise<any> => {
+  const session = await getSession(context);
 
-  if (context.res && !ory_kratos_session) {
+  if (!session) {
+    console.log("about to writeHEAD");
     context.res.writeHead(302, {
-      Location: `/.ory/kratos/public/self-service/browser/flows/login?return_to=${context.req.url}`,
+      Location: `/api/auth/signin/fusionauth`,
     });
+    console.log("about to end");
     context.res.end();
+    console.log("ended");
+    return;
   }
   try {
-    const response = await publicApi.whoami({
-      headers: { Cookie: `ory_kratos_session=${ory_kratos_session}` },
-    });
-    return response;
+    console.log(session);
+    return session;
   } catch (error) {
     console.error(error);
     throw error;
