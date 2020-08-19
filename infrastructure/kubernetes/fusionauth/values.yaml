@@ -1,21 +1,34 @@
 # Install with:
 #     (cd infrastructure/environments/dev/ && terraform apply)
-#     helm install fusionauth/fusionauth --namespace=fusionauth --name-template=fusionauth-spike --values=infrastructure/kubernetes/fusionauth/values.yaml --version 0.4.5
+#
+#     helm template fusionauth/fusionauth --namespace=fusionauth --name-template=fusionauth-spike --values=infrastructure/kubernetes/fusionauth/values.yaml --version 0.4.5 \
+#         > infrastructure/kubernetes/fusionauth/deployment.yaml
+#     vim infrastructure/kubernetes/fusionauth/deployment.yaml # delete DATABASE_ROOT_* environment variables
+#     kubectl apply -k infrastructure/kubernetes/fusionauth
+#
 # show what is installed with:
 #     helm list -n fusionauth
+#
 # Uninstall with:
-#     helm uninstall -n fusionauth  fusionauth-spike
+#     kubectl delete -k infrastructure/kubernetes/fusionauth
+#
 # for now.
 #
 # TODO:
 # * figure out how to switch namespace.
 # * make a separate database user vs root user for postgres if needed?
-replicaCount: 2
+# * Run db migrations manually:
+#     curl https://files.fusionauth.io/products/fusionauth/1.18.5/fusionauth-database-schema-1.18.5.zip \
+#         > fusionauth-database-schema.zip \
+#         && unzip fusionauth-database-schema.zip \
+#         | psql $PSQL_CONNECTION_STRING \
+#         && rm fusionauth-database-schema.zip
+replicaCount: 1
 database:
   existingSecret: fusionauth
-  user: fusionauth@postgresql-dev-david
+  user: fusionauth_user@postgresql-dev-david
   host: postgresql-dev-david.postgres.database.azure.com
   root:
-    user: fusionauth@postgresql-dev-david
+    user: fusionauth_user@postgresql-dev-david
 search:
   engine: database
