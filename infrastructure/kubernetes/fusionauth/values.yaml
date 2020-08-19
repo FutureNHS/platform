@@ -1,0 +1,9 @@
+replicaCount: 2
+database:
+  # TODO: make a db and put details in: password and rootpassword
+  existingSecret: fusionauth
+  user: fusionauth@postgresql-dev-david
+  root:
+    user: fusionauthroot@postgresql-dev-david
+search:
+  engine: database
