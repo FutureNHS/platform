@@ -28,7 +28,6 @@ const options = {
   providers: [FUSIONAUTH_PROVIDER],
   // A database is optional, but required to persist accounts in a database
   // database: process.env.DATABASE_URL,
-  debug: true,
 };
 
 export default (req: any, res: any) => NextAuth(req, res, options);
