@@ -109,7 +109,7 @@ resource "kubernetes_secret" "fusionauth_db_creds" {
   }
   # rootpassword == password for now
   data = {
-    password = random_password.postgresql_password["fusionauth"].result
+    password     = random_password.postgresql_password["fusionauth"].result
     rootpassword = random_password.postgresql_password["fusionauth"].result
   }
 }
