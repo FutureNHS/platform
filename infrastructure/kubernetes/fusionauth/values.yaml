@@ -1,13 +1,21 @@
 # Install with:
-#     helm install fusionauth/fusionauth  --generate-name --values infrastructure/kubernetes/fusionauth/values.yaml --version 0.4.5
+#     (cd infrastructure/environments/dev/ && terraform apply)
+#     helm install fusionauth/fusionauth --namespace=fusionauth --name-template=fusionauth-spike --values=infrastructure/kubernetes/fusionauth/values.yaml --version 0.4.5
+# show what is installed with:
+#     helm list -n fusionauth
+# Uninstall with:
+#     helm uninstall -n fusionauth  fusionauth-spike
 # for now.
+#
+# TODO:
+# * figure out how to switch namespace.
+# * make a separate database user vs root user for postgres if needed?
 replicaCount: 2
 database:
-  # TODO: make a db and put details in: password and rootpassword
   existingSecret: fusionauth
   user: fusionauth@postgresql-dev-david
   host: postgresql-dev-david.postgres.database.azure.com
   root:
-    user: fusionauthroot@postgresql-dev-david
+    user: fusionauth@postgresql-dev-david
 search:
   engine: database

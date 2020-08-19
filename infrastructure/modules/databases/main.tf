@@ -5,6 +5,7 @@ locals {
   databases = [
     "kratos",
     "workspace_service",
+    "fusionauth",
   ]
 }
 
@@ -98,6 +99,18 @@ resource "kubernetes_secret" "workspace_service_db_creds" {
       }.postgres.database.azure.com:5432/${
       postgresql_database.service["workspace_service"].name
     }"
+  }
+}
+
+resource "kubernetes_secret" "fusionauth_db_creds" {
+  metadata {
+    name      = "fusionauth"
+    namespace = kubernetes_namespace.service["fusionauth"].metadata[0].name
+  }
+  # rootpassword == password for now
+  data = {
+    password = random_password.postgresql_password["fusionauth"].result
+    rootpassword = random_password.postgresql_password["fusionauth"].result
   }
 }
 
