@@ -10,7 +10,9 @@ export const requireAuthentication = async (
   if (!session) {
     console.log("about to writeHEAD");
     context.res.writeHead(302, {
-      Location: `/api/auth/signin/fusionauth`,
+      Location: `/api/auth/signin?callbackUrl=${encodeURIComponent(
+        context.req.url ?? "/"
+      )}`,
     });
     console.log("about to end");
     context.res.end();
