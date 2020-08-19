@@ -11,7 +11,7 @@ export const requireAuthentication = async (
     console.log("about to writeHEAD");
     context.res.writeHead(302, {
       Location: `/api/auth/signin?callbackUrl=${encodeURIComponent(
-        context.req.url ?? "/"
+        process.env.NEXTAUTH_URL + (context.req.url ?? "")
       )}`,
     });
     console.log("about to end");

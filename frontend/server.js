@@ -25,7 +25,7 @@ if (process.env.NODE_ENV !== "development") {
   );
   process.exit(1);
 }
-process.env.NEXTAUTH_URL = `http://localhost:${port}/`;
+process.env.NEXTAUTH_URL = `http://localhost:${port}`;
 
 const app = next({
   dir: ".", // base directory where everything is, could move to src later
