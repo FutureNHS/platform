@@ -3,6 +3,7 @@ database:
   # TODO: make a db and put details in: password and rootpassword
   existingSecret: fusionauth
   user: fusionauth@postgresql-dev-david
+  host: postgresql-dev-david.postgres.database.azure.com
   root:
     user: fusionauthroot@postgresql-dev-david
 search:

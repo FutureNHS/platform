@@ -1,4 +1,4 @@
 dependencies:
   - name: fusionauth
-    version: 0.4.6
+    version: 0.4.5
     repository: https://fusionauth.github.io/charts
