@@ -1,28 +1,29 @@
 # Install with:
 #     (cd infrastructure/environments/dev/ && terraform apply)
 #
+#     # Run db migrations manually:
+#     curl https://files.fusionauth.io/products/fusionauth/1.18.5/fusionauth-database-schema-1.18.5.zip \
+#         > fusionauth-database-schema.zip \
+#         && unzip fusionauth-database-schema.zip \
+#         | psql $PSQL_CONNECTION_STRING \
+#         && rm fusionauth-database-schema.zip
+#
 #     helm template fusionauth/fusionauth --namespace=fusionauth --name-template=fusionauth-spike --values=infrastructure/kubernetes/fusionauth/values.yaml --version 0.4.5 \
 #         > infrastructure/kubernetes/fusionauth/deployment.yaml
-#     vim infrastructure/kubernetes/fusionauth/deployment.yaml # delete DATABASE_ROOT_* environment variables
-#     kubectl apply -k infrastructure/kubernetes/fusionauth
 #
-# show what is installed with:
-#     helm list -n fusionauth
+#     # delete DATABASE_ROOT_* environment variables
+#     vim infrastructure/kubernetes/fusionauth/deployment.yaml
+#
+#     kubectl apply -n fusionauth -k infrastructure/kubernetes/fusionauth
 #
 # Uninstall with:
-#     kubectl delete -k infrastructure/kubernetes/fusionauth
+#     kubectl delete -n fusionauth -k infrastructure/kubernetes/fusionauth
 #
 # for now.
 #
 # TODO:
 # * figure out how to switch namespace (helm template's --namespace flag is apparently a noop).
 # * make a separate database user vs root user for postgres if needed?
-# * Run db migrations manually:
-#     curl https://files.fusionauth.io/products/fusionauth/1.18.5/fusionauth-database-schema-1.18.5.zip \
-#         > fusionauth-database-schema.zip \
-#         && unzip fusionauth-database-schema.zip \
-#         | psql $PSQL_CONNECTION_STRING \
-#         && rm fusionauth-database-schema.zip
 replicaCount: 1
 database:
   existingSecret: fusionauth
