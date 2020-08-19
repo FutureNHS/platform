@@ -4,7 +4,6 @@ import { getLoginFields } from "../../lib/auth";
 import { sendEvent } from "../../lib/events";
 import { LoginRequestMethodConfig } from "@oryd/kratos-client";
 import { redirect } from "../../utils/pages/redirect";
-import { Button } from "nhsuk-react-components";
 import { PageLayout } from "../../components/PageLayout";
 import { Header } from "../../components/Header";
 
@@ -48,7 +47,11 @@ export const getServerSideProps: GetServerSideProps = async (
 const Login = ({ request, formConfig }: LoginProps) => {
   return (
     <PageLayout>
-      <Header imageLeft="FutureNHS.png" imageRight="NHS.png" />
+      <Header
+        imageLeft="FutureNHS.png"
+        imageRight="NHS.png"
+        imageRightURL="www.nhs.co.uk"
+      />
       <div>
         {formConfig.messages?.map(({ text }) => {
           return (
@@ -83,9 +86,6 @@ const Login = ({ request, formConfig }: LoginProps) => {
           </form>
         )}
       </div>
-      <Button>NHS Component primary</Button>
-      <Button secondary>NHS Component secondary</Button>
-      <Button reverse>NHS Component reverse</Button>
     </PageLayout>
   );
 };

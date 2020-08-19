@@ -4,6 +4,7 @@ import styled from "styled-components";
 type HeaderProps = {
   imageLeft: string;
   imageRight: string;
+  imageRightURL?: string;
 };
 
 const StyledHeader = styled.header`
@@ -13,11 +14,13 @@ const StyledHeader = styled.header`
   justify-content: space-between;
 `;
 
-const Header = ({ imageLeft, imageRight }: HeaderProps) => {
+const Header = ({ imageLeft, imageRight, imageRightURL }: HeaderProps) => {
   return (
     <StyledHeader>
       <img src={`/${imageLeft}`} alt={imageLeft} className="imageLeft" />
-      <img src={`/${imageRight}`} alt={imageRight} className="imageRight" />
+      <a href={imageRightURL}>
+        <img src={`/${imageRight}`} alt={imageRight} className="imageRight" />
+      </a>
     </StyledHeader>
   );
 };
