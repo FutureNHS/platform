@@ -5,7 +5,7 @@ import "./_app.scss";
 import { ThemeProvider } from "styled-components";
 
 // Extract our Sass variables into a JS object
-const theme = require('sass-extract-loader?{"plugins": ["sass-extract-js"]}!./_app.scss');
+const theme = require('sass-extract-loader?{"includePaths":["."],"plugins": ["sass-extract-js"]}!../node_modules/nhsuk-frontend/packages/core/all.scss');
 
 class MyApp extends App {
   render() {
