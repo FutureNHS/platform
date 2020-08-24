@@ -48,9 +48,9 @@ const Login = ({ request, formConfig }: LoginProps) => {
   return (
     <PageLayout>
       <Header
-        imageLeft="FutureNHS.png"
         imageRight="NHS.png"
-        imageRightURL="www.nhs.co.uk"
+        imageRightURL="https://www.nhs.co.uk"
+        imageRightAltText="NHS logo"
       />
       <div>
         {formConfig.messages?.map(({ text }) => {

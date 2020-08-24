@@ -2,9 +2,9 @@ import React from "react";
 import styled from "styled-components";
 
 type HeaderProps = {
-  imageLeft: string;
   imageRight: string;
   imageRightURL?: string;
+  imageRightAltText: string;
 };
 
 const StyledHeader = styled.header`
@@ -30,16 +30,16 @@ const StyledImg = styled.img`
   `}
 `;
 
-const Header = ({ imageLeft, imageRight, imageRightURL }: HeaderProps) => {
+const Header = ({
+  imageRight,
+  imageRightURL,
+  imageRightAltText,
+}: HeaderProps) => {
   return (
     <StyledHeader>
-      <StyledImg src={`/${imageLeft}`} alt={imageLeft} className="imageLeft" />
+      <StyledImg src="FutureNHS.png" alt="FutureNHS logo" />
       <a href={imageRightURL}>
-        <StyledImg
-          src={`/${imageRight}`}
-          alt={imageRight}
-          className="imageRight"
-        />
+        <StyledImg src={`/${imageRight}`} alt={imageRightAltText} />
       </a>
     </StyledHeader>
   );
