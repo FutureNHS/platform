@@ -37,7 +37,7 @@ const Header = ({
 }: HeaderProps) => {
   return (
     <StyledHeader>
-      <StyledImg src="FutureNHS.png" alt="FutureNHS logo" />
+      <StyledImg src="/FutureNHS.png" alt="FutureNHS logo" />
       <a href={imageRightURL}>
         <StyledImg src={`/${imageRight}`} alt={imageRightAltText} />
       </a>
