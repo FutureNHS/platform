@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "NODE_ENV=development node server.js",
     "dev:trace": "NODE_ENV=development NODE_OPTIONS='--require ./tracing.js' node server.js",
-    "build": "next build",
+    "build": "NODE_ENV=production next build",
     "start": "NODE_OPTIONS='--require ./tracing.js' next start",
     "test": "jest",
     "lint": "yarn eslint",
@@ -26,6 +26,7 @@
     "ms-rest-azure": "^3.0.0",
     "next": "9.5.2",
     "next-cookies": "^2.0.3",
+    "next-images": "^1.4.1",
     "nhsuk-frontend": "^3.1.0",
     "nhsuk-react-components": "^1.0.0-rc.4",
     "node-fetch": "^2.6.0",
