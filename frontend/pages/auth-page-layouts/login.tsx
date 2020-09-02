@@ -1,6 +1,7 @@
 import React from "react";
 import { PageLayout } from "../../components/PageLayout";
 import { Header } from "../../components/Header";
+import { Login } from "../../components/Login";
 import { GetServerSideProps } from "next";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
@@ -12,7 +13,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   return { props: {} };
 };
 
-const Login = () => {
+const LoginPage = () => {
   return (
     <PageLayout>
       <Header
@@ -20,9 +21,9 @@ const Login = () => {
         imageRightURL="https://www.nhs.co.uk"
         imageRightAltText="NHS logo"
       />
-      <div id="api"></div>
+      <Login />
     </PageLayout>
   );
 };
 
-export default Login;
+export default LoginPage;
