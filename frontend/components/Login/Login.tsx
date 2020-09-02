@@ -6,8 +6,8 @@ const StyledDiv = styled.div`
   min-height: 421px;
   min-width: 287px;
   background-color: ${theme.colorNhsukGrey5};
+  border-radius: 4px;
   margin: 40px 0;
-  border: 2px solid black;
 
   @media (min-width: ${theme.mqBreakpoints.tablet}) {
     min-width: 435px;
@@ -22,33 +22,51 @@ const StyledDiv = styled.div`
     min-height: 504px;
   }
 
-  .localAccount {
-      border: 2px solid red;
-      padding: 32px 40px;
-  }
+  @media (min-width: 1200px) {
+    input {
+      padding: 6px 14px;
+     }
+    button {
+      width: 154px;
+      height: 56px;
+      font-size: 19px;
+    }
+}
 
+  .localAccount {
+      padding: 32px 40px;
+    }
+  label {
+      margin-bottom: 8px;
+    }
+  input {
+    margin-bottom: 24px;
+    max-width: 400px;
+    padding: 8px 12px;
+    border: solid 2px #3d4448;
+    }
   .entry-item {
       display: flex;
       flex-direction: column;
-      label {
-          margin-bottom: 8px;
-      }
-      input {
-          margin-bottom: 24px;
-          max-width: 400px;
-      }
-  }
+    }
   .password-label {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
 
   }
-
   button {
-      height: 56px;
-      width: 154px;
+    width: 97px;
+    height: 44px;
+    background-color: ${theme.colorNhsukBlue};
+    color: ${theme.colorNhsukWhite};
+    border-radius: 4px;
+    box-shadow: 0 4px 0 0 #002a8e;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 20px;
+    border-style: none;
   }
- a {
-     top: -100;
- }
 `}
 `;
 
