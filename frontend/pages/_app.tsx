@@ -3,6 +3,8 @@ import App from "next/app";
 import { withApplicationInsights } from "../components/next-applicationinsights";
 import "./_app.scss";
 import { ThemeProvider } from "styled-components";
+import "@reach/skip-nav/styles.css";
+import "react-skip-nav/lib/style.css";
 
 // Extract our Sass variables into a JS object
 const theme = require('sass-extract-loader?{"includePaths":["."],"plugins": ["sass-extract-js"]}!../node_modules/nhsuk-frontend/packages/core/all.scss');

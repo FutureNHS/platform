@@ -11,7 +11,6 @@ RUN yarn install --frozen-lockfile
 COPY . .
 
 # Building app
-RUN yarn lint
 RUN yarn test
 RUN NEXT_PUBLIC_INSTRUMENTATION_KEY=18be3b83-4ad5-4186-a7b6-f65dd1253a77 yarn build
 

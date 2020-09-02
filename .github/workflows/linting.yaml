@@ -42,7 +42,7 @@ jobs:
         run: yarn
       - name: Run ESLint
         working-directory: frontend
-        run: yarn eslint . --ext .js,.ts,.tsx
+        run: yarn lint
   prettier:
     runs-on: ubuntu-latest
     steps:

@@ -46,6 +46,11 @@ const Dev = () => {
               <a>Pharmacy workspace</a>
             </Link>
           </li>
+          <li>
+            <Link href="/accessible/page1">
+              <a>Accessibility</a>
+            </Link>
+          </li>
         </ul>
       </section>
       <section>
