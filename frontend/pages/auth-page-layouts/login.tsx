@@ -3,8 +3,8 @@ import { PageLayout } from "../../components/PageLayout";
 import { Header } from "../../components/Header";
 import { Login } from "../../components/Login";
 import { GetServerSideProps } from "next";
-import { Gradient } from "../../components/Gradient";
-import { LoginPanel } from "../../components/Login/LoginPanel";
+import { Gradient } from "../../components/Login";
+import { LoginPanel } from "../../components/Login";
 import styled from "styled-components";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
