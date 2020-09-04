@@ -25,38 +25,56 @@ const StyledDiv = styled.div`
     @media (min-width: 1200px) {
       input {
         padding: 6px 14px;
-        }
+      }
       button {
         width: 154px;
         height: 56px;
         font-size: 19px;
-        }
+      }
     }
 
     .localAccount {
-        padding: 32px 40px;
-        }
+      padding: 32px 40px;
+    }
+
     label {
-        margin-bottom: 8px;
-        }
+      margin-bottom: 8px;
+    }
 
     label:after {
-        content: " *";
-      }
+      content: " *";
+    }
+
     input {
       margin-bottom: 24px;
       padding: 8px 12px;
       border: solid 2px #3d4448;
-      }
+    }
+
     .entry-item {
-        display: flex;
-        flex-direction: column;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+
+      &:nth-child(2) {
+        input {
+          position: relative;
+          top: -25px;
+          left: 0;
+        }
       }
+    }
+
     .password-label {
       display: flex;
-      flex-direction: row;
-      justify-content: space-between;
+      flex-direction: column;
+
+      a {
+        position: relative;
+        top: 50px;
       }
+    }
+
     button {
       width: 97px;
       height: 44px;
@@ -73,7 +91,56 @@ const StyledDiv = styled.div`
 `;
 
 const Login = () => {
-  return <StyledDiv id="api"></StyledDiv>;
+  return (
+    <StyledDiv id="api">
+      {/* <form
+        id="localAccountForm"
+        action="JavaScript:void(0);"
+        className="localAccount"
+        aria-label="Sign in with your email address"
+      >
+        <div className="intro">
+          <h2>Sign in with your email address</h2>
+        </div>
+        <div className="entry">
+          <div className="entry-item">
+            <label htmlFor="email">Email Address</label>
+            <input
+              type="text"
+              id="email"
+              name="Email Address"
+              placeholder="Email Address"
+              value=""
+            />
+          </div>
+          <div className="entry-item">
+            <div className="password-label">
+              <label htmlFor="password">Password</label>
+              <a
+                id="forgotPassword"
+                href="/futurenhsplatform.onmicrosoft.com/B2C_1_logintest/api/CombinedSigninAndSignup/forgotPassword?csrf_token=Q0tQNm51aUlXcXAzamVxNTFuL3c4aVRuWlJQQ3QwSGZ6Yk1KR2YxU1E2WHhUZENta2tZeDVRZzZMbXpMUTF4dHlnQkI3Q2FXWjNNd2tab2ZmWDhYSkE9PTsyMDIwLTA4LTI2VDE0OjA3OjE1Ljg3MjU4MjVaO09lVllQYy8xOW5kdWVnTmhFMEJzMkE9PTt7Ik9yY2hlc3RyYXRpb25TdGVwIjoxfQ==&amp;tx=StateProperties=eyJUSUQiOiJjNTU3YTExOC03MTczLTRkZGQtOGQ5NS0xYTI3YWEzY2U2MjcifQ&amp;p=B2C_1_logintest"
+              >
+                Forgot your password?
+              </a>
+            </div>
+            <input
+              type="password"
+              id="password"
+              name="Password"
+              placeholder="Password"
+            />
+          </div>
+          <div className="working"></div>
+
+          <div className="buttons">
+            <button id="next" type="submit" form="localAccountForm">
+              Sign in
+            </button>
+          </div>
+        </div>
+      </form> */}
+    </StyledDiv>
+  );
 };
 
 export default Login;
