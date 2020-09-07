@@ -10,6 +10,7 @@ import styled from "styled-components";
 import { Input, Form, Button } from "nhsuk-react-components";
 import { GetServerSideProps } from "next";
 import { requireAuthentication } from "../../lib/auth";
+import { MainHeading } from "../../components/MainHeading";
 
 export const getServerSideProps: GetServerSideProps = requireAuthentication(
   async () => {
@@ -48,7 +49,7 @@ const H2 = styled.h2`
   border-top: 1px solid ${theme.colorNhsukGrey1};
   padding-top: 24px;
   margin-bottom: 8px;
-  color: ${theme.colorNhsukGrey1} 
+  color: ${theme.colorNhsukGrey1}
   `}
 `;
 
@@ -95,7 +96,7 @@ const CreateWorkspace = () => {
       <PageLayout>
         <Header />
         <PageContent>
-          <h1>Create a workspace</h1>
+          <MainHeading>Create a workspace</MainHeading>
           <H2>Workspace details</H2>
           <p> Fields marked with * are required.</p>
 

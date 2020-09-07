@@ -1,6 +1,7 @@
 import React from "react";
 import { GetServerSideProps } from "next";
 import { requireAuthentication, User } from "../../lib/auth";
+import { MainHeading } from "../../components/MainHeading";
 
 interface Props {
   user: User;
@@ -17,7 +18,7 @@ export const getServerSideProps: GetServerSideProps<Props> = requireAuthenticati
 const PrivatePage = (props: Props) => {
   return (
     <>
-      <div>Private Page</div>
+      <MainHeading>Private Page</MainHeading>
       <div>User ID: {props.user.id}</div>
       <div>Name: {props.user.name}</div>
       <div>Emails: {props.user.emails.join(", ")}</div>

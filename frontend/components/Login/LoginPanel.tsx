@@ -1,6 +1,7 @@
 import React from "react";
 import { Panel } from "nhsuk-react-components";
 import styled from "styled-components";
+import { MainHeading } from "../../components/MainHeading";
 
 type LoginPanelProps = {
   label: string;
@@ -29,7 +30,7 @@ const StyledLoginPanel = styled(Panel)`
 const LoginPanel = ({ label, text }: LoginPanelProps) => {
   return (
     <StyledLoginPanel>
-      <h1>{label}</h1>
+      <MainHeading>{label}</MainHeading>
       <h2>{text}</h2>
     </StyledLoginPanel>
   );
