@@ -2,9 +2,10 @@ import React from "react";
 
 import styled from "styled-components";
 
-const StyledBorder = styled.div`
+const StyledHorizontalRule = styled.hr`
   margin-bottom: 25px;
   ${({ theme }) => `
+    color: ${theme.colorNhsukGrey1};
     border-bottom: 1px solid ${theme.colorNhsukGrey1};
   `}
 `;
@@ -23,7 +24,7 @@ const MainHeading = ({ children, withBorder }: Props) => {
   return (
     <>
       <h1 aria-live="polite">{children}</h1>
-      {withBorder && <StyledBorder />}
+      {withBorder && <StyledHorizontalRule />}
     </>
   );
 };

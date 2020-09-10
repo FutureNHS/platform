@@ -41,7 +41,9 @@ const WorkspaceDirectoryItem = ({ title, id }: Props) => {
       />
       <StyledTextContainer>
         <Link href="/workspaces/[id]" as={`/workspaces/${id}`}>
+          {/* <a> */}
           <StyledH2>{title}</StyledH2>
+          {/* </a> */}
         </Link>
       </StyledTextContainer>
     </StyledContainer>
