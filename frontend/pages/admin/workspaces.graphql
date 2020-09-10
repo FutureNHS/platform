@@ -5,3 +5,17 @@ mutation CreateWorkspaceMutation($title: String!, $description: String!) {
     description
   }
 }
+
+mutation DeleteWorkspaceMutation($id: ID!) {
+  deleteWorkspace(id: $id) {
+    id
+    title
+    longDescription
+  }
+}
+
+query GetWorkspaces {
+  workspaces {
+    title
+  }
+}
