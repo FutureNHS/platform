@@ -75,9 +75,6 @@ const CreateWorkspace = () => {
       const client = new GraphQLClient("/api/graphql");
       const sdk = getSdk(client);
       await sdk.CreateWorkspaceMutation(data);
-      await sdk.DeleteWorkspaceMutation({
-        id: "3254a5ba-b115-4b1a-85f9-9c1267d06bad",
-      });
       window.alert("Workspace created successfully");
     } catch (error) {
       console.log("Create workspace failed", error);

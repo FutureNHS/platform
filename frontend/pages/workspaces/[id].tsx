@@ -44,7 +44,7 @@ const H2 = styled.h2`
   margin-bottom: 8px;
   ${({ theme }) => `
   border-top: 1px solid ${theme.colorNhsukGrey1};
-  color: ${theme.colorNhsukGrey1} 
+  color: ${theme.colorNhsukGrey1}
   `}
 `;
 

@@ -10,12 +10,13 @@ mutation DeleteWorkspaceMutation($id: ID!) {
   deleteWorkspace(id: $id) {
     id
     title
-    longDescription
+    description
   }
 }
 
 query GetWorkspaces {
   workspaces {
+    id
     title
   }
 }
