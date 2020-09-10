@@ -2,13 +2,15 @@ import React from "react";
 
 import { GraphQLClient } from "graphql-request";
 import { GetServerSideProps } from "next";
-import Link from "next/link";
 
 import { Header } from "../../components/Header";
 import { PageLayout } from "../../components/PageLayout";
+import WorkspaceDirectoryItem from "../../components/Workspaces/WorkspaceDirectoryItem";
 import { requireAuthentication } from "../../lib/auth";
 import { getSdk } from "../../lib/generated/graphql";
+import { MainHeading } from "../../components/MainHeading";
 
+import styled from "styled-components";
 
 export const getServerSideProps: GetServerSideProps = requireAuthentication(
   async () => {
@@ -20,16 +22,6 @@ export const getServerSideProps: GetServerSideProps = requireAuthentication(
 
     const { workspaces } = await sdk.GetWorkspaces();
 
-    // const workspaces = directory.workspaces;
-
-    // directory = {
-    //   workspaces: [
-    //     { title: "something" },
-    //     { title: "Hackney" },
-    //     { title: "Islington" },
-    //   ],
-    // };
-
     return {
       props: {
         workspaces,
@@ -37,6 +29,16 @@ export const getServerSideProps: GetServerSideProps = requireAuthentication(
     };
   }
 );
+
+const PageContent = styled.section`
+  min-height: 100vh;
+  padding-top: 24px;
+  padding-left: 10%;
+  padding-right: 10%;
+  ${({ theme }) => `
+  background-color: ${theme.colorNhsukWhite};
+  `}
+`;
 
 interface Props {
   workspaces: [{ title: string; id: string }];
@@ -46,17 +48,19 @@ const WorkspaceDirectory = ({ workspaces }: Props) => {
   return (
     <PageLayout>
       <Header />
-      <h1>My workspaces</h1>
-      {workspaces.map((workspace) => {
-        return (
-          <>
-            <Link href="/workspaces/[id]" as={`/workspaces/${workspace.id}`}>
-              <a>{workspace.title}</a>
-            </Link>
-            <div>{workspace.id}</div>
-          </>
-        );
-      })}
+      <PageContent>
+        <MainHeading withBorder>My workspaces</MainHeading>
+        {workspaces.map((workspace) => {
+          return (
+            <>
+              <WorkspaceDirectoryItem
+                title={workspace.title}
+                id={workspace.id}
+              />
+            </>
+          );
+        })}
+      </PageContent>
     </PageLayout>
   );
 };
