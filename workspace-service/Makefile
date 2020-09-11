@@ -10,6 +10,16 @@ default: ## Run locally
 test: ## Run tests [TEST=test_name (optional)]
 	cargo test $$TEST
 
+.PHONY: sync-docker-context
+sync-docker-context: ## Fetch/build intermediate layers based on your Cargo.lock
+	docker pull $(image)-build-context:$$(shasum Dockerfile Cargo.* | shasum | cut -f 1 -d ' ') || true
+	DOCKER_BUILDKIT=1 docker build \
+		--progress plain \
+		--target build-context \
+		--tag $(image)-build-context:$$(shasum Dockerfile Cargo.* | shasum | cut -f 1 -d ' ') \
+		.
+	docker push $(image)-build-context:$$(shasum Dockerfile Cargo.* | shasum | cut -f 1 -d ' ')
+
 .PHONY: docker-build
 docker-build: ## Build and tag Docker image
 	DOCKER_BUILDKIT=1 docker build \

@@ -55,6 +55,7 @@ jobs:
         working-directory: futurenhs-platform/workspace-service
         run: |
           TAG="$(git rev-parse --short=7 ${{ github.sha }})"
+          make sync-docker-context
           make docker-build tag=${TAG}
           make docker-test TEST_DATABASE_URL=postgres://postgres:postgres@postgres:5432
           make docker-push tag=${TAG}
