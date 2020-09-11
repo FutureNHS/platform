@@ -4,10 +4,19 @@ import Link from "next/link";
 import styled from "styled-components";
 
 const StyledImg = styled.img`
-  display: block;
-  height: 44px;
-  width: 44px;
-  border-radius: 4px;
+  ${({ theme }) => `
+    display: block;
+    height: 44px;
+    width: 44px;
+    border-radius: 4px;
+
+    &:hover {
+      &+ div > a > h2 {
+        color: ${theme.colorNhsukBlue};
+        text-decoration: underline;
+      }
+    }
+  `}
 `;
 
 const StyledContainer = styled.div`
@@ -21,35 +30,23 @@ const StyledTextContainer = styled.div`
 
 const StyledLink = styled.a`
   ${({ theme }) => `
-  &:link {
-    color: ${theme.colorNhsukBlack};
-  }
+    h2 {
+      color: ${theme.colorNhsukBlack};
+      &:hover {
+        color: ${theme.colorNhsukBlue};
+        text-decoration: underline;
+        cursor: pointer;
+      }
 
-  /* visited link */
-  a:visited {
-    color: green;
-  }
-
-  /* mouse over link */
-  a:hover {
-    color: hotpink;
-  }
-
-  /* selected link */
-  a:active {
-    color: blue;
-  }
-
+      &:active {
+        color: ${theme.colorNhsukBlack};
+        text-decoration: none;
+        background-color: ${theme.colorNhsukYellow};
+        border-bottom: 2px solid ${theme.colorNhsukBlack};
+      }
+    }
  `}
 `;
-// const StyledH2 = styled.h2`
-//   ${({ theme }) => `
-//     &:hover {
-//       color: ${theme.colorNhsukBlue};
-//       text-decoration: underline;
-//     }
-//   `}
-// `;
 
 interface Props {
   title: string;
