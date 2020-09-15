@@ -16,11 +16,12 @@ const StyledLink = styled.a`
     height: 44px;
     width: 44px;
     border-radius: 4px;
+    cursor: pointer;
 
-  &:hover {
-    & + h3 {
-      color: ${theme.colorNhsukBlue};
-      text-decoration: underline;
+    &:hover {
+      & + h3 {
+        color: ${theme.colorNhsukBlue};
+        text-decoration: underline;
       }
     }
   }

@@ -1,0 +1,30 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`takes a snapshot of the component 1`] = `
+<DocumentFragment>
+  <h1
+    aria-live="polite"
+  >
+    example heading
+  </h1>
+</DocumentFragment>
+`;
+
+exports[`takes a snapshot with the prop 1`] = `
+<DocumentFragment>
+  <h1
+    aria-live="polite"
+  >
+    example heading
+  </h1>
+  .c0 {
+  margin-bottom: 25px;
+  color: undefined;
+  border-bottom: 1px solid undefined;
+}
+
+<hr
+    class="c0"
+  />
+</DocumentFragment>
+`;
