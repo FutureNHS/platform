@@ -15,11 +15,11 @@ const StyledImg = styled.img`
   display: block;
   height: 40px;
   ${({ theme }) => `
-  @media (max-width: ${theme.mqBreakpoints.tablet}) {
+  @media (max-width: ${theme.mqBreakpoints?.tablet}) {
       height: 32px;
     }
 
-  @media (max-width: ${theme.mqBreakpoints.mobile}) {
+  @media (max-width: ${theme.mqBreakpoints?.mobile}) {
       height: 28px;
     }
   `}

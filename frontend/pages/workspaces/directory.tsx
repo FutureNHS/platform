@@ -39,8 +39,10 @@ const PageContent = styled.section`
   `}
 `;
 
+type Workspace = { title: string; id: string };
+
 interface Props {
-  workspaces: { title: string; id: string }[];
+  workspaces: Workspace[];
 }
 
 const WorkspaceDirectory = ({ workspaces }: Props) => {
@@ -49,7 +51,7 @@ const WorkspaceDirectory = ({ workspaces }: Props) => {
       <Header />
       <PageContent>
         <MainHeading withBorder>My workspaces</MainHeading>
-        {workspaces.map((workspace) => {
+        {workspaces.map((workspace: Workspace) => {
           return (
             <WorkspaceDirectoryItem
               title={workspace.title}

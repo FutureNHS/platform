@@ -1,7 +1,6 @@
 import React from "react";
 
 import { render } from "@testing-library/react";
-import { ThemeProvider } from "styled-components";
 
 import WorkspaceDirectory from "../pages/workspaces/directory";
 
@@ -11,13 +10,8 @@ test("takes a snapshot of the component", () => {
     { title: "pharmacy", id: "2" },
     { title: "ambulance", id: "3" },
   ];
-  const theme = { mqBreakpoints: { tablet: "600px", mobile: "300px" } };
 
-  const { asFragment } = render(
-    <ThemeProvider theme={theme}>
-      <WorkspaceDirectory workspaces={workspaces} />
-    </ThemeProvider>
-  );
+  const { asFragment } = render(<WorkspaceDirectory workspaces={workspaces} />);
 
   expect(asFragment()).toMatchSnapshot();
 });

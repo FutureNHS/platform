@@ -88,13 +88,13 @@ exports[`takes a snapshot of the component 1`] = `
   background-color: undefined;
 }
 
-@media (max-width:600px) {
+@media (max-width:undefined) {
   .c2 {
     height: 32px;
   }
 }
 
-@media (max-width:300px) {
+@media (max-width:undefined) {
   .c2 {
     height: 28px;
   }
