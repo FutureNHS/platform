@@ -1,6 +1,7 @@
 app := workspace-service
 image := fnhsproduction.azurecr.io/$(app)
 tag := latest
+build_context_tag := $(image)-build-context:$$(shasum Dockerfile Cargo.* | shasum | cut -f 1 -d ' ')
 
 .PHONY: default
 default: ## Run locally
@@ -12,18 +13,20 @@ test: ## Run tests [TEST=test_name (optional)]
 
 .PHONY: sync-docker-context
 sync-docker-context: ## Fetch/build intermediate layers based on your Cargo.lock
-	docker pull $(image)-build-context:$$(shasum Dockerfile Cargo.* | shasum | cut -f 1 -d ' ') || true
+	docker pull $(build_context_tag) || true
 	DOCKER_BUILDKIT=1 docker build \
 		--progress plain \
 		--target build-context \
-		--tag $(image)-build-context:$$(shasum Dockerfile Cargo.* | shasum | cut -f 1 -d ' ') \
+		--cache-from $(build_context_tag) \
+		--tag $(build_context_tag) \
 		.
-	docker push $(image)-build-context:$$(shasum Dockerfile Cargo.* | shasum | cut -f 1 -d ' ')
+	docker push $(build_context_tag)
 
 .PHONY: docker-build
 docker-build: ## Build and tag Docker image
 	DOCKER_BUILDKIT=1 docker build \
 		--progress plain \
+		--cache-from $(build_context_tag) \
 		--tag $(app) \
 		--tag $(image) \
 		--tag $(image):$(tag) \
