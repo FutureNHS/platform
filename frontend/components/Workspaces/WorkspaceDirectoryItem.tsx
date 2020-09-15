@@ -4,19 +4,18 @@ import Link from "next/link";
 import styled from "styled-components";
 
 const StyledImg = styled.img`
-  ${({ theme }) => `
-    display: block;
-    height: 44px;
-    width: 44px;
-    border-radius: 4px;
+  display: block;
+  height: 44px;
+  width: 44px;
+  border-radius: 4px;
 
-    &:hover {
-      &+ div > a > h2 {
-        color: ${theme.colorNhsukBlue};
-        text-decoration: underline;
-      }
+  &:hover {
+    & + div > a > h3 {
+      ${({ theme }) => `
+        color: ${theme.colorNhsukBlue};`}
+      text-decoration: underline;
     }
-  `}
+  }
 `;
 
 const StyledContainer = styled.div`
@@ -30,7 +29,7 @@ const StyledTextContainer = styled.div`
 
 const StyledLink = styled.a`
   ${({ theme }) => `
-    h2 {
+    h3 {
       color: ${theme.colorNhsukBlack};
       &:hover {
         color: ${theme.colorNhsukBlue};
@@ -44,7 +43,6 @@ const StyledLink = styled.a`
         background-color: ${theme.colorNhsukYellow};
         border-bottom: 2px solid ${theme.colorNhsukBlack};
       }
-    }
  `}
 `;
 
@@ -63,7 +61,7 @@ const WorkspaceDirectoryItem = ({ title, id }: Props) => {
       <StyledTextContainer>
         <Link href="/workspaces/[id]" as={`/workspaces/${id}`}>
           <StyledLink>
-            <h2>{title}</h2>
+            <h3>{title}</h3>
           </StyledLink>
         </Link>
       </StyledTextContainer>
