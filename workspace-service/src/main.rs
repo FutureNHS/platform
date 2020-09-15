@@ -1,10 +1,12 @@
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use dotenv::dotenv;
+use fnhs_event_models::EventClient;
 use opentelemetry::{api::Provider, sdk, sdk::BatchSpanProcessor};
 use sqlx::PgPool;
 use std::env;
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::Registry;
+use url::Url;
 
 #[async_std::main]
 async fn main() -> Result<()> {
@@ -34,12 +36,23 @@ async fn main() -> Result<()> {
     tracing::subscriber::set_global_default(subscriber).expect("setting global default failed");
 
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL env var not found");
-
     let connection_pool = PgPool::connect(&database_url).await?;
-
     sqlx::migrate!("./migrations").run(&connection_pool).await?;
 
-    let app = workspace_service::create_app(connection_pool).await?;
+    let event_client = if let (Ok(topic_endpoint), Ok(topic_key)) = (
+        env::var("EVENTGRID_TOPIC_ENDPOINT"),
+        env::var("EVENTGRID_TOPIC_KEY"),
+    ) {
+        let topic_hostname = Url::parse(&topic_endpoint)?
+            .host_str()
+            .ok_or_else(|| anyhow!("EVENTGRID_TOPIC_ENDPOINT does not contain host name"))?
+            .to_owned();
+        EventClient::new(topic_hostname, topic_key)
+    } else {
+        EventClient::default()
+    };
+
+    let app = workspace_service::create_app(connection_pool, event_client).await?;
     app.listen("0.0.0.0:3030").await?;
 
     Ok(())

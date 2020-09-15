@@ -1,7 +1,8 @@
+use fnhs_event_models::EventClient;
 use sqlx::PgPool;
 use std::future::Future;
 use std::pin::Pin;
-use tide::{Next, Redirect, Request, Response, Server};
+use tide::{Next, Redirect, Request, Server};
 use tracing::info_span;
 use tracing_futures::Instrument;
 
@@ -28,13 +29,16 @@ pub fn log<'a>(
     })
 }
 
-pub async fn create_app(connection_pool: PgPool) -> anyhow::Result<Server<graphql::State>> {
-    let mut app = tide::with_state(graphql::State::new(connection_pool));
+pub async fn create_app(
+    connection_pool: PgPool,
+    event_client: EventClient,
+) -> anyhow::Result<Server<graphql::State>> {
+    let mut app = tide::with_state(graphql::State::new(connection_pool, event_client));
 
     app.with(log);
 
     app.at("/").get(Redirect::permanent("/graphiql"));
-    app.at("/healthz").get(|_| async { Ok(Response::new(204)) });
+    app.at("/healthz").get(graphql::handle_healthz);
     app.at("/graphql").post(graphql::handle_graphql);
     app.at("/graphiql").get(graphql::handle_graphiql);
 
@@ -52,7 +56,7 @@ mod tests {
             env::var("TEST_DATABASE_URL").expect("TEST_DATABASE_URL env var not found");
         let connection_pool = PgPool::connect(&database_url).await?;
 
-        create_app(connection_pool).await
+        create_app(connection_pool, EventClient::default()).await
     }
 
     #[async_std::test]

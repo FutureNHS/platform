@@ -71,6 +71,8 @@ resource "kubernetes_secret" "workspace_service_db_creds" {
     namespace = kubernetes_namespace.workspace_service.metadata[0].name
   }
   data = {
+    eventgrid_topic_endpoint = var.eventgrid_topic_endpoint
+    eventgrid_topic_key      = var.eventgrid_topic_key
     url = "postgres://${
       postgresql_role.service["workspace_service"].name
       }@${

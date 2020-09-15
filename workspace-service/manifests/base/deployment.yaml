@@ -23,6 +23,16 @@ spec:
                 secretKeyRef:
                   name: workspace-service
                   key: url
+            - name: EVENTGRID_TOPIC_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  name: workspace-service
+                  key: eventgrid_topic_endpoint
+            - name: EVENTGRID_TOPIC_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: workspace-service
+                  key: eventgrid_topic_key
             - name: INSTRUMENTATION_KEY
               valueFrom:
                 configMapKeyRef:

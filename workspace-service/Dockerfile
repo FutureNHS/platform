@@ -3,10 +3,12 @@ FROM rust:1.46.0 AS build-context
 
 RUN rustup component add rustfmt clippy
 
+WORKDIR /usr/src/
+COPY event-models ./event-models
 WORKDIR /usr/src/workspace-service
 
-COPY Cargo.toml .
-COPY Cargo.lock .
+COPY workspace-service/Cargo.toml .
+COPY workspace-service/Cargo.lock .
 
 ENV SQLX_OFFLINE=true
 
@@ -35,10 +37,10 @@ RUN useradd svc
 # Build real binaries now, as late as possible
 FROM build-context AS build
 
-COPY ./src ./src
-COPY sql ./sql
-COPY sqlx-data.json .
-COPY ./migrations ./migrations
+COPY workspace-service/src ./src
+COPY workspace-service/sql ./sql
+COPY workspace-service/sqlx-data.json .
+COPY workspace-service/migrations ./migrations
 
 RUN cargo clippy --release -- -D warnings && cargo build --release
 

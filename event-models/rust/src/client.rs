@@ -1,54 +1,85 @@
 use crate::Event;
-use opentelemetry::{
-    api::{Context, FutureExt, KeyValue, SpanKind, TraceContextExt, Tracer},
-    global as otel,
-};
+use async_trait::async_trait;
+use std::sync::Arc;
+use tracing::info_span;
+use tracing_futures::Instrument as _;
+
+#[async_trait]
+pub trait EventPublisher: std::fmt::Debug {
+    async fn publish_events<'a>(&'a self, events: &'a [Event]) -> Result<(), PublishEventsError>;
+}
 
 #[derive(Debug, Clone)]
-pub struct Client {
+pub struct EventClient {
+    publisher: Arc<dyn EventPublisher + Send + Sync>,
+    is_configured: bool,
+}
+
+impl EventClient {
+    pub fn new(topic_hostname: String, topic_key: String) -> Self {
+        EventClient {
+            publisher: Arc::new(EventGridPublisher {
+                url: format!(
+                    "https://{}/api/events?api-version=2018-01-01",
+                    topic_hostname
+                ),
+                key: topic_key,
+            }),
+            is_configured: true,
+        }
+    }
+
+    pub fn is_configured(&self) -> bool {
+        self.is_configured
+    }
+}
+
+impl Default for EventClient {
+    fn default() -> Self {
+        EventClient {
+            publisher: Arc::new(NoopPublisher {}),
+            is_configured: false,
+        }
+    }
+}
+
+#[async_trait]
+impl EventPublisher for EventClient {
+    async fn publish_events<'a>(&'a self, events: &'a [Event]) -> Result<(), PublishEventsError> {
+        self.publisher.publish_events(events).await
+    }
+}
+
+#[derive(Debug)]
+struct EventGridPublisher {
     url: String,
     key: String,
 }
 
-impl Client {
-    pub fn new(topic_endpoint: String, topic_key: String) -> Self {
-        Self {
-            url: format!(
-                "https://{}/api/events?api-version=2018-01-01",
-                topic_endpoint
-            ),
-            key: topic_key,
-        }
-    }
-
+#[async_trait]
+impl EventPublisher for EventGridPublisher {
     /// Publish events to Azure EventGrid.
     ///
     /// See also: https://docs.microsoft.com/en-us/rest/api/eventgrid/dataplane/publishevents/publishevents
-    pub async fn publish_events(&self, events: &[Event]) -> Result<(), PublishEventsError> {
-        let tracer = otel::tracer("fnhs_event_models");
-        let span = tracer
-            .span_builder("POST /api/events")
-            .with_kind(SpanKind::Client)
-            .with_attributes(vec![
-                KeyValue::new("http.method", "POST"),
-                KeyValue::new("http.url", self.url.as_str()),
-            ])
-            .start(&tracer);
-        let cx = Context::current_with_span(span);
+    async fn publish_events<'a>(&'a self, events: &'a [Event]) -> Result<(), PublishEventsError> {
+        let span = info_span!(
+            "POST /api/events",
+            otel.kind = "client",
+            http.method = "GET",
+            http.url = self.url.as_str(),
+            http.status_code = tracing::field::Empty,
+            http.status_text = tracing::field::Empty
+        );
 
         let res = surf::post(&self.url)
             .set_header("aeg-sas-key", &self.key)
             .body_json(&events)?
-            .with_context(cx.clone())
+            .instrument(span.clone())
             .await?;
 
-        cx.span().set_attribute(KeyValue::new(
-            "http.status_code",
-            i64::from(res.status().as_u16()),
-        ));
+        span.record("http.status_code", &res.status().as_u16());
         if let Some(status_text) = res.status().canonical_reason() {
-            cx.span()
-                .set_attribute(KeyValue::new("http.status_text", status_text));
+            span.record("http.status_text", &status_text);
         }
 
         if res.status() == 200 {
@@ -56,6 +87,16 @@ impl Client {
         } else {
             Err(PublishEventsError::Server(res.status().as_u16()))
         }
+    }
+}
+
+#[derive(Debug)]
+struct NoopPublisher {}
+
+#[async_trait]
+impl EventPublisher for NoopPublisher {
+    async fn publish_events<'a>(&'a self, _events: &'a [Event]) -> Result<(), PublishEventsError> {
+        Ok(())
     }
 }
 

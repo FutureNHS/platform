@@ -1,4 +1,6 @@
-// This file is taken from https://github.com/goenning/next-applicationinsights and edited to remove the 'getInitialProps' method in order to allow for static generation.
+// This file is taken from https://github.com/goenning/next-applicationinsights
+// and edited to remove the 'getInitialProps' method in order to allow for
+// static generation.
 import * as React from "react";
 
 import {
@@ -12,12 +14,6 @@ const IS_BROWSER = typeof window !== "undefined";
 
 interface WithApplicationInsightsProps {
   pageName: string;
-}
-
-declare global {
-  interface Window {
-    appInsights?: ApplicationInsights;
-  }
 }
 
 let appInsights: ApplicationInsights;
@@ -48,6 +44,9 @@ export const withApplicationInsights = (
         if (IS_BROWSER && config.isEnabled && !appInsights) {
           appInsights = new ApplicationInsights({ config });
           appInsights.loadAppInsights();
+          // @ts-ignore This is required for App Insights to work, but we don't
+          // access the property anywhere else. It's easier to ignore the error
+          // here than to extend to global window type.
           window.appInsights = appInsights;
         }
       }
@@ -74,7 +73,7 @@ export const withApplicationInsights = (
 
       public render() {
         this.trackPageView();
-        //@ts-ignore
+        // @ts-ignore
         return React.createElement(App, this.props);
       }
     };
