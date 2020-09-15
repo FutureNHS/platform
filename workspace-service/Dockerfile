@@ -49,8 +49,12 @@ RUN cargo clippy --release -- -D warnings && cargo build --release
 FROM build AS test
 ARG TEST_DATABASE_URL=postgres://postgres:postgres@172.17.0.1:5432
 ENV TEST_DATABASE_URL=$TEST_DATABASE_URL
+ENV DATABASE_URL=$TEST_DATABASE_URL
 
-RUN cargo test --release
+
+RUN cargo clean --package workspace_service && \
+    cargo sqlx prepare --check -- --bin workspace_service && \
+    cargo test --release
 
 # Create the release
 FROM release-context AS release

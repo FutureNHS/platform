@@ -51,7 +51,6 @@ jobs:
           command -v cargo-sqlx || cargo install --git https://github.com/frigus02/sqlx --rev 106a6a83952bfc0e3316d54f99d865e469dcc15a sqlx-cli
           export DATABASE_URL=postgres://postgres:postgres@localhost:5432
           sqlx migrate run
-          cargo sqlx prepare --check -- --bin workspace_service
       - name: "Build & Push image"
         run: |
           cd $GITHUB_WORKSPACE/futurenhs-platform/workspace-service
