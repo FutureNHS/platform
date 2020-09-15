@@ -31,6 +31,7 @@ const StyledLink = styled.a`
   ${({ theme }) => `
     h3 {
       color: ${theme.colorNhsukBlack};
+
       &:hover {
         color: ${theme.colorNhsukBlue};
         text-decoration: underline;
@@ -43,6 +44,7 @@ const StyledLink = styled.a`
         background-color: ${theme.colorNhsukYellow};
         border-bottom: 2px solid ${theme.colorNhsukBlack};
       }
+    }
  `}
 `;
 
