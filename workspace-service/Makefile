@@ -20,12 +20,11 @@ sync-docker-context: ## Fetch/build intermediate layers based on your Cargo.lock
 		--exclude target \
 		Dockerfile \
 		-C .. event-models workspace-service | \
-		DOCKER_BUILDKIT=1 docker build \
+		DOCKER_BUILDKIT=1 docker build - \
 			--progress plain \
 			--target build-context \
 			--cache-from $(build_context_tag) \
-			--tag $(build_context_tag) \
-			.
+			--tag $(build_context_tag)
 	docker push $(build_context_tag)
 
 .PHONY: docker-build
