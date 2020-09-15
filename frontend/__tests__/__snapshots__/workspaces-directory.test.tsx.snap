@@ -1,0 +1,183 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`takes a snapshot of the component 1`] = `
+<DocumentFragment>
+  .c1 {
+  background-color: undefined;
+  padding: 20px;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+}
+
+.c2 {
+  display: block;
+  height: 40px;
+}
+
+.c4 {
+  margin-bottom: 25px;
+  color: undefined;
+  border-bottom: 1px solid undefined;
+}
+
+.c0 {
+  max-width: 1200px;
+  margin: 0px auto;
+}
+
+.c5 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  margin-bottom: 40px;
+}
+
+.c6 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.c6 img {
+  display: block;
+  height: 44px;
+  width: 44px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.c6 img:hover + h3 {
+  color: undefined;
+  -webkit-text-decoration: underline;
+  text-decoration: underline;
+}
+
+.c6 h3 {
+  margin-left: 25px;
+  color: undefined;
+}
+
+.c6 h3:hover {
+  color: undefined;
+  -webkit-text-decoration: underline;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.c6 h3:active {
+  color: undefined;
+  -webkit-text-decoration: none;
+  text-decoration: none;
+  background-color: undefined;
+  border-bottom: 2px solid undefined;
+}
+
+.c3 {
+  min-height: 100vh;
+  padding-top: 24px;
+  padding-left: 10%;
+  padding-right: 10%;
+  background-color: undefined;
+}
+
+@media (max-width:600px) {
+  .c2 {
+    height: 32px;
+  }
+}
+
+@media (max-width:300px) {
+  .c2 {
+    height: 28px;
+  }
+}
+
+<div
+    class="c0"
+  >
+    <header
+      class="c1"
+    >
+      <img
+        alt="FutureNHS logo"
+        class="c2"
+        src="[object Object]"
+      />
+      <a
+        href="https://www.nhs.co.uk"
+      >
+        <img
+          alt="https://www.nhs.co.uk"
+          class="c2"
+          src="[object Object]"
+        />
+      </a>
+    </header>
+    <section
+      class="c3"
+    >
+      <h1
+        aria-live="polite"
+      >
+        My workspaces
+      </h1>
+      <hr
+        class="c4"
+      />
+      <div
+        class="c5"
+      >
+        <a
+          class="c6"
+        >
+          <img
+            alt="https://www.nhs.co.uk"
+            src="[object Object]"
+          />
+          <h3>
+            hospital
+          </h3>
+        </a>
+      </div>
+      <div
+        class="c5"
+      >
+        <a
+          class="c6"
+        >
+          <img
+            alt="https://www.nhs.co.uk"
+            src="[object Object]"
+          />
+          <h3>
+            pharmacy
+          </h3>
+        </a>
+      </div>
+      <div
+        class="c5"
+      >
+        <a
+          class="c6"
+        >
+          <img
+            alt="https://www.nhs.co.uk"
+            src="[object Object]"
+          />
+          <h3>
+            ambulance
+          </h3>
+        </a>
+      </div>
+    </section>
+  </div>
+</DocumentFragment>
+`;

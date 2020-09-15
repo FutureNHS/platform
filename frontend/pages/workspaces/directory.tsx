@@ -40,7 +40,7 @@ const PageContent = styled.section`
 `;
 
 interface Props {
-  workspaces: [{ title: string; id: string }];
+  workspaces: { title: string; id: string }[];
 }
 
 const WorkspaceDirectory = ({ workspaces }: Props) => {
@@ -51,12 +51,11 @@ const WorkspaceDirectory = ({ workspaces }: Props) => {
         <MainHeading withBorder>My workspaces</MainHeading>
         {workspaces.map((workspace) => {
           return (
-            <>
-              <WorkspaceDirectoryItem
-                title={workspace.title}
-                id={workspace.id}
-              />
-            </>
+            <WorkspaceDirectoryItem
+              title={workspace.title}
+              id={workspace.id}
+              key={workspace.id}
+            />
           );
         })}
       </PageContent>

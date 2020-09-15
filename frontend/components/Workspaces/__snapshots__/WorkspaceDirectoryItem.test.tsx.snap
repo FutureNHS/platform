@@ -1,0 +1,70 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`snapshot of component 1`] = `
+<DocumentFragment>
+  .c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  margin-bottom: 40px;
+}
+
+.c1 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.c1 img {
+  display: block;
+  height: 44px;
+  width: 44px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.c1 img:hover + h3 {
+  color: undefined;
+  -webkit-text-decoration: underline;
+  text-decoration: underline;
+}
+
+.c1 h3 {
+  margin-left: 25px;
+  color: undefined;
+}
+
+.c1 h3:hover {
+  color: undefined;
+  -webkit-text-decoration: underline;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.c1 h3:active {
+  color: undefined;
+  -webkit-text-decoration: none;
+  text-decoration: none;
+  background-color: undefined;
+  border-bottom: 2px solid undefined;
+}
+
+<div
+    class="c0"
+  >
+    <a
+      class="c1"
+    >
+      <img
+        alt="https://www.nhs.co.uk"
+        src="[object Object]"
+      />
+      <h3>
+        workspace name
+      </h3>
+    </a>
+  </div>
+</DocumentFragment>
+`;
