@@ -14,12 +14,18 @@ test: ## Run tests [TEST=test_name (optional)]
 .PHONY: sync-docker-context
 sync-docker-context: ## Fetch/build intermediate layers based on your Cargo.lock
 	docker pull $(build_context_tag) || true
-	DOCKER_BUILDKIT=1 docker build \
-		--progress plain \
-		--target build-context \
-		--cache-from $(build_context_tag) \
-		--tag $(build_context_tag) \
-		.
+	tar cv \
+		--exclude event-models/typescript \
+		--exclude manifests \
+		--exclude target \
+		Dockerfile \
+		-C .. event-models workspace-service | \
+		DOCKER_BUILDKIT=1 docker build \
+			--progress plain \
+			--target build-context \
+			--cache-from $(build_context_tag) \
+			--tag $(build_context_tag) \
+			.
 	docker push $(build_context_tag)
 
 .PHONY: docker-build
@@ -32,7 +38,7 @@ docker-build: ## Build and tag Docker image
 		-C .. event-models workspace-service | \
 		DOCKER_BUILDKIT=1 docker build - \
 			--progress plain \
-      --cache-from $(build_context_tag) \
+			--cache-from $(build_context_tag) \
 			--tag $(app) \
 			--tag $(image) \
 			--tag $(image):$(tag)
