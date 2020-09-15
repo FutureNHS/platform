@@ -10,7 +10,7 @@ const StyledImg = styled.img`
   border-radius: 4px;
 
   &:hover {
-    & + div > a > h3 {
+    & + div h3 {
       ${({ theme }) => `
         color: ${theme.colorNhsukBlue};`}
       text-decoration: underline;
