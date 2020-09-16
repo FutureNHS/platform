@@ -3,7 +3,7 @@
 exports[`takes a snapshot of the component 1`] = `
 <DocumentFragment>
   .c1 {
-  background-color: undefined;
+  background-color: rgb(255,255,255);
   padding: 20px;
   display: -webkit-box;
   display: -webkit-flex;
@@ -22,8 +22,8 @@ exports[`takes a snapshot of the component 1`] = `
 
 .c4 {
   margin-bottom: 25px;
-  color: undefined;
-  border-bottom: 1px solid undefined;
+  color: rgb(76,98,114);
+  border-bottom: 1px solid rgb(76,98,114);
 }
 
 .c0 {
@@ -55,29 +55,29 @@ exports[`takes a snapshot of the component 1`] = `
 }
 
 .c6 img:hover + h3 {
-  color: undefined;
+  color: rgb(0,94,184);
   -webkit-text-decoration: underline;
   text-decoration: underline;
 }
 
 .c6 h3 {
   margin-left: 25px;
-  color: undefined;
+  color: rgb(33,43,50);
 }
 
 .c6 h3:hover {
-  color: undefined;
+  color: rgb(0,94,184);
   -webkit-text-decoration: underline;
   text-decoration: underline;
   cursor: pointer;
 }
 
 .c6 h3:active {
-  color: undefined;
+  color: rgb(33,43,50);
   -webkit-text-decoration: none;
   text-decoration: none;
-  background-color: undefined;
-  border-bottom: 2px solid undefined;
+  background-color: rgb(255,235,59);
+  border-bottom: 2px solid rgb(33,43,50);
 }
 
 .c3 {
@@ -85,16 +85,16 @@ exports[`takes a snapshot of the component 1`] = `
   padding-top: 24px;
   padding-left: 10%;
   padding-right: 10%;
-  background-color: undefined;
+  background-color: rgb(255,255,255);
 }
 
-@media (max-width:undefined) {
+@media (max-width:641px) {
   .c2 {
     height: 32px;
   }
 }
 
-@media (max-width:undefined) {
+@media (max-width:320px) {
   .c2 {
     height: 28px;
   }

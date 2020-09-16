@@ -1,0 +1,282 @@
+{
+  "mqResponsive": true,
+  "mqBreakpoints": {
+    "mobile": "320px",
+    "tablet": "641px",
+    "desktop": "769px",
+    "largeDesktop": "990px"
+  },
+  "mqStaticBreakpoint": "desktop",
+  "colorNhsukBlue": "rgb(0, 94, 184)",
+  "colorNhsukWhite": "rgb(255, 255, 255)",
+  "colorNhsukBlack": "rgb(33, 43, 50)",
+  "colorNhsukGreen": "rgb(0, 127, 59)",
+  "colorNhsukRed": "rgb(213, 40, 27)",
+  "colorNhsukYellow": "rgb(255, 235, 59)",
+  "colorNhsukPurple": "rgb(51, 0, 114)",
+  "colorNhsukDarkPink": "rgb(124, 40, 85)",
+  "colorNhsukPaleYellow": "rgb(255, 249, 196)",
+  "colorNhsukWarmYellow": "rgb(255, 184, 28)",
+  "colorNhsukAquaGreen": "rgb(0, 164, 153)",
+  "colorNhsukGrey1": "rgb(76, 98, 114)",
+  "colorNhsukGrey2": "rgb(118, 134, 146)",
+  "colorNhsukGrey3": "rgb(174, 183, 189)",
+  "colorNhsukGrey4": "rgb(216, 221, 224)",
+  "colorNhsukGrey5": "rgb(240, 244, 245)",
+  "colorNhsukGrey1Rgb": "rgb(66, 84, 98)",
+  "alphaTransparency50": 0.5,
+  "colorTintNhsukBlack10": "rgb(55, 64, 71)",
+  "colorShadeNhsukBlue20": "rgb(0, 75, 147)",
+  "colorShadeNhsukBlue35": "rgb(0, 61, 120)",
+  "colorShadeNhsukBlue50": "rgb(0, 47, 92)",
+  "colorShadeNhsukGreen35": "rgb(0, 83, 38)",
+  "colorShadeNhsukGreen50": "rgb(0, 64, 30)",
+  "colorTransparentNhsukWhite20": "rgba(255, 255, 255, 0.2)",
+  "colorTransparentNhsukBlue50": "rgba(0, 47, 92, 0.1)",
+  "nhsukTextColor": "rgb(33, 43, 50)",
+  "nhsukSecondaryTextColor": "rgb(76, 98, 114)",
+  "nhsukPrintTextColor": "rgb(33, 43, 50)",
+  "nhsukLinkColor": "rgb(0, 94, 184)",
+  "nhsukLinkHoverColor": "rgb(124, 40, 85)",
+  "nhsukLinkActiveColor": "rgb(0, 47, 92)",
+  "nhsukLinkVisitedColor": "rgb(51, 0, 114)",
+  "nhsukFocusColor": "rgb(255, 235, 59)",
+  "nhsukFocusTextColor": "rgb(33, 43, 50)",
+  "nhsukBorderColor": "rgb(216, 221, 224)",
+  "nhsukSecondaryBorderColor": "rgba(255, 255, 255, 0.2)",
+  "nhsukBoxShadow": "rgba(33, 43, 50, 0.16)",
+  "nhsukBoxShadowColor": "rgb(66, 84, 98)",
+  "nhsukErrorColor": "rgb(213, 40, 27)",
+  "nhsukFormBorderColor": "rgb(76, 98, 114)",
+  "nhsukFormElementBackgroundColor": "rgb(255, 255, 255)",
+  "nhsukButtonColor": "rgb(0, 127, 59)",
+  "nhsukButtonHoverColor": "rgb(0, 102, 47)",
+  "nhsukButtonActiveColor": "rgb(0, 64, 30)",
+  "nhsukButtonShadowColor": "rgb(0, 64, 30)",
+  "nhsukSecondaryButtonColor": "rgb(76, 98, 114)",
+  "nhsukSecondaryButtonHoverColor": "rgb(61, 78, 91)",
+  "nhsukSecondaryButtonActiveColor": "rgb(38, 49, 57)",
+  "nhsukSecondaryButtonShadowColor": "rgb(38, 49, 57)",
+  "nhsukReverseButtonColor": "rgb(255, 255, 255)",
+  "nhsukReverseButtonHoverColor": "rgb(204, 204, 204)",
+  "nhsukReverseButtonActiveColor": "rgb(33, 43, 50)",
+  "nhsukReverseButtonShadowColor": "rgb(33, 43, 50)",
+  "nhsukButtonTextColor": "rgb(255, 255, 255)",
+  "nhsukReverseButtonTextColor": "rgb(33, 43, 50)",
+  "nhsukFont": "'Frutiger', 'W01'",
+  "nhsukFontFallback": "'Arial', Sans-serif",
+  "nhsukFontFamilyPrint": "sans-serif",
+  "nhsukFontBold": 600,
+  "nhsukFontNormal": 400,
+  "nhsukFontLight": 400,
+  "nhsukBaseFontSize": "16px",
+  "nhsukBaseLineHeight": "24px",
+  "nhsukIconSize": "34px",
+  "nhsukPageWidth": "960px",
+  "nhsukGutter": "32px",
+  "nhsukGutterHalf": "16px",
+  "nhsukBorderWidthInsetText": "12px",
+  "nhsukCareCardTriangleBorder": "16px",
+  "nhsukHeroContentTriangleBorder": "16px",
+  "nhsukHeroBorder": "1px",
+  "nhsukBorderListPanel": "2px",
+  "nhsukBorderListPanelItem": "1px",
+  "nhsukBorderTableHeaderWidth": "2px",
+  "nhsukBorderTableCellWidth": "1px",
+  "nhsukBorderRadius": "4px",
+  "nhsukBoxShadowSpread": "4px",
+  "nhsukBoxShadowBlur": "4px",
+  "nhsukBoxShadowLink": "4px",
+  "nhsukBoxDetails": "8px",
+  "nhsukBoxExpander": "4px",
+  "nhsukBoxShadowPagination": "16px",
+  "nhsukHeaderSpacing": "20px",
+  "nhsukBorderWidthFormElement": "2px",
+  "nhsukBorderWidthFormElementError": "4px",
+  "nhsukFocusWidth": "4px",
+  "nhsukBorderWidth": "4px",
+  "nhsukBorderWidthMobile": "4px",
+  "nhsukBorderWidthFormGroupError": "4px",
+  "nhsukSpacingPoints": {
+    "0": 0,
+    "1": "4px",
+    "2": "8px",
+    "3": "16px",
+    "4": "24px",
+    "5": "32px",
+    "6": "40px",
+    "7": "48px",
+    "8": "56px",
+    "9": "64px"
+  },
+  "nhsukSpacingResponsiveScale": {
+    "0": {
+      "null": 0,
+      "tablet": 0
+    },
+    "1": {
+      "null": "4px",
+      "tablet": "4px"
+    },
+    "2": {
+      "null": "8px",
+      "tablet": "8px"
+    },
+    "3": {
+      "null": "8px",
+      "tablet": "16px"
+    },
+    "4": {
+      "null": "16px",
+      "tablet": "24px"
+    },
+    "5": {
+      "null": "24px",
+      "tablet": "32px"
+    },
+    "6": {
+      "null": "32px",
+      "tablet": "40px"
+    },
+    "7": {
+      "null": "40px",
+      "tablet": "48px"
+    },
+    "8": {
+      "null": "48px",
+      "tablet": "56px"
+    },
+    "9": {
+      "null": "56px",
+      "tablet": "64px"
+    }
+  },
+  "nhsukTypographyScale": {
+    "14": {
+      "null": {
+        "fontSize": "12px",
+        "lineHeight": "20px"
+      },
+      "tablet": {
+        "fontSize": "14px",
+        "lineHeight": "24px"
+      },
+      "print": {
+        "fontSize": "12pt",
+        "lineHeight": 1.2
+      }
+    },
+    "16": {
+      "null": {
+        "fontSize": "14px",
+        "lineHeight": "24px"
+      },
+      "tablet": {
+        "fontSize": "16px",
+        "lineHeight": "24px"
+      },
+      "print": {
+        "fontSize": "14pt",
+        "lineHeight": 1.2
+      }
+    },
+    "19": {
+      "null": {
+        "fontSize": "16px",
+        "lineHeight": "24px"
+      },
+      "tablet": {
+        "fontSize": "19px",
+        "lineHeight": "28px"
+      },
+      "print": {
+        "fontSize": "14pt",
+        "lineHeight": 1.15
+      }
+    },
+    "22": {
+      "null": {
+        "fontSize": "18px",
+        "lineHeight": "28px"
+      },
+      "tablet": {
+        "fontSize": "22px",
+        "lineHeight": "32px"
+      },
+      "print": {
+        "fontSize": "18pt",
+        "lineHeight": 1.15
+      }
+    },
+    "24": {
+      "null": {
+        "fontSize": "20px",
+        "lineHeight": "28px"
+      },
+      "tablet": {
+        "fontSize": "24px",
+        "lineHeight": "32px"
+      },
+      "print": {
+        "fontSize": "18pt",
+        "lineHeight": 1.15
+      }
+    },
+    "32": {
+      "null": {
+        "fontSize": "24px",
+        "lineHeight": "32px"
+      },
+      "tablet": {
+        "fontSize": "32px",
+        "lineHeight": "40px"
+      },
+      "print": {
+        "fontSize": "24pt",
+        "lineHeight": 1.05
+      }
+    },
+    "48": {
+      "null": {
+        "fontSize": "32px",
+        "lineHeight": "40px"
+      },
+      "tablet": {
+        "fontSize": "48px",
+        "lineHeight": "56px"
+      },
+      "print": {
+        "fontSize": "32pt",
+        "lineHeight": 1.15
+      }
+    },
+    "64": {
+      "null": {
+        "fontSize": "48px",
+        "lineHeight": "56px"
+      },
+      "tablet": {
+        "fontSize": "64px",
+        "lineHeight": "72px"
+      },
+      "print": {
+        "fontSize": "53pt",
+        "lineHeight": 1.1
+      }
+    }
+  },
+  "importedModules": "'govuk/objects/grid', 'govuk/objects/main-wrapper', 'govuk/objects/width-container', 'govuk/overrides/spacing'",
+  "nhsukGridWidths": {
+    "oneQuarter": "25%",
+    "oneThird": "33.3333%",
+    "oneHalf": "50%",
+    "twoThirds": "66.6666%",
+    "threeQuarters": "75%",
+    "full": "100%"
+  },
+  "sassMqAlreadyIncluded": true,
+  "spacingDirections": "'top', 'right', 'bottom', 'left'",
+  "mqBaseFontSize": "16px",
+  "mqShowBreakpoints": "",
+  "mqMediaType": "all"
+}
