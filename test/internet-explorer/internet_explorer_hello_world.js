@@ -11,26 +11,24 @@ const browserstackURL = `https://${userName}:${accessKey}@hub-cloud.browserstack
 
 describe("Page loads", function () {
   this.timeout(15000);
-  let driver;
 
-  before(function () {
-    const capabilities = {
-      os: "Windows",
-      os_version: "10",
-      browserName: "IE",
-      browser_version: "11",
-      "browserstack.local": "true",
-      "browserstack.console": "errors",
+  const capabilities = {
+    os: "Windows",
+    os_version: "10",
+    browserName: "IE",
+    browser_version: "11",
+    "browserstack.local": "true",
+    "browserstack.console": "errors",
 
-      name: "Example Internet Explorer Test",
-    };
-    driver = new webdriver.Builder()
-      .usingServer(browserstackURL)
-      .withCapabilities(capabilities)
-      .build();
-  });
+    name: "IE Hello World",
+  };
+  const driverPromise = new webdriver.Builder()
+    .usingServer(browserstackURL)
+    .withCapabilities(capabilities)
+    .build();
 
   it("should render hype page", async () => {
+    const driver = await driverPromise;
     const expected = "The new Future is coming...";
 
     await driver.get(baseUrl);
@@ -40,6 +38,6 @@ describe("Page loads", function () {
   });
 
   after(function () {
-    driver.quit();
+    driverPromise.quit();
   });
 });

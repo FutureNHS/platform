@@ -75,7 +75,7 @@ describe("Logging in", function () {
     "browserstack.local": "true",
     "browserstack.console": "errors",
 
-    name: "Example Internet Explorer Test",
+    name: "Login",
   };
   const driverPromise = new webdriver.Builder()
     .usingServer(browserstackURL)
@@ -107,3 +107,5 @@ describe("Logging in", function () {
     driverPromise.quit();
   });
 });
+
+module.exports = { loginIfNeeded, takeScreenshot };
