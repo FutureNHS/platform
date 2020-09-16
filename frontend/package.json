@@ -10,6 +10,7 @@
     "prebuild": "yarn generate",
     "build": "NODE_ENV=production next build",
     "start": "NODE_ENV=production NODE_OPTIONS='--require ./tracing.js' node server.js",
+    "pretest": "yarn generate",
     "test": "jest",
     "lint": "yarn eslint . --ext .js,.ts,.tsx",
     "clean": "rm -rf .next",
