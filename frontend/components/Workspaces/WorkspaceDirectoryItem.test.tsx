@@ -1,7 +1,9 @@
 import React from "react";
 
 import { render } from "@testing-library/react";
+import { ThemeProvider } from "styled-components";
 
+import theme from "../../lib/fixtures/theme.json";
 import WorkspaceDirectoryItem from "./WorkspaceDirectoryItem";
 
 test("snapshot of component", () => {
@@ -9,7 +11,9 @@ test("snapshot of component", () => {
   const id = "test123";
 
   const { asFragment } = render(
-    <WorkspaceDirectoryItem title={title} id={id} />
+    <ThemeProvider theme={theme}>
+      <WorkspaceDirectoryItem title={title} id={id} />
+    </ThemeProvider>
   );
 
   expect(asFragment()).toMatchSnapshot();

@@ -19,8 +19,8 @@ exports[`takes a snapshot with the prop 1`] = `
   </h1>
   .c0 {
   margin-bottom: 25px;
-  color: undefined;
-  border-bottom: 1px solid undefined;
+  color: rgb(76,98,114);
+  border-bottom: 1px solid rgb(76,98,114);
 }
 
 <hr

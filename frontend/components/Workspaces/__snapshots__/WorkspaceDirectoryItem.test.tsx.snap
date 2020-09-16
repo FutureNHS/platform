@@ -26,29 +26,29 @@ exports[`snapshot of component 1`] = `
 }
 
 .c1 img:hover + h3 {
-  color: undefined;
+  color: rgb(0,94,184);
   -webkit-text-decoration: underline;
   text-decoration: underline;
 }
 
 .c1 h3 {
   margin-left: 25px;
-  color: undefined;
+  color: rgb(33,43,50);
 }
 
 .c1 h3:hover {
-  color: undefined;
+  color: rgb(0,94,184);
   -webkit-text-decoration: underline;
   text-decoration: underline;
   cursor: pointer;
 }
 
 .c1 h3:active {
-  color: undefined;
+  color: rgb(33,43,50);
   -webkit-text-decoration: none;
   text-decoration: none;
-  background-color: undefined;
-  border-bottom: 2px solid undefined;
+  background-color: rgb(255,235,59);
+  border-bottom: 2px solid rgb(33,43,50);
 }
 
 <div
