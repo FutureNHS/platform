@@ -8,7 +8,7 @@ const gateway = new ApolloGateway({
   serviceList: [
     {
       name: "workspace-service",
-      url: "http://localhost:3030/graphql",
+      url: "http://workspace-service.workspace-service/graphql",
     },
   ],
 });
