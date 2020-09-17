@@ -18,7 +18,7 @@ docker-build: ## Build and tag Docker image
 		--exclude target \
 		Dockerfile \
 		-C .. event-models workspace-service | \
-		DOCKER_BUILDKIT=1 docker build - \
+		docker build - \
 			--progress plain \
 			--tag $(app) \
 			--tag $(image) \
@@ -32,7 +32,7 @@ docker-test: ## Run tests in Docker
 		--exclude target \
 		Dockerfile \
 		-C .. event-models workspace-service | \
-		DOCKER_BUILDKIT=1 docker build - \
+		docker build - \
 			--progress plain \
 			--target test \
 			--build-arg TEST_DATABASE_URL=$$TEST_DATABASE_URL
