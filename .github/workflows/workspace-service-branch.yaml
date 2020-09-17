@@ -37,21 +37,30 @@ jobs:
         with:
           toolchain: stable
       - name: Cache sqlx
+        id: cache-sqlx
         uses: actions/cache@v2
         with:
           path: |
             ~/.cargo/bin/sqlx
             ~/.cargo/bin/cargo-sqlx
-          key: 0.1.0-beta.1
+          key: sqlx-0.1.0-beta.1
+      - name: Install sqlx
+        if: steps.cache-sqlx.outputs.cache-hit != 'true'
+        run: cargo install --git https://github.com/frigus02/sqlx --rev 106a6a83952bfc0e3316d54f99d865e469dcc15a sqlx-cli
       - name: Run DB migrations on test database
         working-directory: futurenhs-platform/workspace-service
         run: |
           set -e
-          command -v cargo-sqlx || cargo install --git https://github.com/frigus02/sqlx --rev 106a6a83952bfc0e3316d54f99d865e469dcc15a sqlx-cli
           export DATABASE_URL=postgres://postgres:postgres@localhost:5432
           sqlx migrate run
           cargo sqlx prepare --check -- --bin workspace_service
-      - name: "Build & Push image"
+      - name: Pull base images
+        run: |
+          docker pull rust:1.46.0
+          docker pull debian:buster-slim
+      - name: Cache Docker layers
+        uses: satackey/action-docker-layer-caching@v0.0.8
+      - name: Build & Push image
         working-directory: futurenhs-platform/workspace-service
         run: |
           TAG="$(git rev-parse --short=7 ${{ github.sha }})"
