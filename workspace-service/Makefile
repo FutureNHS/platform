@@ -22,8 +22,7 @@ docker-build: ## Build and tag Docker image
 			--progress plain \
 			--tag $(app) \
 			--tag $(image) \
-			--tag $(image):$(tag) \
-			--build-arg DATABASE_URL=$$DATABASE_URL
+			--tag $(image):$(tag)
 
 .PHONY: docker-test
 docker-test: ## Run tests in Docker
