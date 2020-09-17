@@ -4,9 +4,6 @@ FROM rust:1.46.0 AS build-context
 RUN rustup component add rustfmt clippy
 
 RUN cargo install --git https://github.com/frigus02/sqlx --rev 106a6a83952bfc0e3316d54f99d865e469dcc15a sqlx-cli
-ARG DATABASE_URL=postgres://postgres:postgres@172.17.0.1:5432
-ENV DATABASE_URL=$DATABASE_URL
-RUN sqlx migrate run
 
 WORKDIR /usr/src/
 COPY event-models ./event-models
@@ -43,6 +40,9 @@ COPY workspace-service/sql ./sql
 COPY workspace-service/sqlx-data.json .
 COPY workspace-service/migrations ./migrations
 
+ARG DATABASE_URL=postgres://postgres:postgres@172.17.0.1:5432
+ENV DATABASE_URL=$DATABASE_URL
+RUN sqlx migrate run
 RUN cargo sqlx prepare --check -- --release --bin workspace_service
 RUN cargo clippy --release -- -D warnings && cargo build --release
 
