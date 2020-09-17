@@ -3,13 +3,16 @@ require("dotenv").config();
 const webdriver = require("selenium-webdriver");
 const assert = require("assert");
 
-const { loginIfNeeded } = require("./login");
+const { env, loginIfNeeded } = require("./test-helpers");
 
-const userName = process.env.BROWSERSTACK_USERNAME;
-const accessKey = process.env.BROWSERSTACK_ACCESS_KEY;
+const userName = env("BROWSERSTACK_USERNAME");
+const accessKey = env("BROWSERSTACK_ACCESS_KEY");
 
-const baseUrl = process.env.IE_BASE_URL;
+const baseUrl = env("IE_BASE_URL");
 const browserstackURL = `https://${userName}:${accessKey}@hub-cloud.browserstack.com/wd/hub`;
+
+const TEST_WORKSPACE_NAME = env("TEST_WORKSPACE_NAME");
+const TEST_WORKSPACE_ID = env("TEST_WORKSPACE_ID");
 
 describe("Creating a workspace and navigating to it", function () {
   this.timeout(15000);
@@ -56,8 +59,8 @@ describe("Creating a workspace and navigating to it", function () {
   it("clicking workspace directory item should render workspace", async () => {
     const targetUrl = `${baseUrl}/workspaces/directory`;
     const driver = await driverPromise;
-    const expected = process.env.TEST_WORKSPACE_NAME;
-    const expectedUrl = `${baseUrl}/workspaces/${process.env.TEST_WORKSPACE_ID}`;
+    const expected = TEST_WORKSPACE_NAME;
+    const expectedUrl = `${baseUrl}/workspaces/${TEST_WORKSPACE_ID}`;
 
     await loginIfNeeded(driver, targetUrl);
     await driver.get(targetUrl);
