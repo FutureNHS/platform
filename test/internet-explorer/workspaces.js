@@ -12,7 +12,6 @@ const baseUrl = env("IE_BASE_URL");
 const browserstackURL = `https://${userName}:${accessKey}@hub-cloud.browserstack.com/wd/hub`;
 
 const TEST_WORKSPACE_NAME = env("TEST_WORKSPACE_NAME");
-const TEST_WORKSPACE_ID = env("TEST_WORKSPACE_ID");
 
 describe("Creating a workspace and navigating to it", function () {
   this.timeout(15000);
@@ -60,15 +59,11 @@ describe("Creating a workspace and navigating to it", function () {
     const targetUrl = `${baseUrl}/workspaces/directory`;
     const driver = await driverPromise;
     const expected = TEST_WORKSPACE_NAME;
-    const expectedUrl = `${baseUrl}/workspaces/${TEST_WORKSPACE_ID}`;
 
     await loginIfNeeded(driver, targetUrl);
     await driver.get(targetUrl);
 
     await driver.findElement(webdriver.By.linkText(expected)).click();
-
-    const currentUrl = await driver.getCurrentUrl();
-    assert.equal(currentUrl, expectedUrl);
 
     const h1 = await driver.findElement(webdriver.By.css("h1"));
     const h1Result = await h1.getText();

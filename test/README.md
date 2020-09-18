@@ -31,6 +31,17 @@ To run tests, execute the desired command from the `/test/` directory:
 
 This will open the test runner. You can then select a test you want to run and which browser (Chrome/Firefox/Chromium Edge) you would like to run it in.
 
+Workspaces tests currently only work against Prod. For local you need to either
+
+- manually create a Workspace named "Selenium Testing" in your local/dev cluster environment
+- For local the name must match what is set in your .env file against "TEST_WORKSPACE_NAME"
+- In prod, it is explicitly set to "Selenium Testing"
+  OR
+- run script
+  ```bash
+  ./workspace-service/scripts/create-workspace-if-needed.sh
+  ```
+
 ### BrowserStack
 
 Before running local tests on BrowserStack make sure the BrowserStack Local executable is [installed](#setup).
