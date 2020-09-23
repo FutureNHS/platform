@@ -1,7 +1,7 @@
 {
   "presets": ["next/babel"],
   "plugins": [
-    "inline-react-svg",
+    ["inline-react-svg", {"svgo": {"plugins": [{"convertColors": {"currentColor": "#005EB8"}}]}}],
     ["styled-components", { "ssr": true }]
   ]
 }
