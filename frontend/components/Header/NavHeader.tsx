@@ -119,6 +119,7 @@ const NavHeader = () => {
         <Link href="/workspaces/directory" passHref>
           <StyledHeaderNavItem>
             <StyledWorkspacesIcon />
+            <img src={require("../../public/icons/workspaces.svg")} />
             <StyledSvgIcon viewBox="0 0 20 16">
               <path
                 fillRule="evenodd"
