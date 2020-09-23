@@ -71,6 +71,17 @@ const Navigation = ({ workspace, folders, activeFolder }: Props) => {
       </Header>
       <NavSection title="Folders">
         <List>
+          <NavListItem
+            active={true}
+            key={uuid()}
+            item={{
+              title: "create-folder",
+              id: "create-folder123",
+              description: "create-folder",
+              workspace: workspace.id,
+            }}
+            workspaceId={workspace.id}
+          />
           {folders.map((folder) => (
             <NavListItem
               active={folder.id == activeFolder}

@@ -13,9 +13,7 @@ import { getSdk } from "../../lib/generated/graphql";
 
 export const getServerSideProps: GetServerSideProps = requireAuthentication(
   async () => {
-    const client = new GraphQLClient(
-      "http://workspace-service.workspace-service/graphql"
-    );
+    const client = new GraphQLClient("http://localhost:3030/graphql");
 
     const sdk = getSdk(client);
 

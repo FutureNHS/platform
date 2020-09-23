@@ -4,6 +4,7 @@ import { GraphQLClient } from "graphql-request";
 import { GetServerSideProps } from "next";
 import styled from "styled-components";
 
+import { CreateFolder } from "../../../../components/CreateFolder";
 import { Head } from "../../../../components/Head";
 import { Header } from "../../../../components/Header";
 import { MainHeading } from "../../../../components/MainHeading";
@@ -14,9 +15,7 @@ import { getSdk, Folder, Workspace } from "../../../../lib/generated/graphql";
 
 export const getServerSideProps: GetServerSideProps<Props> = requireAuthentication(
   async (context) => {
-    const client = new GraphQLClient(
-      "http://workspace-service.workspace-service/graphql"
-    );
+    const client = new GraphQLClient("http://localhost:3030/graphql");
     const sdk = getSdk(client);
     const folderId = (context.params?.folderId as string) || "";
     const workspaceId = (context.params?.workspaceId as string) || "";
@@ -70,8 +69,14 @@ const FolderHomepage = ({ folder, workspaceFolders, workspace }: Props) => (
           activeFolder={folder.id}
         />
         <PageContent>
-          <MainHeading>{folder.title}</MainHeading>
-          <p>{folder.description}</p>
+          {folder.title === "create-folder123" ? (
+            <CreateFolder />
+          ) : (
+            <>
+              <MainHeading>{folder.title}</MainHeading>
+              <p>{folder.description}</p>
+            </>
+          )}
         </PageContent>
       </ContentWrapper>
     </PageLayout>
