@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Header } from "nhsuk-react-components";
 import styled from "styled-components";
 
+import WorkspacesIcon from "../../public/icons/workspaces.svg";
 import { FnhsLogo } from "../Svg";
 
 const StyledHeader = styled(Header)`
@@ -49,6 +50,20 @@ const StyledIcon = styled.img`
   max-height: 20px;
   max-width: 20px;
   margin-right: 18px;
+`;
+
+const StyledWorkspacesIcon = styled(WorkspacesIcon)`
+  height: 20px;
+  width: 20px;
+  margin-right: 18px;
+  ${({ theme }) => `
+  // color: ${theme.colorNhsukBlue};
+
+  @media (min-width: ${theme.mqBreakpoints.largeDesktop}) {
+    // color: ${theme.colorNhsukWhite};
+    margin-right: 10px;
+  }
+`}
 `;
 
 const StyledSvgIcon = styled.svg.attrs({
@@ -103,6 +118,7 @@ const NavHeader = () => {
       <StyledHeaderNav>
         <Link href="/workspaces/directory" passHref>
           <StyledHeaderNavItem>
+            <StyledWorkspacesIcon />
             <StyledSvgIcon viewBox="0 0 20 16">
               <path
                 fillRule="evenodd"

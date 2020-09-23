@@ -1,5 +1,6 @@
 {
   "devDependencies": {
+    "babel-plugin-inline-react-svg": "^1.1.1",
     "prettier": "2.1.1"
   }
 }
