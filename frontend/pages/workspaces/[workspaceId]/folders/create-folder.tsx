@@ -87,16 +87,24 @@ const CreateFolder = ({ workspaceFolders, workspace }: Props) => {
   });
 
   const { errors, handleSubmit, register } = useForm();
+  const router = useRouter();
+
+  const backToPreviousPage = () => router.back();
 
   const onSubmit = async (data: Folder) => {
     try {
+      const { id: workspaceId } = workspace;
+      const newFolderDetails = { ...data, workspace: workspaceId };
       const client = new GraphQLClient("/api/graphql");
       const sdk = getSdk(client);
-      await sdk.CreateWorkspaceMutation(data);
-      window.alert("Workspace created successfully");
+      const newFolder = await sdk.CreateFolderMutation(newFolderDetails);
+      const {
+        createFolder: { id: folderId },
+      } = newFolder;
+      router.push(`/workspaces/${workspaceId}/folders/${folderId}`);
     } catch (error) {
-      console.log("Create workspace failed", error);
-      window.alert("Error creating workspace, failed");
+      console.log("Create folder failed", error);
+      window.alert("Error creating folder, failed");
     }
   };
 
@@ -109,10 +117,6 @@ const CreateFolder = ({ workspaceFolders, workspace }: Props) => {
         MAX_CHARS[event.currentTarget.name] - event.currentTarget.value.length,
     });
   };
-
-  const router = useRouter();
-
-  const backToPreviousPage = () => router.back();
 
   return (
     <>

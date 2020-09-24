@@ -12,6 +12,7 @@ interface Props {
   item: ListItem;
   workspaceId: string;
   imgSrc: string;
+  className?: string;
 }
 
 const ListItem = styled.li<{ active: boolean }>`
@@ -50,8 +51,14 @@ const ListItem = styled.li<{ active: boolean }>`
   }
 `;
 
-const NavListItem = ({ active, item, workspaceId, imgSrc }: Props) => (
-  <ListItem active={active}>
+const NavListItem = ({
+  active,
+  item,
+  workspaceId,
+  imgSrc,
+  className,
+}: Props) => (
+  <ListItem active={active} className={className}>
     <Link href={`/workspaces/${workspaceId}/folders/${item.id}`}>
       <a>
         <img src={imgSrc} />

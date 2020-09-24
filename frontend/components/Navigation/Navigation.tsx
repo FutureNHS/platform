@@ -47,6 +47,12 @@ const WorkspaceTitleLink = styled.a`
 
 const List = styled.ul`
   padding-left: 0px;
+  .nav-list-item {
+    div {
+      ${({ theme }) => `
+    color: ${theme.colorNhsukBlue}`}
+    }
+  }
 `;
 
 interface Props {
@@ -90,6 +96,7 @@ const Navigation = ({ workspace, folders, activeFolder }: Props) => {
             item={createFolder}
             workspaceId={workspace.id}
             imgSrc={require("../../public/createFolder.svg")}
+            className="nav-list-item"
           />
           {folders.map((folder) => (
             <NavListItem
