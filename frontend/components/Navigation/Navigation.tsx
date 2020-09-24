@@ -53,9 +53,22 @@ interface Props {
   workspace: Pick<Workspace, "id" | "title">;
   folders: Array<Pick<Folder, "title" | "id">>;
   activeFolder?: string;
+  active: boolean;
 }
 
 const Navigation = ({ workspace, folders, activeFolder }: Props) => {
+  const createFolder = {
+    id: "create-folder",
+    title: "Create new folder",
+    description: "create-folder",
+    workspace: workspace.id,
+  };
+
+  const icons: { [key: string]: string } = {
+    closed: require("../../public/folderClosed.svg"),
+    open: require("../../public/folderOpen.svg"),
+  };
+
   return (
     <Nav>
       <Header>
@@ -72,22 +85,21 @@ const Navigation = ({ workspace, folders, activeFolder }: Props) => {
       <NavSection title="Folders">
         <List>
           <NavListItem
-            active={true}
+            active={createFolder.id === activeFolder}
             key={uuid()}
-            item={{
-              title: "create-folder",
-              id: "create-folder123",
-              description: "create-folder",
-              workspace: workspace.id,
-            }}
+            item={createFolder}
             workspaceId={workspace.id}
+            imgSrc={require("../../public/createFolder.svg")}
           />
           {folders.map((folder) => (
             <NavListItem
-              active={folder.id == activeFolder}
+              active={folder.id === activeFolder}
               key={uuid()}
               item={folder}
               workspaceId={workspace.id}
+              imgSrc={
+                folder.id === activeFolder ? icons["open"] : icons["closed"]
+              }
             />
           ))}
         </List>

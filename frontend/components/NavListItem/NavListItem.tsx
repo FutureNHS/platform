@@ -11,6 +11,7 @@ interface Props {
   active: boolean;
   item: ListItem;
   workspaceId: string;
+  imgSrc: string;
 }
 
 const ListItem = styled.li<{ active: boolean }>`
@@ -49,16 +50,11 @@ const ListItem = styled.li<{ active: boolean }>`
   }
 `;
 
-const icons: { [key: string]: string } = {
-  closed: require("../../public/folderClosed.svg"),
-  open: require("../../public/folderOpen.svg"),
-};
-
-const NavListItem = ({ active, item, workspaceId }: Props) => (
+const NavListItem = ({ active, item, workspaceId, imgSrc }: Props) => (
   <ListItem active={active}>
     <Link href={`/workspaces/${workspaceId}/folders/${item.id}`}>
       <a>
-        <img src={active ? icons["open"] : icons["closed"]} />
+        <img src={imgSrc} />
         <div>{item.title}</div>
       </a>
     </Link>

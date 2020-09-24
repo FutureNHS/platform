@@ -4,7 +4,6 @@ import { GraphQLClient } from "graphql-request";
 import { GetServerSideProps } from "next";
 import styled from "styled-components";
 
-import { CreateFolder } from "../../../../components/CreateFolder";
 import { Head } from "../../../../components/Head";
 import { Header } from "../../../../components/Header";
 import { MainHeading } from "../../../../components/MainHeading";
@@ -46,7 +45,6 @@ const PageContent = styled.section`
   background-color: ${theme.colorNhsukWhite};
   `}
 `;
-
 const ContentWrapper = styled.div`
   display: flex;
 `;
@@ -69,14 +67,8 @@ const FolderHomepage = ({ folder, workspaceFolders, workspace }: Props) => (
           activeFolder={folder.id}
         />
         <PageContent>
-          {folder.title === "create-folder123" ? (
-            <CreateFolder />
-          ) : (
-            <>
-              <MainHeading>{folder.title}</MainHeading>
-              <p>{folder.description}</p>
-            </>
-          )}
+          <MainHeading withBorder>{folder.title}</MainHeading>
+          <p>{folder.description}</p>
         </PageContent>
       </ContentWrapper>
     </PageLayout>
