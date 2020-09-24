@@ -2,6 +2,7 @@ import React, { useState } from "react";
 
 import { GraphQLClient } from "graphql-request";
 import { GetServerSideProps } from "next";
+import { useRouter } from "next/dist/client/router";
 import { Input, Form, Button } from "nhsuk-react-components";
 import { useForm } from "react-hook-form";
 import styled from "styled-components";
@@ -109,6 +110,10 @@ const CreateFolder = ({ workspaceFolders, workspace }: Props) => {
     });
   };
 
+  const router = useRouter();
+
+  const backToPreviousPage = () => router.back();
+
   return (
     <>
       <PageLayout>
@@ -166,7 +171,9 @@ const CreateFolder = ({ workspaceFolders, workspace }: Props) => {
                 } characters remaining`}
               </FormField>
               <Button type="submit">Save and complete</Button>
-              <StyledButton>Dismiss</StyledButton>
+              <StyledButton type="button" onClick={backToPreviousPage}>
+                Dismiss
+              </StyledButton>
             </Form>
           </PageContent>
         </ContentWrapper>
