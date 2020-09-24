@@ -74,6 +74,16 @@ const Navigation = ({ workspace, folders, activeFolder }: Props) => {
     closed: require("../../public/folderClosed.svg"),
     open: require("../../public/folderOpen.svg"),
   };
+  //   objArray.sort(function(a, b) {
+  //     var textA = a.DepartmentName.toUpperCase();
+  //     var textB = b.DepartmentName.toUpperCase();
+  //     return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+  // });
+  const alphabetisedFolders = folders.sort((a, b) => {
+    const textA = a.title.toUpperCase();
+    const textB = b.title.toUpperCase();
+    return textA < textB ? -1 : textA > textB ? 1 : 0;
+  });
 
   return (
     <Nav>
@@ -98,7 +108,7 @@ const Navigation = ({ workspace, folders, activeFolder }: Props) => {
             imgSrc={require("../../public/createFolder.svg")}
             className="nav-list-item"
           />
-          {folders.map((folder) => (
+          {alphabetisedFolders.map((folder) => (
             <NavListItem
               active={folder.id === activeFolder}
               key={uuid()}
