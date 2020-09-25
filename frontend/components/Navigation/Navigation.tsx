@@ -49,8 +49,9 @@ const List = styled.ul`
   padding-left: 0px;
   .nav-list-item {
     div {
+      font-weight: 700;
       ${({ theme }) => `
-    color: ${theme.colorNhsukBlue}`}
+      color: ${theme.colorNhsukBlue}`}
     }
   }
 `;
@@ -74,11 +75,7 @@ const Navigation = ({ workspace, folders, activeFolder }: Props) => {
     closed: require("../../public/folderClosed.svg"),
     open: require("../../public/folderOpen.svg"),
   };
-  //   objArray.sort(function(a, b) {
-  //     var textA = a.DepartmentName.toUpperCase();
-  //     var textB = b.DepartmentName.toUpperCase();
-  //     return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
-  // });
+
   const alphabetisedFolders = folders.sort((a, b) => {
     const textA = a.title.toUpperCase();
     const textB = b.title.toUpperCase();

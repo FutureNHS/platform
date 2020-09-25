@@ -39,13 +39,6 @@ const ContentWrapper = styled.div`
   display: flex;
 `;
 
-const StyledButton = styled(Button)`
-  margin-left: 10px;
-  ${({ theme }) => `
-  background-color: ${theme.colorNhsukGrey1};
-  `}
-`;
-
 const FormField = styled.div`
   padding-bottom: 40px;
   #text {
@@ -175,9 +168,9 @@ const CreateFolder = ({ workspaceFolders, workspace }: Props) => {
                 } characters remaining`}
               </FormField>
               <Button type="submit">Save and complete</Button>
-              <StyledButton type="button" onClick={backToPreviousPage}>
-                Dismiss
-              </StyledButton>
+              <Button secondary type="button" onClick={backToPreviousPage}>
+                Discard
+              </Button>
             </Form>
           </PageContent>
         </ContentWrapper>
