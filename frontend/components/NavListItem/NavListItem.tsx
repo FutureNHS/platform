@@ -1,4 +1,4 @@
-import React from "react";
+import React, { FC } from "react";
 
 import Link from "next/link";
 import styled from "styled-components";
@@ -10,9 +10,9 @@ type ListItem = Pick<Folder, "id" | "title">;
 interface Props {
   active: boolean;
   item: ListItem;
-  workspaceId: string;
   imgSrc: string;
   className?: string;
+  href: string;
 }
 
 const ListItem = styled.li<{ active: boolean }>`
@@ -51,15 +51,15 @@ const ListItem = styled.li<{ active: boolean }>`
   }
 `;
 
-const NavListItem = ({
+const NavListItem: FC<Props> = ({
   active,
   item,
-  workspaceId,
   imgSrc,
   className,
+  href,
 }: Props) => (
   <ListItem active={active} className={className}>
-    <Link href={`/workspaces/${workspaceId}/folders/${item.id}`}>
+    <Link href={href}>
       <a>
         <img src={imgSrc} />
         <div>{item.title}</div>

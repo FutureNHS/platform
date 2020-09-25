@@ -24,6 +24,7 @@
   "plugins": ["react", "@typescript-eslint", "import"],
   "rules": {
     "no-unused-vars": "off",
+    "react/prop-types": "off",
     "import/order": [
       "error",
       {

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { FC, useState } from "react";
 
 import { GraphQLClient } from "graphql-request";
 import { GetServerSideProps } from "next";
@@ -73,7 +73,7 @@ interface Props {
   workspace: Pick<Workspace, "id" | "title">;
 }
 
-const CreateFolder = ({ workspaceFolders, workspace }: Props) => {
+const CreateFolder: FC<Props> = ({ workspaceFolders, workspace }) => {
   const [remainingChars, setRemainingChars] = useState({
     title: null,
     description: null,

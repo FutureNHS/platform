@@ -1,8 +1,7 @@
-import React from "react";
+import React, { FC } from "react";
 
 import Link from "next/link";
 import styled from "styled-components";
-import { v4 as uuid } from "uuid";
 
 import { Folder, Workspace } from "../../lib/generated/graphql";
 import { NavListItem } from "../NavListItem";
@@ -63,11 +62,11 @@ interface Props {
   active: boolean;
 }
 
-const Navigation = ({ workspace, folders, activeFolder }: Props) => {
+const Navigation: FC<Props> = ({ workspace, folders, activeFolder }) => {
   const createFolder = {
     id: "create-folder",
     title: "Create new folder",
-    description: "create-folder",
+    description: "create folder",
     workspace: workspace.id,
   };
 
@@ -99,21 +98,20 @@ const Navigation = ({ workspace, folders, activeFolder }: Props) => {
         <List>
           <NavListItem
             active={createFolder.id === activeFolder}
-            key={uuid()}
             item={createFolder}
-            workspaceId={workspace.id}
             imgSrc={require("../../public/createFolder.svg")}
             className="nav-list-item"
+            href={`/workspaces/${workspace.id}/folders/${createFolder.id}`}
           />
           {alphabetisedFolders.map((folder) => (
             <NavListItem
               active={folder.id === activeFolder}
-              key={uuid()}
+              key={folder.id}
               item={folder}
-              workspaceId={workspace.id}
               imgSrc={
                 folder.id === activeFolder ? icons["open"] : icons["closed"]
               }
+              href={`/workspaces/${workspace.id}/folders/${folder.id}`}
             />
           ))}
         </List>
