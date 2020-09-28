@@ -46,15 +46,21 @@ const FormField = styled.div`
   }
 `;
 
-const PageContent = styled.section`
-  flex-grow: 3;
+const PageContent = styled.div`
+  ${({ theme }) => `
+  background-color: ${theme.colorNhsukWhite};
   min-height: 100vh;
   padding-top: 24px;
   padding-left: 10%;
   padding-right: 10%;
-  ${({ theme }) => `
-  background-color: ${theme.colorNhsukWhite};
+  .nhsuk-form-group {
+    margin-bottom: 8px;
+  }
   `}
+`;
+
+const StyledButton = styled(Button)`
+  margin-left: 12px;
 `;
 
 const MAX_CHARS: { [key: string]: number } = {
@@ -168,9 +174,13 @@ const CreateFolder: FC<Props> = ({ workspaceFolders, workspace }) => {
                 } characters remaining`}
               </FormField>
               <Button type="submit">Save and complete</Button>
-              <Button secondary type="button" onClick={backToPreviousPage}>
+              <StyledButton
+                secondary
+                type="button"
+                onClick={backToPreviousPage}
+              >
                 Discard
-              </Button>
+              </StyledButton>
             </Form>
           </PageContent>
         </ContentWrapper>

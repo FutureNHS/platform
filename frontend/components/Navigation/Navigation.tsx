@@ -59,7 +59,6 @@ interface Props {
   workspace: Pick<Workspace, "id" | "title">;
   folders: Array<Pick<Folder, "title" | "id">>;
   activeFolder?: string;
-  active: boolean;
 }
 
 const Navigation: FC<Props> = ({ workspace, folders, activeFolder }) => {
