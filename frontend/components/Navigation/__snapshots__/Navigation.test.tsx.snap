@@ -114,6 +114,11 @@ exports[`<Navigation/> renders correctly 1`] = `
   padding-left: 0px;
 }
 
+.c4 .nav-list-item div {
+  font-weight: 700;
+  color: rgb(0,94,184);
+}
+
 @media (min-width:641px) {
   .c0 {
     width: 300px;
@@ -163,6 +168,20 @@ exports[`<Navigation/> renders correctly 1`] = `
       <ul
         class="c4"
       >
+        <li
+          class="c5 nav-list-item"
+        >
+          <a
+            href="/workspaces/1111/folders/create-folder"
+          >
+            <img
+              src="/public/createFolder.svg"
+            />
+            <div>
+              Create new folder
+            </div>
+          </a>
+        </li>
         <li
           class="c5"
         >

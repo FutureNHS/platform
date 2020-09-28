@@ -1,4 +1,4 @@
-import React from "react";
+import React, { FC } from "react";
 
 import { GraphQLClient } from "graphql-request";
 import { GetServerSideProps } from "next";
@@ -14,7 +14,9 @@ import { getSdk, Folder, Workspace } from "../../../../lib/generated/graphql";
 
 export const getServerSideProps: GetServerSideProps<Props> = requireAuthentication(
   async (context) => {
-    const client = new GraphQLClient("http://localhost:3030/graphql");
+    const client = new GraphQLClient(
+      "http://workspace-service.workspace-service/graphql"
+    );
     const sdk = getSdk(client);
     const folderId = (context.params?.folderId as string) || "";
     const workspaceId = (context.params?.workspaceId as string) || "";
@@ -55,7 +57,7 @@ interface Props {
   workspace: Pick<Workspace, "id" | "title">;
 }
 
-const FolderHomepage = ({ folder, workspaceFolders, workspace }: Props) => (
+const FolderHomepage: FC<Props> = ({ folder, workspaceFolders, workspace }) => (
   <>
     <Head title={folder.title} />
     <PageLayout>

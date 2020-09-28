@@ -12,7 +12,12 @@ describe("<NavListItem/>", () => {
   it("renders matching snapshot when not active", () => {
     const container = render(
       <ThemeProvider theme={theme}>
-        <NavListItem active={false} item={folder} workspaceId="workspace-id" />
+        <NavListItem
+          active={false}
+          item={folder}
+          href="test-link"
+          imgSrc="test-svg"
+        />
       </ThemeProvider>
     );
 
@@ -22,7 +27,12 @@ describe("<NavListItem/>", () => {
   it("renders matching snapshot when active", () => {
     const container = render(
       <ThemeProvider theme={theme}>
-        <NavListItem active={true} item={folder} workspaceId="workspace-id" />
+        <NavListItem
+          active={true}
+          item={folder}
+          href="test-link"
+          imgSrc="test-svg"
+        />
       </ThemeProvider>
     );
 

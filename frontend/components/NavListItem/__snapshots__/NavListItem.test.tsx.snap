@@ -49,10 +49,10 @@ exports[`<NavListItem/> renders matching snapshot when active 1`] = `
     class="c0"
   >
     <a
-      href="/workspaces/workspace-id/folders/folder-id"
+      href="/test-link"
     >
       <img
-        src="/public/folderOpen.svg"
+        src="test-svg"
       />
       <div>
         folder title
@@ -111,10 +111,10 @@ exports[`<NavListItem/> renders matching snapshot when not active 1`] = `
     class="c0"
   >
     <a
-      href="/workspaces/workspace-id/folders/folder-id"
+      href="/test-link"
     >
       <img
-        src="/public/folderClosed.svg"
+        src="test-svg"
       />
       <div>
         folder title

@@ -20,10 +20,16 @@ exports[`FolderHomepage renders matching snapshot 1`] = `
   height: 40px;
 }
 
+.c12 {
+  margin-bottom: 25px;
+  color: rgb(76,98,114);
+  border-bottom: 1px solid rgb(76,98,114);
+}
+
 .c9 {
-  background: rgb(255,235,59);
+  background: inherit;
   border-radius: 4px;
-  font-weight: 700;
+  font-weight: inherit;
   list-style-type: none;
   margin-bottom: 12px;
 }
@@ -58,6 +64,49 @@ exports[`FolderHomepage renders matching snapshot 1`] = `
 }
 
 .c9 div {
+  padding-left: 4px;
+  padding-right: 4px;
+  color: rgb(33,43,50);
+}
+
+.c10 {
+  background: rgb(255,235,59);
+  border-radius: 4px;
+  font-weight: 700;
+  list-style-type: none;
+  margin-bottom: 12px;
+}
+
+.c10:hover {
+  background-color: rgb(216,221,224);
+}
+
+.c10 a {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  padding-left: 8px;
+  -webkit-text-decoration: none;
+  text-decoration: none;
+}
+
+.c10 a:focus {
+  box-shadow: none;
+}
+
+.c10 img {
+  padding-top: 2px;
+  -webkit-align-self: baseline;
+  -ms-flex-item-align: baseline;
+  align-self: baseline;
+  width: 24px;
+  -webkit-flex-shrink: 0;
+  -ms-flex-negative: 0;
+  flex-shrink: 0;
+}
+
+.c10 div {
   padding-left: 4px;
   padding-right: 4px;
   color: rgb(33,43,50);
@@ -132,12 +181,17 @@ exports[`FolderHomepage renders matching snapshot 1`] = `
   padding-left: 0px;
 }
 
+.c8 .nav-list-item div {
+  font-weight: 700;
+  color: rgb(0,94,184);
+}
+
 .c0 {
   max-width: 1200px;
   margin: 0px auto;
 }
 
-.c10 {
+.c11 {
   -webkit-box-flex: 3;
   -webkit-flex-grow: 3;
   -ms-flex-positive: 3;
@@ -242,7 +296,21 @@ exports[`FolderHomepage renders matching snapshot 1`] = `
             class="c8"
           >
             <li
-              class="c9"
+              class="c9 nav-list-item"
+            >
+              <a
+                href="/workspaces/1/folders/create-folder"
+              >
+                <img
+                  src="/public/createFolder.svg"
+                />
+                <div>
+                  Create new folder
+                </div>
+              </a>
+            </li>
+            <li
+              class="c10"
             >
               <a
                 href="/workspaces/1/folders/f1"
@@ -259,13 +327,16 @@ exports[`FolderHomepage renders matching snapshot 1`] = `
         </section>
       </nav>
       <section
-        class="c10"
+        class="c11"
       >
         <h1
           aria-live="polite"
         >
           folder 1
         </h1>
+        <hr
+          class="c12"
+        />
         <p>
           first folder
         </p>
