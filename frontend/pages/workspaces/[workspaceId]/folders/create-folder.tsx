@@ -23,6 +23,9 @@ export const getServerSideProps: GetServerSideProps<Props> = requireAuthenticati
     );
     const sdk = getSdk(client);
     const workspaceId = (context.params?.workspaceId as string) || "";
+    if (!workspaceId) {
+      throw new Error("No workspace id");
+    }
 
     const { foldersByWorkspace } = await sdk.FoldersByWorkspace({
       workspace: workspaceId,

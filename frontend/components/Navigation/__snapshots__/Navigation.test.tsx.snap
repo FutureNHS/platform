@@ -175,6 +175,7 @@ exports[`<Navigation/> renders correctly 1`] = `
             href="/workspaces/1111/folders/create-folder"
           >
             <img
+              alt="create new folder icon"
               src="/public/createFolder.svg"
             />
             <div>
@@ -189,6 +190,7 @@ exports[`<Navigation/> renders correctly 1`] = `
             href="/workspaces/1111/folders/1234"
           >
             <img
+              alt="folder"
               src="/public/folderClosed.svg"
             />
             <div>
@@ -203,6 +205,7 @@ exports[`<Navigation/> renders correctly 1`] = `
             href="/workspaces/1111/folders/5678"
           >
             <img
+              alt="folder"
               src="/public/folderClosed.svg"
             />
             <div>

@@ -260,6 +260,7 @@ exports[`WorkspaceHomepage renders with folders matching snapshot 1`] = `
                 href="/workspaces/1/folders/create-folder"
               >
                 <img
+                  alt="create new folder icon"
                   src="/public/createFolder.svg"
                 />
                 <div>
@@ -274,6 +275,7 @@ exports[`WorkspaceHomepage renders with folders matching snapshot 1`] = `
                 href="/workspaces/1/folders/f1"
               >
                 <img
+                  alt="folder"
                   src="/public/folderClosed.svg"
                 />
                 <div>

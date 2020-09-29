@@ -99,7 +99,7 @@ const Navigation: FC<Props> = ({ workspace, folders, activeFolder }) => {
             imgSrc={require("../../public/createFolder.svg")}
             className="nav-list-item"
             href={`/workspaces/${workspace.id}/folders/${createFolder.id}`}
-            altText="create new folder icon"
+            altText=""
           />
           {alphabetisedFolders.map((folder) => (
             <NavListItem
