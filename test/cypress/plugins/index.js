@@ -9,17 +9,21 @@
 // https://on.cypress.io/plugins-guide
 // ***********************************************************
 
-const dotenv = require("dotenv");
-
 /**
  * @type {Cypress.PluginConfig}
  */
 module.exports = (_on, config) => {
-  const envResult = dotenv.config();
-  if (envResult.error) {
-    throw envResult.error;
+  try {
+    const dotenv = require("dotenv");
+    const envResult = dotenv.config();
+    if (envResult.error) {
+      throw envResult.error;
+    }
+
+    Object.assign(config.env, envResult.parsed);
+  } catch (err) {
+    console.warn("Could not load environment variables from .env file.", err);
   }
 
-  Object.assign(config.env, envResult.parsed);
   return config;
 };

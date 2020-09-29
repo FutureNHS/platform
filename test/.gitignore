@@ -1,6 +1,5 @@
 .env
 .DS_Store
-browserstack.json
 cypress.json
 
 /node_modules

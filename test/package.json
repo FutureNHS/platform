@@ -3,10 +3,10 @@
     "cypress:local": "cypress open --config-file ./cypress-local.json",
     "cypress:dev": "./scripts/cypress.sh",
     "cypress:prod": "cypress open --config-file ./cypress-prod.json",
-    "cypress-bs:local": "./scripts/cypress-bs.sh ./cypress-bs-local.json",
+    "cypress-bs:local": "BROWSERSTACK_LOCAL=true ./scripts/cypress-bs.sh ./cypress-bs-local.json",
     "cypress-bs:dev": "./scripts/cypress-bs.sh",
     "cypress-bs:prod": "./scripts/cypress-bs.sh ./cypress-prod.json",
-    "internet-explorer-bs:local": "./scripts/internet-explorer-bs.sh local",
+    "internet-explorer-bs:local": "BROWSERSTACK_LOCAL=true ./scripts/internet-explorer-bs.sh local",
     "internet-explorer-bs:dev": "./scripts/internet-explorer-bs.sh dev",
     "internet-explorer-bs:prod": "./scripts/internet-explorer-bs.sh prod",
     "local": "./scripts/local-bs-connect.sh"

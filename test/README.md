@@ -51,9 +51,7 @@ Execute `yarn local` (from the /test/ directory) to launch the executable before
 
 ##### Cypress Configuration
 
-Before running Cypress on BrowserStack, duplicate and edit the browserstack.json example, adding your BrowserStack username and access key. Check the [Setup](#setup) section for instructions on getting your access key.
-
-You can also modify which browsers you would like to run the tests in by modifying the `"browsers"` object in the browserstack.json file. See the BrowserStack [browsers and OS](https://www.browserstack.com/docs/automate/cypress/browsers-and-os) documentation for more information.
+You can modify which browsers you would like to run the tests in by modifying the `"browsers"` object in the browserstack.json file. See the BrowserStack [browsers and OS](https://www.browserstack.com/docs/automate/cypress/browsers-and-os) documentation for more information.
 
 ##### Run tests
 

@@ -1,28 +1,20 @@
 {
-  "auth": {
-    "username": "<browserstack username>",
-    "access_key": "<browserstack access key>"
-  },
+  "auth": {},
   "browsers": [
     {
       "browser": "chrome",
       "os": "Windows 10",
-      "versions": ["80", "81"]
+      "versions": ["84"]
     },
     {
       "browser": "chrome",
       "os": "OS X Catalina",
-      "versions": ["80", "81"]
+      "versions": ["85"]
     },
     {
       "browser": "edge",
       "os": "Windows 10",
-      "versions": ["80", "81"]
-    },
-    {
-      "browser": "firefox",
-      "os": "Windows 10",
-      "versions": ["75"]
+      "versions": ["85"]
     }
   ],
   "run_settings": {
@@ -32,8 +24,6 @@
     "parallels": 5,
     "npm_dependencies": {}
   },
-  "connection_settings": {
-    "local": true
-  },
+  "connection_settings": {},
   "disable_usage_reporting": false
 }

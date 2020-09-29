@@ -16,5 +16,24 @@ else
 	$REPO_ROOT/test/scripts/make-dev-config.sh $NAME
 fi
 
-cd $REPO_ROOT/test && yarn browserstack-cypress run
-rm $REPO_ROOT/test/cypress.json
+cd $REPO_ROOT/test
+
+BROWSERSTACK_USERNAME=$(grep BROWSERSTACK_USERNAME .env | xargs)
+BROWSERSTACK_USERNAME=${BROWSERSTACK_USERNAME#*=}
+export BROWSERSTACK_USERNAME
+BROWSERSTACK_ACCESS_KEY=$(grep BROWSERSTACK_ACCESS_KEY .env | xargs)
+BROWSERSTACK_ACCESS_KEY=${BROWSERSTACK_ACCESS_KEY#*=}
+export BROWSERSTACK_ACCESS_KEY
+
+# Locally we can load environment variables from the .env file with a Cypress
+# plugin. The .env file is not uploaded to BrowserStack, though. So we need to
+# parse and specify them here.
+TEST_LOGIN_EMAIL_ADDRESS=$(grep TEST_LOGIN_EMAIL_ADDRESS .env | xargs)
+TEST_LOGIN_EMAIL_ADDRESS=${TEST_LOGIN_EMAIL_ADDRESS#*=}
+TEST_LOGIN_PASSWORD=$(grep TEST_LOGIN_PASSWORD .env | xargs)
+TEST_LOGIN_PASSWORD=${TEST_LOGIN_PASSWORD#*=}
+TEST_WORKSPACE_NAME=$(grep TEST_WORKSPACE_NAME .env | xargs)
+TEST_WORKSPACE_NAME=${TEST_WORKSPACE_NAME#*=}
+
+yarn browserstack-cypress run --env "TEST_LOGIN_EMAIL_ADDRESS=$TEST_LOGIN_EMAIL_ADDRESS,TEST_LOGIN_PASSWORD=$TEST_LOGIN_PASSWORD,TEST_WORKSPACE_NAME=$TEST_WORKSPACE_NAME"
+rm cypress.json
