@@ -9,6 +9,7 @@ type ListItem = Pick<Folder, "id" | "title">;
 
 interface Props {
   active: boolean;
+  altText: string;
   item: ListItem;
   imgSrc: string;
   className?: string;
@@ -53,6 +54,7 @@ const ListItem = styled.li<{ active: boolean }>`
 
 const NavListItem: FC<Props> = ({
   active,
+  altText,
   item,
   imgSrc,
   className,
@@ -61,7 +63,7 @@ const NavListItem: FC<Props> = ({
   <ListItem active={active} className={className}>
     <Link href={href}>
       <a>
-        <img src={imgSrc} />
+        <img src={imgSrc} alt={altText} />
         <div>{item.title}</div>
       </a>
     </Link>

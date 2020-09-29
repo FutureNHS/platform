@@ -1,9 +1,10 @@
 import React, { FC, useState } from "react";
 
+import { ErrorMessage as HookFormErrorMessage } from "@hookform/error-message";
 import { GraphQLClient } from "graphql-request";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/dist/client/router";
-import { Input, Form, Button } from "nhsuk-react-components";
+import { Input, Form, Button, ErrorMessage } from "nhsuk-react-components";
 import { useForm } from "react-hook-form";
 import styled from "styled-components";
 
@@ -87,7 +88,8 @@ const CreateFolder: FC<Props> = ({ workspaceFolders, workspace }) => {
     description: null,
   });
 
-  const { errors, handleSubmit, register } = useForm();
+  const { errors, handleSubmit, register, setError } = useForm();
+
   const router = useRouter();
 
   const backToPreviousPage = () => router.back();
@@ -104,8 +106,10 @@ const CreateFolder: FC<Props> = ({ workspaceFolders, workspace }) => {
       } = newFolder;
       router.push(`/workspaces/${workspaceId}/folders/${folderId}`);
     } catch (error) {
-      console.log("Create folder failed", error);
-      window.alert("Error creating folder, failed");
+      setError("form", {
+        type: "server",
+        message: "Error creating folder",
+      });
     }
   };
 
@@ -120,74 +124,75 @@ const CreateFolder: FC<Props> = ({ workspaceFolders, workspace }) => {
   };
 
   return (
-    <>
-      <PageLayout>
-        <Header />
-        <ContentWrapper>
-          <Navigation
-            folders={workspaceFolders}
-            workspace={workspace}
-            activeFolder={"active"}
-          />
-          <PageContent>
-            <MainHeading withBorder>Create a folder</MainHeading>
-            <h2>Folder details</h2>
-            <p> Fields marked with * are mandatory.</p>
-            <Form onSubmit={handleSubmit(onSubmit)}>
-              <FormField>
-                <Input
-                  name="title"
-                  onChange={handleCharNumber}
-                  id="title"
-                  label="Enter folder title*"
-                  hint="The title of your folder should accurately reflect its content or audience"
-                  inputRef={register({
-                    required: true,
-                    maxLength: MAX_CHARS.title,
-                  })}
-                  error={
-                    errors.title &&
-                    `Folder name is required and cannot be longer than ${MAX_CHARS.title} characters`
-                  }
-                />
-                {`${
-                  remainingChars.title || MAX_CHARS.title
-                } characters remaining`}
-              </FormField>
+    <PageLayout>
+      <Header />
+      <ContentWrapper>
+        <Navigation
+          folders={workspaceFolders}
+          workspace={workspace}
+          activeFolder={"active"}
+        />
+        <PageContent>
+          <MainHeading withBorder>Create a folder</MainHeading>
+          <h2>Folder details</h2>
+          <p> Fields marked with * are mandatory.</p>
+          <Form onSubmit={handleSubmit(onSubmit)}>
+            <FormField>
+              <Input
+                name="title"
+                onChange={handleCharNumber}
+                id="title"
+                label="Enter folder title*"
+                hint="The title of your folder should accurately reflect its content or audience"
+                inputRef={register({
+                  required: true,
+                  maxLength: MAX_CHARS.title,
+                })}
+                error={
+                  errors.title &&
+                  `Folder name is required and cannot be longer than ${MAX_CHARS.title} characters`
+                }
+              />
+              {`${
+                remainingChars.title || MAX_CHARS.title
+              } characters remaining`}
+            </FormField>
 
-              <FormField>
-                <Textarea
-                  name="description"
-                  onChange={handleCharNumber}
-                  id="description"
-                  label="Description"
-                  error={
-                    errors.description &&
-                    `Description must be a maximum of ${MAX_CHARS.description} characters`
-                  }
-                  hint="This is the description as seen by users"
-                  inputRef={register({
-                    required: false,
-                    maxLength: MAX_CHARS.description,
-                  })}
-                />
-                {`${
-                  remainingChars.description || MAX_CHARS.description
-                } characters remaining`}
-              </FormField>
-              <Button type="submit">Save and complete</Button>
-              <StyledButton
-                secondary
-                type="button"
-                onClick={backToPreviousPage}
-              >
-                Discard
-              </StyledButton>
-            </Form>
-          </PageContent>
-        </ContentWrapper>
-      </PageLayout>
-    </>
+            <FormField>
+              <Textarea
+                name="description"
+                onChange={handleCharNumber}
+                id="description"
+                label="Description"
+                error={
+                  errors.description &&
+                  `Description must be a maximum of ${MAX_CHARS.description} characters`
+                }
+                hint="This is the description as seen by users"
+                inputRef={register({
+                  required: false,
+                  maxLength: MAX_CHARS.description,
+                })}
+              />
+              {`${
+                remainingChars.description || MAX_CHARS.description
+              } characters remaining`}
+            </FormField>
+            <Button type="submit" name="submitButton">
+              Save and complete
+            </Button>
+            <StyledButton secondary type="button" onClick={backToPreviousPage}>
+              Discard
+            </StyledButton>
+            <HookFormErrorMessage
+              errors={errors}
+              name="server"
+              as={<ErrorMessage />}
+            />
+          </Form>
+        </PageContent>
+      </ContentWrapper>
+    </PageLayout>
   );
 };
 

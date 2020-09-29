@@ -74,11 +74,9 @@ const Navigation: FC<Props> = ({ workspace, folders, activeFolder }) => {
     open: require("../../public/folderOpen.svg"),
   };
 
-  const alphabetisedFolders = folders.sort((a, b) => {
-    const textA = a.title.toUpperCase();
-    const textB = b.title.toUpperCase();
-    return textA < textB ? -1 : textA > textB ? 1 : 0;
-  });
+  const alphabetisedFolders = folders.sort((a, b) =>
+    a.title.localeCompare(b.title, "en", { sensitivity: "base" })
+  );
 
   return (
     <Nav>
@@ -101,6 +99,7 @@ const Navigation: FC<Props> = ({ workspace, folders, activeFolder }) => {
             imgSrc={require("../../public/createFolder.svg")}
             className="nav-list-item"
             href={`/workspaces/${workspace.id}/folders/${createFolder.id}`}
+            altText="create new folder icon"
           />
           {alphabetisedFolders.map((folder) => (
             <NavListItem
@@ -109,6 +108,9 @@ const Navigation: FC<Props> = ({ workspace, folders, activeFolder }) => {
               item={folder}
               imgSrc={
                 folder.id === activeFolder ? icons["open"] : icons["closed"]
+              }
+              altText={
+                folder.id === activeFolder ? "folder current page" : "folder"
               }
               href={`/workspaces/${workspace.id}/folders/${folder.id}`}
             />

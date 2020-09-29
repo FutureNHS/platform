@@ -1304,7 +1304,7 @@
   dependencies:
     "@types/node" "^14.10.1"
     ajv "^6.12.5"
-    typescript "^4.0.2"
+    typescript "^4.0.3"
 
 "@graphql-codegen/cli@1.17.8":
   version "1.17.8"
@@ -1618,6 +1618,11 @@
     aggregate-error "3.0.1"
     is-promise "4.0.0"
     tslib "~2.0.0"
+
+"@hookform/error-message@^0.0.4":
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/@hookform/error-message/-/error-message-0.0.4.tgz#a499aa62994af44da3d207f6ed01232f43b3a549"
+  integrity sha512-as5acnxkWuF5XrzHhZlzdXUk4zpHNzFLe+uGyaJtSrMbDVTvcNL62ESRK5DTVGPix8shJnt6G2LfrobHBPpvYg==
 
 "@istanbuljs/load-nyc-config@^1.0.0":
   version "1.1.0"
@@ -11697,6 +11702,11 @@ typescript@^4.0.2:
   version "4.0.2"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.0.2.tgz#7ea7c88777c723c681e33bf7988be5d008d05ac2"
   integrity sha512-e4ERvRV2wb+rRZ/IQeb3jm2VxBsirQLpQhdxplZ2MEzGvDkkMmPglecnNDfSUBivMjP93vRbngYYDQqQ/78bcQ==
+
+typescript@^4.0.3:
+  version "4.0.3"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.0.3.tgz#153bbd468ef07725c1df9c77e8b453f8d36abba5"
+  integrity sha512-tEu6DGxGgRJPb/mVPIZ48e69xCn2yRmCgYmDugAVwmJ6o+0u1RI18eO7E7WBTLYLaEVVOhwQmcdhQHweux/WPg==
 
 ua-parser-js@^0.7.18:
   version "0.7.21"
