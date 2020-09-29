@@ -302,7 +302,7 @@ exports[`FolderHomepage renders matching snapshot 1`] = `
                 href="/workspaces/1/folders/create-folder"
               >
                 <img
-                  alt="create new folder icon"
+                  alt=""
                   src="/public/createFolder.svg"
                 />
                 <div>

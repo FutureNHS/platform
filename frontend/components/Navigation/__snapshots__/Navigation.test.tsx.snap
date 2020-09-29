@@ -175,7 +175,7 @@ exports[`<Navigation/> renders correctly 1`] = `
             href="/workspaces/1111/folders/create-folder"
           >
             <img
-              alt="create new folder icon"
+              alt=""
               src="/public/createFolder.svg"
             />
             <div>
