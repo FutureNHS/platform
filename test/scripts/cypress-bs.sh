@@ -50,6 +50,5 @@ jq \
     "TEST_WORKSPACE_NAME": $TEST_WORKSPACE_NAME
   }' >cypress.env.json
 
-
 yarn browserstack-cypress run
 rm cypress.json cypress.env.json

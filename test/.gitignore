@@ -1,6 +1,7 @@
 .env
 .DS_Store
 cypress.json
+cypress.env.json
 
 /node_modules
 /log

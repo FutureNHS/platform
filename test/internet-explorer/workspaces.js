@@ -3,7 +3,7 @@ require("dotenv").config();
 const webdriver = require("selenium-webdriver");
 const assert = require("assert");
 
-const { env, loginIfNeeded } = require("./test-helpers");
+const { capabilities, env, loginIfNeeded } = require("./test-helpers");
 
 const userName = env("BROWSERSTACK_USERNAME");
 const accessKey = env("BROWSERSTACK_ACCESS_KEY");
@@ -16,19 +16,9 @@ const TEST_WORKSPACE_NAME = env("TEST_WORKSPACE_NAME");
 describe("Creating a workspace and navigating to it", function () {
   this.timeout(15000);
 
-  const capabilities = {
-    os: "Windows",
-    os_version: "10",
-    browserName: "IE",
-    browser_version: "11",
-    "browserstack.local": "true",
-    "browserstack.console": "errors",
-
-    name: "Workspaces",
-  };
   const driverPromise = new webdriver.Builder()
     .usingServer(browserstackURL)
-    .withCapabilities(capabilities)
+    .withCapabilities(capabilities("Workspaces"))
     .build();
 
   it("should render workspace creation page", async () => {
