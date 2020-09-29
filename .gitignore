@@ -6,3 +6,4 @@ dev-*/
 terraform.tfvars
 node_modules
 .vscode/
+backend-config.tfvars
