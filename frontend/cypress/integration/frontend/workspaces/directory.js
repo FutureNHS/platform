@@ -6,7 +6,7 @@ describe("Workspace Directory", () => {
     cy.contains("h3", Cypress.env("TEST_WORKSPACE_NAME"));
   });
 
-  it("Navigates to workspace page", () => {
+  it("Navigates to Workspace page", () => {
     cy.visit(`/workspaces/directory`);
 
     cy.get("h3")
