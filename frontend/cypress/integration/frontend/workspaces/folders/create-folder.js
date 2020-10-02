@@ -11,12 +11,12 @@ describe("Create folder page", () => {
   });
 
   it("Shows title, form and discard to go back to previous page ", () => {
-    cy.visit(
-      `/workspaces/01bb9a4d-2977-4c43-b28c-2a72b4eda453/folders/create-folder`
-    );
+    const start = `/workspaces/01bb9a4d-2977-4c43-b28c-2a72b4eda453`;
+    cy.visit(start);
+    cy.contains("a", "Create new folder").click();
     cy.contains("h1", "Create a folder");
 
     cy.get("button").contains("Discard").click();
-    cy.go("back");
+    cy.location("pathname").should("eq", start);
   });
 });
