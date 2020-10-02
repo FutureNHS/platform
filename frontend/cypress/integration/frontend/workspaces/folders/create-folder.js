@@ -1,5 +1,4 @@
 describe("Create folder page", () => {
-  // Currently only works against Prod or if you manually create a Workspace named "Selenium Testing" in your local/dev cluster environment
   it("Shows title, renders form and submits", () => {
     cy.visit(
       `/workspaces/01bb9a4d-2977-4c43-b28c-2a72b4eda453/folders/create-folder`
