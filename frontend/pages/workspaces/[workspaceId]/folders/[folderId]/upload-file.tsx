@@ -12,6 +12,7 @@ import { MainHeading } from "../../../../../components/MainHeading";
 import { NavHeader } from "../../../../../components/NavHeader";
 import { Navigation } from "../../../../../components/Navigation";
 import { PageLayout } from "../../../../../components/PageLayout";
+import { Textarea } from "../../../../../components/Textarea";
 import {
   FileUploadUrlDocument,
   useCreateFileMutation,
@@ -24,11 +25,8 @@ const ContentWrapper = styled.div`
   display: flex;
 `;
 
-const FormField = styled.div`
-  padding-bottom: 40px;
-  #text {
-    padding-bottom: 60px;
-  }
+const StyledInput = styled(Input)`
+  border: none;
 `;
 
 const PageContent = styled.div`
@@ -140,6 +138,12 @@ const UploadFile: NextPage<any> = ({ urqlClient }: { urqlClient: Client }) => {
       });
     }
   };
+  const FormField = styled.div`
+    padding-bottom: 40px;
+    #text {
+      padding-bottom: 60px;
+    }
+  `;
 
   const handleCharNumber = (
     event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -149,6 +153,13 @@ const UploadFile: NextPage<any> = ({ urqlClient }: { urqlClient: Client }) => {
       [event.currentTarget.name]:
         MAX_CHARS[event.currentTarget.name] - event.currentTarget.value.length,
     });
+  };
+
+  const [names, setFileNames] = useState<string[]>([]);
+
+  const handleFiles = (files: FileList) => {
+    const filenames = Object.values(files).map((file) => file.name); //['name1', 'name2']
+    setFileNames([...names, ...filenames]);
   };
 
   return (
@@ -172,47 +183,77 @@ const UploadFile: NextPage<any> = ({ urqlClient }: { urqlClient: Client }) => {
           </MainHeading>
           <p> Fields marked with * are mandatory.</p>
           <Form onSubmit={handleSubmit(onSubmit)}>
-            <FormField>
-              <Input
-                name="title"
-                onChange={handleCharNumber}
-                id="title"
-                label="Enter file title*"
-                hint="This is the file title as seen by users. Try to be as descriptive as possible. "
-                inputRef={register({
-                  required: { value: true, message: "File title is required" },
-                  maxLength: {
-                    value: MAX_CHARS.title,
-                    message: `File title cannot be longer than ${MAX_CHARS.title} characters`,
-                  },
-                })}
-                aria-invalid={errors.title ? "true" : "false"}
-                error={errors.title?.message}
-              />
-              {`${
-                remainingChars.title || MAX_CHARS.title
-              } characters remaining`}
-            </FormField>
-            <FormField>
-              <Input
-                type="file"
-                name="files"
-                id="files"
-                label="Upload a file*"
-                hint="Maximum size 10GB"
-                inputRef={register({
-                  required: { value: true, message: "Please select a file" },
-                })}
-                aria-invalid={errors.files ? "true" : "false"}
-                error={errors.files?.message}
-              />
-            </FormField>
+            <StyledInput
+              type="file"
+              name="files"
+              id="files"
+              hint="Maximum 5 files"
+              multiple
+              onChange={(e) => handleFiles(e.currentTarget.files)}
+              inputRef={register({
+                required: {
+                  value: true,
+                  message: "Please select one or more files",
+                },
+              })}
+              aria-invalid={errors.files ? "true" : "false"}
+              error={errors.files?.message}
+            />
+
             <p>
               All uploaded content must conform to the platform&apos;s{" "}
               <a href="#">Terms and Conditions</a>.
             </p>
+            {names &&
+              names.map((name, index) => {
+                return (
+                  <>
+                    <FormField>
+                      <Input
+                        name="title"
+                        onChange={handleCharNumber}
+                        value={name}
+                        key={index}
+                        label="Enter file title*"
+                        hint="The title of your file should accurately reflect its content or audience"
+                        inputRef={register({
+                          required: true,
+                          maxLength: MAX_CHARS.title,
+                        })}
+                        error={
+                          errors.title &&
+                          `Folder name is required and cannot be longer than ${MAX_CHARS.title} characters`
+                        }
+                      />
+                      {`${
+                        remainingChars.title || MAX_CHARS.title
+                      } characters remaining`}
+                    </FormField>
+                    <FormField>
+                      <Textarea
+                        name="description"
+                        onChange={handleCharNumber}
+                        id="description"
+                        label="Description"
+                        error={
+                          errors.description &&
+                          `Description must be a maximum of ${MAX_CHARS.description} characters`
+                        }
+                        hint="This is the description as seen by users"
+                        inputRef={register({
+                          required: false,
+                          maxLength: MAX_CHARS.description,
+                        })}
+                      />
+                      {`${
+                        remainingChars.description || MAX_CHARS.description
+                      } characters remaining`}
+                    </FormField>
+                  </>
+                );
+              })}
             <Button type="submit" name="submitButton">
-              Save and continue
+              Uploads and continue
             </Button>
             <StyledButton secondary type="button" onClick={backToPreviousPage}>
               Discard
