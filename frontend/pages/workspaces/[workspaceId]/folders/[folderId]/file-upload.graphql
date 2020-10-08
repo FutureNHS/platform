@@ -1,3 +1,3 @@
-query FileUploadUrl {
-  fileUploadUrl
+query FileUploadUrls($count: Int!) {
+  fileUploadUrls(count: $count)
 }

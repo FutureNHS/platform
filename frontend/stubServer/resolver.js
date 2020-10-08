@@ -2,7 +2,7 @@ const createFolderResponse = require("../cypress/fixtures/create-folder-graphql-
 const createWorkspaceResponse = require("../cypress/fixtures/create-workspace-graphql-response.json");
 const deleteFileResponse = require("../cypress/fixtures/delete-file-graphql-response.json");
 const fileResponse = require("../cypress/fixtures/file-graphql-response.json");
-const fileUploadUrlResponse = require("../cypress/fixtures/file-upload-url-graphql-response.json");
+const fileUploadUrlsResponse = require("../cypress/fixtures/file-upload-url-graphql-response.json");
 const filesByFolderResponse = require("../cypress/fixtures/files-by-folder-graphql-response.json");
 const folderResponse = require("../cypress/fixtures/folder-graphql-response.json");
 const foldersByWorkspaceResponse = require("../cypress/fixtures/folders-by-workspace-graphql-response.json");
@@ -29,8 +29,8 @@ const fileMutation = {
   deleteFile: async () => deleteFileResponse.data.deleteFile,
 };
 
-const fileUploadUrlResolver = {
-  fileUploadUrl: async () => fileUploadUrlResponse.data.fileUploadUrl,
+const fileUploadUrlsResolver = {
+  fileUploadUrls: async () => fileUploadUrlsResponse.data.fileUploadUrls,
 };
 
 // Folder
@@ -61,7 +61,7 @@ module.exports = (schema) => {
       ...workspacesResolver,
       ...folderResolver,
       ...fileResolver,
-      ...fileUploadUrlResolver,
+      ...fileUploadUrlsResolver,
       ...federationResolver,
     },
     Mutation: {

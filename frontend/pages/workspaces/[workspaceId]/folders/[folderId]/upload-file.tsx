@@ -14,7 +14,7 @@ import { Navigation } from "../../../../../components/Navigation";
 import { PageLayout } from "../../../../../components/PageLayout";
 import { Textarea } from "../../../../../components/Textarea";
 import {
-  FileUploadUrlDocument,
+  FileUploadUrlsDocument,
   useCreateFileMutation,
   useGetFolderByIdQuery,
   useGetWorkspaceByIdQuery,
@@ -94,50 +94,61 @@ const UploadFile: NextPage<any> = ({ urqlClient }: { urqlClient: Client }) => {
 
   const onSubmit = async ({ title, files }: FormData) => {
     console.log("**********FORMDATA", title);
+    console.log("********FILES", files);
     try {
       const { error, data } = await urqlClient
-        .query(FileUploadUrlDocument)
+        .query(FileUploadUrlsDocument, { count: files.length })
         .toPromise();
       if (error) {
         throw new Error(`Failed to get upload URL: ${error.toString()}`);
       }
+      console.log("********DATA", data.fileUploadUrls);
       if (data) {
-        const blobClient = new BlockBlobClient(data.fileUploadUrl);
-        const uploadResponse = await blobClient.uploadBrowserData(files[0], {
-          maxSingleShotSize: 4 * 1024 * 1024,
-        });
-        if (uploadResponse.errorCode) {
-          throw new Error(`Failed to upload file: ${uploadResponse.errorCode}`);
-        }
-        const { name: fileName, type: fileType } = files[0];
-        const setMetaResponse = await blobClient.setMetadata({
-          title,
-          fileName,
-        });
-        if (setMetaResponse.errorCode) {
-          throw new Error(
-            `Failed to set file metadata: ${setMetaResponse.errorCode}`
+        data.fileUploadUrls.map(async (url, index) => {
+          const blobClient = new BlockBlobClient(url);
+          const uploadResponse = await blobClient.uploadBrowserData(
+            files[index],
+            {
+              maxSingleShotSize: 4 * 1024 * 1024,
+            }
           );
-        }
 
-        const file = await createFile({
-          newFile: {
-            description: "", // TODO
-            fileName,
-            fileType,
-            folder: folderId,
-            temporaryBlobStoragePath: data.fileUploadUrl,
+          console.log("********UPLOADRESPONSE", uploadResponse);
+          if (uploadResponse.errorCode) {
+            throw new Error(
+              `Failed to upload file: ${uploadResponse.errorCode}`
+            );
+          }
+          const { name: fileName, type: fileType } = files[index];
+          const setMetaResponse = await blobClient.setMetadata({
             title,
-          },
+            fileName,
+          });
+          console.log("********METARESPONSE", setMetaResponse);
+          if (setMetaResponse.errorCode) {
+            throw new Error(
+              `Failed to set file metadata: ${setMetaResponse.errorCode}`
+            );
+          }
+
+          const file = await createFile({
+            newFile: {
+              description: "TBD", // TODO
+              fileName,
+              fileType,
+              folder: folderId,
+              temporaryBlobStoragePath: url,
+              title,
+            },
+          });
+
+          console.log("******file", file);
+          if (file.error) {
+            throw new Error(`Failed to save file: ${file.error?.message}`);
+          }
         });
-        if (file.error) {
-          throw new Error(`Failed to save file: ${file.error?.message}`);
-        }
-        if (file.data) {
-          router.push(
-            `/workspaces/${workspaceId}/folders/${folderId}/files/${file.data.createFile.id}`
-          );
-        }
+        // need to show loading and files need to be uploaded before router.push
+        router.push(`/workspaces/${workspaceId}/folders/${folderId}`);
       }
     } catch (error) {
       setError("files", {
@@ -190,7 +201,7 @@ const UploadFile: NextPage<any> = ({ urqlClient }: { urqlClient: Client }) => {
               : folder.data?.folder.title || "No title!"}
           </MainHeading>
           <p> Fields marked with * are mandatory.</p>
-          <Form onSubmit={handleSubmit(onSubmit)}>
+          <Form id="filesUploadForm" onSubmit={handleSubmit(onSubmit)}>
             <StyledInput
               type="file"
               name="files"

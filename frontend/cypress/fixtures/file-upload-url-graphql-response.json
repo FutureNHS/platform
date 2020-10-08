@@ -1,5 +1,5 @@
 {
   "data": {
-    "fileUploadUrl": "http://localhost:3001/file-upload"
+    "fileUploadUrls": ["http://localhost:3001/file-upload"]
   }
 }
