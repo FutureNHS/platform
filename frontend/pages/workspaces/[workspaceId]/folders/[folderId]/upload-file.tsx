@@ -46,6 +46,13 @@ const StyledButton = styled(Button)`
   margin-left: 12px;
 `;
 
+const StyledFileInfoBox = styled.div`
+  ${({ theme }) => `
+background-color: ${theme.colorNhsukGrey4};
+`}
+  margin-bottom: 10px;
+`;
+
 const MAX_CHARS: { [key: string]: number } = {
   title: 50,
 };
@@ -86,6 +93,7 @@ const UploadFile: NextPage<any> = ({ urqlClient }: { urqlClient: Client }) => {
   const backToPreviousPage = () => router.back();
 
   const onSubmit = async ({ title, files }: FormData) => {
+    console.log("**********FORMDATA", title);
     try {
       const { error, data } = await urqlClient
         .query(FileUploadUrlDocument)
@@ -208,47 +216,49 @@ const UploadFile: NextPage<any> = ({ urqlClient }: { urqlClient: Client }) => {
               names.map((name, index) => {
                 return (
                   <>
-                    <FormField>
-                      <Input
-                        name="title"
-                        onChange={handleCharNumber}
-                        value={name}
-                        key={index}
-                        label="Enter file title*"
-                        hint="The title of your file should accurately reflect its content or audience"
-                        inputRef={register({
-                          required: true,
-                          maxLength: MAX_CHARS.title,
-                        })}
-                        error={
-                          errors.title &&
-                          `Folder name is required and cannot be longer than ${MAX_CHARS.title} characters`
-                        }
-                      />
-                      {`${
-                        remainingChars.title || MAX_CHARS.title
-                      } characters remaining`}
-                    </FormField>
-                    <FormField>
-                      <Textarea
-                        name="description"
-                        onChange={handleCharNumber}
-                        id="description"
-                        label="Description"
-                        error={
-                          errors.description &&
-                          `Description must be a maximum of ${MAX_CHARS.description} characters`
-                        }
-                        hint="This is the description as seen by users"
-                        inputRef={register({
-                          required: false,
-                          maxLength: MAX_CHARS.description,
-                        })}
-                      />
-                      {`${
-                        remainingChars.description || MAX_CHARS.description
-                      } characters remaining`}
-                    </FormField>
+                    <StyledFileInfoBox>
+                      <FormField>
+                        <Input
+                          name="title"
+                          onChange={handleCharNumber}
+                          value={name}
+                          key={index}
+                          label="Enter file title*"
+                          hint="The title of your file should accurately reflect its content or audience"
+                          inputRef={register({
+                            required: true,
+                            maxLength: MAX_CHARS.title,
+                          })}
+                          error={
+                            errors.title &&
+                            `Folder name is required and cannot be longer than ${MAX_CHARS.title} characters`
+                          }
+                        />
+                        {`${
+                          remainingChars.title || MAX_CHARS.title
+                        } characters remaining`}
+                      </FormField>
+                      <FormField>
+                        <Textarea
+                          name="description"
+                          onChange={handleCharNumber}
+                          id="description"
+                          label="Description"
+                          error={
+                            errors.description &&
+                            `Description must be a maximum of ${MAX_CHARS.description} characters`
+                          }
+                          hint="This is the description as seen by users"
+                          inputRef={register({
+                            required: false,
+                            maxLength: MAX_CHARS.description,
+                          })}
+                        />
+                        {`${
+                          remainingChars.description || MAX_CHARS.description
+                        } characters remaining`}
+                      </FormField>
+                    </StyledFileInfoBox>
                   </>
                 );
               })}
