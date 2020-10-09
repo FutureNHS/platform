@@ -58,7 +58,6 @@ const MAX_CHARS: { [key: string]: number } = {
 };
 
 type FormData = {
-  title: string;
   files: FileList;
 };
 
@@ -92,9 +91,9 @@ const UploadFile: NextPage<any> = ({ urqlClient }: { urqlClient: Client }) => {
 
   const backToPreviousPage = () => router.back();
 
-  const onSubmit = async ({ title, files }: FormData) => {
-    console.log("**********FORMDATA", title);
-    console.log("********FILES", files);
+  const onSubmit = async ({ files }: FormData) => {
+    console.log("**********defaultFilenamesaftersubmit", defaultFileNames);
+
     try {
       const { error, data } = await urqlClient
         .query(FileUploadUrlsDocument, { count: files.length })
@@ -120,8 +119,11 @@ const UploadFile: NextPage<any> = ({ urqlClient }: { urqlClient: Client }) => {
             );
           }
           const { name: fileName, type: fileType } = files[index];
+          const newTitle = defaultFileNames[index];
+
+          console.log("********titlestring", titleString);
           const setMetaResponse = await blobClient.setMetadata({
-            title,
+            newTitle,
             fileName,
           });
           console.log("********METARESPONSE", setMetaResponse);
@@ -138,7 +140,7 @@ const UploadFile: NextPage<any> = ({ urqlClient }: { urqlClient: Client }) => {
               fileType,
               folder: folderId,
               temporaryBlobStoragePath: url,
-              title,
+              title: newTitle,
             },
           });
 
@@ -174,12 +176,15 @@ const UploadFile: NextPage<any> = ({ urqlClient }: { urqlClient: Client }) => {
     });
   };
 
-  const [names, setFileNames] = useState<string[]>([]);
+  // const [newFileNames, setNewFileNames] = useState(defaultFileNames);
+  const [defaultFileNames, setFileNames] = useState<string[]>([]);
 
   const handleFiles = (files: FileList) => {
     const filenames = Object.values(files).map((file) => file.name); //['name1', 'name2']
-    setFileNames([...names, ...filenames]);
+    setFileNames([...defaultFileNames, ...filenames]);
   };
+
+  console.log("****defaultFilenames", defaultFileNames);
 
   return (
     <PageLayout>
@@ -201,7 +206,11 @@ const UploadFile: NextPage<any> = ({ urqlClient }: { urqlClient: Client }) => {
               : folder.data?.folder.title || "No title!"}
           </MainHeading>
           <p> Fields marked with * are mandatory.</p>
-          <Form id="filesUploadForm" onSubmit={handleSubmit(onSubmit)}>
+          <Form
+            id="filesUploadForm"
+            onSubmit={handleSubmit(onSubmit)}
+            autoComplete="off"
+          >
             <StyledInput
               type="file"
               name="files"
@@ -223,16 +232,23 @@ const UploadFile: NextPage<any> = ({ urqlClient }: { urqlClient: Client }) => {
               All uploaded content must conform to the platform&apos;s{" "}
               <a href="#">Terms and Conditions</a>.
             </p>
-            {names &&
-              names.map((name, index) => {
+            {defaultFileNames &&
+              defaultFileNames.map((defaultFileName, index) => {
                 return (
                   <>
                     <StyledFileInfoBox>
                       <FormField>
                         <Input
-                          name="title"
-                          onChange={handleCharNumber}
-                          value={name}
+                          type="text"
+                          name={`title-${index}`}
+                          onBlur={(e) => {
+                            const newFileNames = defaultFileNames;
+                            newFileNames[
+                              index
+                            ] = (e.target as HTMLInputElement).value;
+                            setFileNames(newFileNames);
+                          }}
+                          defaultValue={defaultFileName}
                           key={index}
                           label="Enter file title*"
                           hint="The title of your file should accurately reflect its content or audience"
