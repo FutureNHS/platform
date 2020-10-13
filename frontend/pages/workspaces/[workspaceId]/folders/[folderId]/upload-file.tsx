@@ -92,8 +92,8 @@ const UploadFile: NextPage<any> = ({ urqlClient }: { urqlClient: Client }) => {
   const backToPreviousPage = () => router.back();
 
   const onSubmit = async ({ files }: FormData) => {
-    console.log("**********defaultFilenamesaftersubmit", defaultFileNames);
-
+    // const values = getValues();
+    // console.log("******values", values);
     try {
       const { error, data } = await urqlClient
         .query(FileUploadUrlsDocument, { count: files.length })
@@ -101,57 +101,64 @@ const UploadFile: NextPage<any> = ({ urqlClient }: { urqlClient: Client }) => {
       if (error) {
         throw new Error(`Failed to get upload URL: ${error.toString()}`);
       }
-      console.log("********DATA", data.fileUploadUrls);
+
       if (data) {
-        data.fileUploadUrls.map(async (url, index) => {
-          const blobClient = new BlockBlobClient(url);
-          const uploadResponse = await blobClient.uploadBrowserData(
-            files[index],
-            {
-              maxSingleShotSize: 4 * 1024 * 1024,
+        await Promise.all(
+          data.fileUploadUrls.map(async (url, index) => {
+            try {
+              const blobClient = new BlockBlobClient(url);
+              const uploadResponse = await blobClient.uploadBrowserData(
+                files[index],
+                {
+                  maxSingleShotSize: 4 * 1024 * 1024,
+                }
+              );
+
+              if (uploadResponse.errorCode) {
+                throw new Error(
+                  `Failed to upload file: ${uploadResponse.errorCode}`
+                );
+              }
+              const { name: fileName, type: fileType } = files[index];
+              const newTitle = defaultFileNames[index];
+
+              const setMetaResponse = await blobClient.setMetadata({
+                newTitle,
+                fileName,
+              });
+
+              if (setMetaResponse.errorCode) {
+                throw new Error(
+                  `Failed to set file metadata: ${setMetaResponse.errorCode}`
+                );
+              }
+
+              const file = await createFile({
+                newFile: {
+                  description: "TBD", // TODO
+                  fileName,
+                  fileType,
+                  folder: folderId,
+                  temporaryBlobStoragePath: url,
+                  title: newTitle,
+                },
+              });
+
+              console.log("******file", file);
+              if (file.error) {
+                throw new Error(`Failed to save file: ${file.error?.message}`);
+              }
+            } catch (error) {
+              setError(`title-${index}`, {
+                type: "server",
+                message: error.toString(),
+              });
             }
-          );
-
-          console.log("********UPLOADRESPONSE", uploadResponse);
-          if (uploadResponse.errorCode) {
-            throw new Error(
-              `Failed to upload file: ${uploadResponse.errorCode}`
-            );
-          }
-          const { name: fileName, type: fileType } = files[index];
-          const newTitle = defaultFileNames[index];
-
-          console.log("********titlestring", titleString);
-          const setMetaResponse = await blobClient.setMetadata({
-            newTitle,
-            fileName,
-          });
-          console.log("********METARESPONSE", setMetaResponse);
-          if (setMetaResponse.errorCode) {
-            throw new Error(
-              `Failed to set file metadata: ${setMetaResponse.errorCode}`
-            );
-          }
-
-          const file = await createFile({
-            newFile: {
-              description: "TBD", // TODO
-              fileName,
-              fileType,
-              folder: folderId,
-              temporaryBlobStoragePath: url,
-              title: newTitle,
-            },
-          });
-
-          console.log("******file", file);
-          if (file.error) {
-            throw new Error(`Failed to save file: ${file.error?.message}`);
-          }
-        });
+          })
+        );
         // need to show loading and files need to be uploaded before router.push
-        router.push(`/workspaces/${workspaceId}/folders/${folderId}`);
       }
+      router.push(`/workspaces/${workspaceId}/folders/${folderId}`);
     } catch (error) {
       setError("files", {
         type: "server",
@@ -176,7 +183,6 @@ const UploadFile: NextPage<any> = ({ urqlClient }: { urqlClient: Client }) => {
     });
   };
 
-  // const [newFileNames, setNewFileNames] = useState(defaultFileNames);
   const [defaultFileNames, setFileNames] = useState<string[]>([]);
 
   const handleFiles = (files: FileList) => {
@@ -184,8 +190,14 @@ const UploadFile: NextPage<any> = ({ urqlClient }: { urqlClient: Client }) => {
     setFileNames([...defaultFileNames, ...filenames]);
   };
 
-  console.log("****defaultFilenames", defaultFileNames);
+  const removeFile = (index: any) => () => {
+    if (index > -1) {
+      defaultFileNames.splice(index, 1);
+    }
+    return defaultFileNames;
+  };
 
+  console.log("****defaultFilenames", defaultFileNames);
   return (
     <PageLayout>
       <NavHeader />
@@ -238,9 +250,12 @@ const UploadFile: NextPage<any> = ({ urqlClient }: { urqlClient: Client }) => {
                   <>
                     <StyledFileInfoBox>
                       <FormField>
+                        <Button type="button" onClick={removeFile(index)}>
+                          Remove
+                        </Button>
                         <Input
                           type="text"
-                          name={`title-${index}`}
+                          name={`title[${index}]`}
                           onBlur={(e) => {
                             const newFileNames = defaultFileNames;
                             newFileNames[

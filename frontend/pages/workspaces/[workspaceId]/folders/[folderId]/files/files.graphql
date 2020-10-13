@@ -25,6 +25,12 @@ query GetFileById($id: ID!) {
 mutation CreateFile($newFile: NewFile!) {
   createFile(newFile: $newFile) {
     id
+    title
+    description
+    folder
+    fileType
+    fileName
+    modifiedAt
   }
 }
 

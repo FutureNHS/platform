@@ -11,6 +11,7 @@ import {
   DeleteFileMutation,
   FoldersByWorkspaceDocument,
   FoldersByWorkspaceQuery,
+  CreateFileMutation,
   FilesByFolderDocument,
   FilesByFolderQuery,
 } from "./generated/graphql";
@@ -84,6 +85,24 @@ export default function withUrqlClient(
 
                     filesByFolderQuery.filesByFolder = arr;
 
+                    return data;
+                  }
+                );
+              },
+              createFile: (result, _args, cache) => {
+                const fileMutation = result as CreateFileMutation;
+                cache.updateQuery(
+                  {
+                    query: FilesByFolderDocument,
+                    variables: {
+                      folder: fileMutation.createFile.folder,
+                    },
+                  },
+                  (data) => {
+                    const filesByFolderQuery = data as FilesByFolderQuery;
+                    filesByFolderQuery.filesByFolder.push(
+                      fileMutation.createFile
+                    );
                     return data;
                   }
                 );
