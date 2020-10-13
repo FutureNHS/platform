@@ -18,18 +18,21 @@ const provider = new NodeTracerProvider({
   },
 });
 
-const exporter = process.env.NEXT_PUBLIC_INSTRUMENTATION_KEY
-  ? new AzureMonitorTraceExporter({
-      logger: provider.logger,
-      instrumentationKey: process.env.NEXT_PUBLIC_INSTRUMENTATION_KEY,
-    })
-  : new ConsoleSpanExporter();
+const exporter =
+  process.env.NEXT_PUBLIC_INSTRUMENTATION_KEY && 0
+    ? new AzureMonitorTraceExporter({
+        logger: provider.logger,
+        instrumentationKey: process.env.NEXT_PUBLIC_INSTRUMENTATION_KEY,
+      })
+    : new ConsoleSpanExporter();
 
 provider.register();
 
 provider.addSpanProcessor(
   new BatchSpanProcessor(exporter, {
-    bufferTimeout: 15000,
+    bufferTimeout: 1000,
     bufferSize: 1000,
   })
 );
+
+module.exports = { provider };

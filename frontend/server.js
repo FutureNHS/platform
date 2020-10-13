@@ -12,6 +12,8 @@ const Noop = require("./lib/server/noop-passport-strategy");
 const url = require("url");
 const { promises: fs } = require("fs");
 const { getOrCreateUser } = require("./lib/server/graphql");
+const { provider } = require("./tracing");
+const api = require("@opentelemetry/api");
 const { requireEnv } = require("./lib/server/requireEnv");
 
 const setupSessionStore = async () => {
@@ -171,11 +173,21 @@ async function main() {
   server.get("/auth/callback", authenticateWithAADB2C, redirectAuthSuccess);
   server.get("/auth/logout", (req, res) => {
     req.session.destroy((err) => {
+      err = new Error("go away");
+
       if (err) {
-        console.log("logout error", err);
-        throw err;
+        const tracer = api.trace.getTracer("dunno");
+        const span = tracer.getCurrentSpan();
+        if (span) {
+          span.recordException(err);
+        } else {
+          const span = tracer.startSpan("new span");
+          span.recordException(err);
+          span.end();
+          console.log("logout error", err);
+        }
       }
-      res.redirect("/");
+      // res.redirect("/");
     });
   });
 
