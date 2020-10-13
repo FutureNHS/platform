@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form/dist/index.ie11";
 import styled from "styled-components";
 import { Client } from "urql";
 
+import { DeleteIcon } from "../../../../../components/Icon";
 import { MainHeading } from "../../../../../components/MainHeading";
 import { NavHeader } from "../../../../../components/NavHeader";
 import { Navigation } from "../../../../../components/Navigation";
@@ -92,8 +93,6 @@ const UploadFile: NextPage<any> = ({ urqlClient }: { urqlClient: Client }) => {
   const backToPreviousPage = () => router.back();
 
   const onSubmit = async ({ files }: FormData) => {
-    // const values = getValues();
-    // console.log("******values", values);
     try {
       const { error, data } = await urqlClient
         .query(FileUploadUrlsDocument, { count: files.length })
@@ -144,7 +143,6 @@ const UploadFile: NextPage<any> = ({ urqlClient }: { urqlClient: Client }) => {
                 },
               });
 
-              console.log("******file", file);
               if (file.error) {
                 throw new Error(`Failed to save file: ${file.error?.message}`);
               }
@@ -167,10 +165,26 @@ const UploadFile: NextPage<any> = ({ urqlClient }: { urqlClient: Client }) => {
     }
   };
   const FormField = styled.div`
-    padding-bottom: 40px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
     #text {
       padding-bottom: 60px;
     }
+  `;
+
+  const StyledHeadingSection = styled.div`
+    display: flex;
+    direction: column;
+    justify-content: space-between;
+  `;
+
+  const StyledFileCount = styled.div``;
+
+  const StyledRemoveButton = styled.button`
+    border: none;
+    background: inherit;
+    font: inherit;
+    padding: 5px;
   `;
 
   const handleCharNumber = (
@@ -193,8 +207,8 @@ const UploadFile: NextPage<any> = ({ urqlClient }: { urqlClient: Client }) => {
   const removeFile = (index: any) => () => {
     if (index > -1) {
       defaultFileNames.splice(index, 1);
+      return setFileNames([...defaultFileNames]);
     }
-    return defaultFileNames;
   };
 
   console.log("****defaultFilenames", defaultFileNames);
@@ -250,9 +264,15 @@ const UploadFile: NextPage<any> = ({ urqlClient }: { urqlClient: Client }) => {
                   <>
                     <StyledFileInfoBox>
                       <FormField>
-                        <Button type="button" onClick={removeFile(index)}>
-                          Remove
-                        </Button>
+                        <StyledHeadingSection>
+                          <StyledFileCount>{defaultFileName}</StyledFileCount>
+                          <StyledRemoveButton
+                            type="button"
+                            onClick={removeFile(index)}
+                          >
+                            <DeleteIcon />
+                          </StyledRemoveButton>
+                        </StyledHeadingSection>
                         <Input
                           type="text"
                           name={`title[${index}]`}
@@ -285,7 +305,7 @@ const UploadFile: NextPage<any> = ({ urqlClient }: { urqlClient: Client }) => {
                           name="description"
                           onChange={handleCharNumber}
                           id="description"
-                          label="Description"
+                          label="Enter description (optional)"
                           error={
                             errors.description &&
                             `Description must be a maximum of ${MAX_CHARS.description} characters`
