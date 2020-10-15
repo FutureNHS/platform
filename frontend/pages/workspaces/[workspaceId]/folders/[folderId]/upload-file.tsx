@@ -12,6 +12,7 @@ import { MainHeading } from "../../../../../components/MainHeading";
 import { NavHeader } from "../../../../../components/NavHeader";
 import { Navigation } from "../../../../../components/Navigation";
 import { PageLayout } from "../../../../../components/PageLayout";
+import { StatusTag } from "../../../../../components/StatusTag";
 import { Textarea } from "../../../../../components/Textarea";
 import {
   FileUploadUrlsDocument,
@@ -67,7 +68,13 @@ const StyledHeadingSection = styled.div`
   justify-content: space-between;
 `;
 
-const StyledFileCount = styled.div``;
+const StyledFileName = styled.h4`
+  width: 225px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+`;
 
 const MAX_CHARS: { [key: string]: number } = {
   title: 50,
@@ -283,9 +290,13 @@ const UploadFile: NextPage<any> = ({ urqlClient }: { urqlClient: Client }) => {
                 <StyledFileInfoBox key={item.id}>
                   <FormField>
                     <StyledHeadingSection>
-                      <StyledFileCount>{item.title}</StyledFileCount>
+                      <StyledFileName>{item.title}</StyledFileName>
                       {results.length > 0 && (
-                        <div>{results[index].toString()}</div>
+                        <StatusTag
+                          successStatus={results[index]}
+                          successMessage="UPLOADED"
+                          failedMessage="UPLOAD FAILED"
+                        />
                       )}
                     </StyledHeadingSection>
                     <Input
