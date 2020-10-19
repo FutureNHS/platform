@@ -116,7 +116,10 @@ const UploadFileForm: FC<Props> = ({ workspaceId, folderId, urqlClient }) => {
     );
   };
 
+  const [isDisabled, disableButton] = useState<Boolean>(false);
+
   const onSubmit = async (formData: FormData) => {
+    disableButton(true);
     try {
       const { error, data } = await urqlClient
         .query(FileUploadUrlsDocument, { count: formData.files.length })
@@ -285,7 +288,7 @@ const UploadFileForm: FC<Props> = ({ workspaceId, folderId, urqlClient }) => {
           </StyledFileInfoBox>
         );
       })}
-      <Button type="submit" name="submitButton">
+      <Button type="submit" name="submitButton" disabled={isDisabled}>
         Uploads and continue
       </Button>
       <StyledButton secondary type="button" onClick={backToPreviousPage}>

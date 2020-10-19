@@ -6,18 +6,23 @@ import styled from "styled-components";
 import { TickIcon, CrossIcon } from "../Icon";
 
 const StyledWrapper = styled.div`
-  width: 121px;
-  height: 28px;
   display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
+  flex-direction: row;
+  background-color: white;
+  height: 21px;
+
+  .icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 `;
 
 const StyledMessage = styled.div`
-  color: green;
-
-  &.failed {
-    colour: red;
+  color: red;
+  flex-grow: 1;
+  &.success {
+    color: green;
   }
 `;
 interface Props {
