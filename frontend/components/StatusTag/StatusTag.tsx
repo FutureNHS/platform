@@ -8,19 +8,24 @@ import { TickIcon, CrossIcon } from "../Icon";
 const StyledWrapper = styled.div`
   display: flex;
   flex-direction: row;
-  background-color: white;
-  height: 21px;
+  height: 26px;
+  line-height: inherit;
+  padding: 2px 0;
+  ${({ theme }) => `
+    background-color: ${theme.colorNhsukWhite};
+  `}
 
   .icon-wrapper {
     display: flex;
     align-items: center;
     justify-content: center;
+    height: fit-content;
   }
 `;
 
 const StyledMessage = styled.div`
   color: red;
-  flex-grow: 1;
+  padding: 0 4px;
   &.success {
     color: green;
   }

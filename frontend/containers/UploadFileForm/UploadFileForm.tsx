@@ -27,6 +27,11 @@ import withUrqlClient from "../../lib/withUrqlClient";
 
 const StyledInput = styled(Input)`
   border: none;
+  margin-bottom: 16px;
+`;
+
+const StyledTag = styled.p`
+  margin-bottom: 40px;
 `;
 
 const StyledButton = styled(Button)`
@@ -35,7 +40,7 @@ const StyledButton = styled(Button)`
 
 const StyledFileInfoBox = styled.div`
   ${({ theme }) => `
-background-color: ${theme.colorNhsukGrey4};
+background-color: ${theme.colorNhsukGrey5};
 `}
   margin-bottom: 24px;
 `;
@@ -59,7 +64,6 @@ const StyledFileName = styled.h4`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
 `;
 
 const UploadFileForm: FC<Props> = ({ workspaceId, folderId, urqlClient }) => {
@@ -76,7 +80,7 @@ const UploadFileForm: FC<Props> = ({ workspaceId, folderId, urqlClient }) => {
   const router = useRouter();
   const backToPreviousPage = () => router.back();
 
-  const [results, setResults] = useState<Array<Boolean>>([]);
+  const [results, setResults] = useState<Array<Boolean | undefined>>([]);
 
   const MAX_CHARS: { [key: string]: number } = {
     title: 50,
@@ -105,7 +109,7 @@ const UploadFileForm: FC<Props> = ({ workspaceId, folderId, urqlClient }) => {
     if (files === null) {
       return;
     }
-    const filenames = Object.values(files).map((file) => file.name); //['name1', 'name2']
+    const filenames = Object.values(files).map((file) => file.name);
 
     setValue(
       "fileData",
@@ -116,7 +120,7 @@ const UploadFileForm: FC<Props> = ({ workspaceId, folderId, urqlClient }) => {
     );
   };
 
-  const [isDisabled, disableButton] = useState<Boolean>(false);
+  const [isDisabled, disableButton] = useState<boolean>(false);
 
   const onSubmit = async (formData: FormData) => {
     disableButton(true);
@@ -224,11 +228,10 @@ const UploadFileForm: FC<Props> = ({ workspaceId, folderId, urqlClient }) => {
         aria-invalid={errors.files ? "true" : "false"}
         error={errors.files?.message}
       />
-
-      <p>
+      <StyledTag>
         All uploaded content must conform to the platform&apos;s{" "}
         <a href="#">Terms and Conditions</a>.
-      </p>
+      </StyledTag>
       {fields.map((item, index) => {
         return (
           <StyledFileInfoBox key={item.id}>
@@ -239,7 +242,7 @@ const UploadFileForm: FC<Props> = ({ workspaceId, folderId, urqlClient }) => {
                   <StatusTag
                     successStatus={results[index]}
                     successMessage="UPLOADED"
-                    failedMessage="UPLOAD FAILED"
+                    failedMessage="FAILED"
                   />
                 )}
               </StyledHeadingSection>
@@ -289,7 +292,7 @@ const UploadFileForm: FC<Props> = ({ workspaceId, folderId, urqlClient }) => {
         );
       })}
       <Button type="submit" name="submitButton" disabled={isDisabled}>
-        Uploads and continue
+        Upload and continue
       </Button>
       <StyledButton secondary type="button" onClick={backToPreviousPage}>
         Discard
