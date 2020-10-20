@@ -80,20 +80,16 @@ const UploadFileForm: FC<Props> = ({ workspaceId, folderId, urqlClient }) => {
   const router = useRouter();
   const backToPreviousPage = () => router.back();
 
-  const [results, setResults] = useState<Array<Boolean | undefined>>([]);
+  const [results, setResults] = useState<Array<Boolean>>([]);
+  const [isDisabled, disableButton] = useState<boolean>(false);
+  const [remainingChars, setRemainingChars] = useState<{
+    [key: string]: number;
+  }>({});
 
-  const MAX_CHARS: { [key: string]: number } = {
-    title: 50,
-    description: 250,
-  };
   const { fields } = useFieldArray({
     control,
     name: "fileData",
   });
-
-  const [remainingChars, setRemainingChars] = useState<{
-    [key: string]: number;
-  }>({});
 
   const handleRemainingChars = (fieldType: "title" | "description") => (
     event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -103,6 +99,11 @@ const UploadFileForm: FC<Props> = ({ workspaceId, folderId, urqlClient }) => {
       ...remainingChars,
       [event.currentTarget.name]: maxChars - event.currentTarget.value.length,
     });
+  };
+
+  const MAX_CHARS: { [key: string]: number } = {
+    title: 50,
+    description: 250,
   };
 
   const handleFiles = (files: FileList | null) => {
@@ -119,8 +120,6 @@ const UploadFileForm: FC<Props> = ({ workspaceId, folderId, urqlClient }) => {
       }))
     );
   };
-
-  const [isDisabled, disableButton] = useState<boolean>(false);
 
   const onSubmit = async (formData: FormData) => {
     disableButton(true);
@@ -146,7 +145,6 @@ const UploadFileForm: FC<Props> = ({ workspaceId, folderId, urqlClient }) => {
                 );
 
                 if (uploadResponse.errorCode) {
-                  console.log(uploadResponse.errorCode);
                   throw new Error(
                     `Failed to upload file: ${uploadResponse.errorCode}`
                   );
@@ -166,9 +164,7 @@ const UploadFileForm: FC<Props> = ({ workspaceId, folderId, urqlClient }) => {
                     `Failed to set file metadata: ${setMetaResponse.errorCode}`
                   );
                 }
-                if (newTitle === "title") {
-                  throw new Error("FAKE ERROR");
-                }
+
                 const file = await createFile({
                   newFile: {
                     description: formData.fileData[index].description,
@@ -199,7 +195,6 @@ const UploadFileForm: FC<Props> = ({ workspaceId, folderId, urqlClient }) => {
         if (results.every(Boolean)) {
           router.push(`/workspaces/${workspaceId}/folders/${folderId}`);
         } else {
-          console.log("RESULTS", results);
           setResults(results);
         }
       }
@@ -241,8 +236,8 @@ const UploadFileForm: FC<Props> = ({ workspaceId, folderId, urqlClient }) => {
                 {results.length > 0 && (
                   <StatusTag
                     successStatus={results[index]}
-                    successMessage="UPLOADED"
-                    failedMessage="FAILED"
+                    successMessage="uploaded"
+                    failedMessage="failed"
                   />
                 )}
               </StyledHeadingSection>

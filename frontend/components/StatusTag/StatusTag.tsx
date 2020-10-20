@@ -24,11 +24,14 @@ const StyledWrapper = styled.div`
 `;
 
 const StyledMessage = styled.div`
-  color: red;
+  text-transform: uppercase;
   padding: 0 4px;
-  &.success {
-    color: green;
-  }
+  ${({ theme }) => `
+    color: ${theme.colorNhsukRed};
+    &.success {
+      color: ${theme.colorNhsukGreen};
+    }
+  `}
 `;
 interface Props {
   successStatus: Boolean;
