@@ -1,5 +1,4 @@
 mod file_download_urls;
-mod file_uploads;
 mod file_versions;
 mod file_upload_urls;
 mod files;

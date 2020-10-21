@@ -1,4 +1,4 @@
-use super::sas;
+use super::azure;
 use anyhow::Result;
 use async_graphql::{Context, FieldResult, Object};
 use url::Url;
@@ -16,7 +16,7 @@ impl FileUploadUrlsQuery {
         let urls = (0..count)
             .map(|_i| {
                 let name = Uuid::new_v4();
-                sas::create_upload_sas(config, &name)
+                azure::create_upload_sas(config, &name)
             })
             .collect::<Result<Vec<Url>>>()?;
 
