@@ -1,14 +1,16 @@
 {
   "data": {
-    "file": {
-      "id": "c12c2d6f-2669-4f82-8351-620ded995abb",
-      "title": "London Region NHS England Safeguarding Annual Review",
-      "description": "London Region NHS England Safeguarding Annual Review.ppt",
-      "folder": "f7f24c43-d3f0-4720-8995-b087316f6b44",
-      "fileType": "ppt",
-      "fileName": "London Region NHS England Safeguarding Annual Review.ppt",
-      "modifiedAt": "2020-10-06T17:53:45.089829+00:00",
-      "__typename": "File"
-    }
+    "file": [
+      {
+        "id": "c12c2d6f-2669-4f82-8351-620ded995abb",
+        "title": "London Region NHS England Safeguarding Annual Review",
+        "description": "London Region NHS England Safeguarding Annual Review.ppt",
+        "folder": "f7f24c43-d3f0-4720-8995-b087316f6b44",
+        "fileType": "ppt",
+        "fileName": "London Region NHS England Safeguarding Annual Review.ppt",
+        "modifiedAt": "2020-10-06T17:53:45.089829+00:00",
+        "__typename": "File"
+      }
+    ]
   }
 }
