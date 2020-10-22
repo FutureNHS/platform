@@ -6,7 +6,10 @@ describe("Upload single file", () => {
     cy.contains("h1", "FutureNHS Case Study Library");
 
     cy.get("#files").attachFile("single-file-upload.txt");
-    cy.get("#title").type("New file title");
+    cy.get('input[name="fileData[0].title"]').should(
+      "have.value",
+      "single-file-upload.txt"
+    );
 
     cy.get("form").submit();
 
