@@ -7,6 +7,13 @@ import { useForm, useFieldArray } from "react-hook-form/dist/index.ie11";
 import styled from "styled-components";
 import { Client } from "urql";
 
+import { StatusTag } from "../../components/StatusTag";
+import { Textarea } from "../../components/Textarea";
+import {
+  FileUploadUrlsDocument,
+  useCreateFileMutation,
+} from "../../lib/generated/graphql";
+
 interface FormData {
   files: FileList;
   fileData: Array<{ title: string; description: string }>;
@@ -16,15 +23,6 @@ interface Props {
   folderId: string;
   urqlClient: Client;
 }
-
-import { StatusTag } from "../../components/StatusTag";
-import { Textarea } from "../../components/Textarea";
-import {
-  FileUploadUrlsDocument,
-  useCreateFileMutation,
-} from "../../lib/generated/graphql";
-import withUrqlClient from "../../lib/withUrqlClient";
-
 const StyledInput = styled(Input)`
   border: none;
   margin-bottom: 16px;
@@ -296,4 +294,4 @@ const UploadFileForm: FC<Props> = ({ workspaceId, folderId, urqlClient }) => {
   );
 };
 
-export default withUrqlClient(UploadFileForm);
+export default UploadFileForm;

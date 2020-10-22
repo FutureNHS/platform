@@ -3,6 +3,7 @@ import React from "react";
 import { NextPage } from "next";
 import { useRouter } from "next/dist/client/router";
 import styled from "styled-components";
+import { Client } from "urql";
 
 import { MainHeading } from "../../../../../components/MainHeading";
 import { NavHeader } from "../../../../../components/NavHeader";
@@ -32,7 +33,7 @@ const PageContent = styled.div`
   `}
 `;
 
-const UploadFile: NextPage<any> = () => {
+const UploadFile: NextPage<any> = ({ urqlClient }: { urqlClient: Client }) => {
   const router = useRouter();
   const workspaceId = (router.query.workspaceId || "unknown").toString();
   const folderId = (router.query.folderId || "unknown").toString();
@@ -72,7 +73,11 @@ const UploadFile: NextPage<any> = () => {
               : folder.data?.folder.title || "No title!"}
           </MainHeading>
           <p> Fields marked with * are mandatory.</p>
-          <UploadFileForm workspaceId={workspaceId} folderId={folderId} />
+          <UploadFileForm
+            urqlClient={urqlClient}
+            workspaceId={workspaceId}
+            folderId={folderId}
+          />
         </PageContent>
       </ContentWrapper>
     </PageLayout>

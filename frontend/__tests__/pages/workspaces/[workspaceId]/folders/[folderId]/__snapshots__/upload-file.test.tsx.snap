@@ -541,19 +541,24 @@ exports[`withUrql renders matching snapshot 1`] = `
   margin: 0px auto;
 }
 
+.c28 {
+  border: none;
+  margin-bottom: 16px;
+}
+
+.c29 {
+  margin-bottom: 40px;
+}
+
+.c30 {
+  margin-left: 12px;
+}
+
 .c9 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-}
-
-.c28 {
-  padding-bottom: 40px;
-}
-
-.c28 #text {
-  padding-bottom: 60px;
 }
 
 .c24 {
@@ -566,10 +571,6 @@ exports[`withUrql renders matching snapshot 1`] = `
 
 .c24 .nhsuk-form-group {
   margin-bottom: 8px;
-}
-
-.c29 {
-  margin-left: 12px;
 }
 
 @media (min-width:990px) {
@@ -996,69 +997,31 @@ exports[`withUrql renders matching snapshot 1`] = `
         <p>
            Fields marked with * are mandatory.
         </p>
-        <form>
+        <form
+          id="filesUploadForm"
+        >
           <div
-            class="c28"
+            class="nhsuk-form-group"
           >
-            <div
-              class="nhsuk-form-group"
+            <span
+              class="nhsuk-hint"
+              id="files--hint"
             >
-              <label
-                class="nhsuk-label"
-                for="title"
-                id="title--label"
-              >
-                Enter file title*
-              </label>
-              <span
-                class="nhsuk-hint"
-                id="title--hint"
-              >
-                This is the file title as seen by users. Try to be as descriptive as possible. 
-              </span>
-              <input
-                aria-describedby="title--hint"
-                aria-invalid="false"
-                aria-labelledby="title--label"
-                class="nhsuk-input"
-                id="title"
-                name="title"
-                type="text"
-              />
-            </div>
-            50 characters remaining
+              Maximum 5 files
+            </span>
+            <input
+              aria-describedby="files--hint"
+              aria-invalid="false"
+              class="nhsuk-input c28"
+              id="files"
+              multiple=""
+              name="files"
+              type="file"
+            />
           </div>
-          <div
-            class="c28"
+          <p
+            class="c29"
           >
-            <div
-              class="nhsuk-form-group"
-            >
-              <label
-                class="nhsuk-label"
-                for="files"
-                id="files--label"
-              >
-                Upload a file*
-              </label>
-              <span
-                class="nhsuk-hint"
-                id="files--hint"
-              >
-                Maximum size 10GB
-              </span>
-              <input
-                aria-describedby="files--hint"
-                aria-invalid="false"
-                aria-labelledby="files--label"
-                class="nhsuk-input"
-                id="files"
-                name="files"
-                type="file"
-              />
-            </div>
-          </div>
-          <p>
             All uploaded content must conform to the platform's 
             <a
               href="#"
@@ -1073,11 +1036,11 @@ exports[`withUrql renders matching snapshot 1`] = `
             name="submitButton"
             type="submit"
           >
-            Save and continue
+            Upload and continue
           </button>
           <button
             aria-disabled="false"
-            class="nhsuk-button nhsuk-button--secondary c29"
+            class="nhsuk-button nhsuk-button--secondary c30"
             type="button"
           >
             Discard
