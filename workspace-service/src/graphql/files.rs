@@ -17,12 +17,14 @@ lazy_static! {
     static ref ALLOWED_EXTENSIONS: Regex = Regex::new(
         r"(?x)\.(
             (bmp)|
+            (csv)|
             (doc)|
             (docx)|
             (eps)|
             (gif)|
             (jpeg)|
             (jpg)|
+            (mov)|
             (odp)|
             (ods)|
             (odt)|

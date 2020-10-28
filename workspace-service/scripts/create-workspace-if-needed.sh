@@ -14,23 +14,9 @@ ENVIRONMENT="${1:?"${USAGE}Please specify your environment name as the first par
 WORKSPACE_TITLE=${2:?"${USAGE}Please give workspace title as second parameter."}
 WORKSPACE_DESCRIPTION=${3:-"Test workspace with title $WORKSPACE_TITLE"}
 
-CURRENT_CONTEXT=$(kubectl config current-context)
-if [ "$ENVIRONMENT" = "local" ]; then
-	WORKSPACE_SERVICE_GRAPHQL_ENDPOINT=http://localhost:3030/graphql
-elif [ "$ENVIRONMENT" = "$CURRENT_CONTEXT" ]; then
-	WORKSPACE_SERVICE_GRAPHQL_ENDPOINT=http://workspace-service.workspace-service/graphql
-else
-	echo "You want to populate:    $ENVIRONMENT"
-	echo "Your current content is: $CURRENT_CONTEXT"
-	echo "Please change your current context using:"
-	echo "    kubectl config use-context $ENVIRONMENT"
-	echo "or"
-	echo "    az account set --subscription \$SUBSCRIPTION_ID && az aks get-credentials --resource-group=platform-$ENVIRONMENT --name=$ENVIRONMENT"
-	echo "Once that is done, please run:"
-	echo "    kubefwd services -n workspace-service"
-	echo "in another tab and try again."
-	exit 1
-fi
+. ./_context.sh
+
+WORKSPACE_SERVICE_GRAPHQL_ENDPOINT="$(_verify_environment_and_get_graphql_endpoint $ENVIRONMENT)"
 
 existing_workspaces=$(
 	curl \

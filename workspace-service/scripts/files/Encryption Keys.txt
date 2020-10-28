@@ -1,0 +1,4 @@
+key1: not_really
+key2: encryption_keys
+key3: just
+key4: dummy_data

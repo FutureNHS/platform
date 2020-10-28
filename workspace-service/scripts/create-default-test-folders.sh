@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -exuo pipefail
+set -euo pipefail
 
 cd $(dirname $0)
 
@@ -13,19 +13,9 @@ USAGE: $(basename $0) dev-\$FNHSNAME
 ENVIRONMENT="${1:?"${USAGE}Please specify your environment name as the first parameter, e.g. dev-jane"}"
 WORKSPACE_TITLE="Selenium Testing"
 
-CURRENT_CONTEXT=$(kubectl config current-context)
-if [[ "$ENVIRONMENT" != "local" && "$ENVIRONMENT" != "$CURRENT_CONTEXT" ]]; then
-	echo "You want to populate:    $ENVIRONMENT"
-	echo "Your current content is: $CURRENT_CONTEXT"
-	echo "Please change your current context using:"
-	echo "    kubectl config use-context $ENVIRONMENT"
-	echo "or"
-	echo "    az account set --subscription \$SUBSCRIPTION_ID && az aks get-credentials --resource-group=platform-$ENVIRONMENT --name=$ENVIRONMENT"
-	echo "Once that is done, please run:"
-	echo "    kubefwd services -n workspace-service"
-	echo "in another tab and try again."
-	exit 1
-fi
+. ./_context.sh
+
+_verify_environment_and_get_graphql_endpoint $ENVIRONMENT
 
 ./create-folder-if-needed.sh "$ENVIRONMENT" "$WORKSPACE_TITLE" "FutureNHS Case Study Library"
 ./create-folder-if-needed.sh "$ENVIRONMENT" "$WORKSPACE_TITLE" "Getting started"
@@ -49,21 +39,10 @@ fi
 ./create-folder-if-needed.sh "$ENVIRONMENT" "$WORKSPACE_TITLE" "Good News"
 ./create-folder-if-needed.sh "$ENVIRONMENT" "$WORKSPACE_TITLE" "NHS COVID-19 Data Store"
 
-# `make run-local` cannot upload files because it has no access to azure blob storage.
-# `make run` could theoretically upload files, but we're reaching the limit of how complex
-# I'm comfortable making my bash scripts. We should really make a proper migration script
-# in a proper language that does this properly.
-if false; then
-	./create-file-if-needed.sh "$ENVIRONMENT" "$WORKSPACE_TITLE" "Data" "Coronavirus Numbers.csv"
-	./create-file-if-needed.sh "$ENVIRONMENT" "$WORKSPACE_TITLE" "Data" "Trust List.doc"
-	./create-file-if-needed.sh "$ENVIRONMENT" "$WORKSPACE_TITLE" "Data" "Infographic.png"
-	./create-file-if-needed.sh "$ENVIRONMENT" "$WORKSPACE_TITLE" "Data" "Surgery.mov"
-	./create-file-if-needed.sh "$ENVIRONMENT" "$WORKSPACE_TITLE" "Data" "Leaflet.pdf"
-	./create-file-if-needed.sh "$ENVIRONMENT" "$WORKSPACE_TITLE" "Data" "Motivational Speech.ppt"
-	./create-file-if-needed.sh "$ENVIRONMENT" "$WORKSPACE_TITLE" "Data" "Encryption Keys.txt"
-	./create-file-if-needed.sh "$ENVIRONMENT" "$WORKSPACE_TITLE" "Data" "Backup.zip"
-
-	./create-file-if-needed.sh "$ENVIRONMENT" "$WORKSPACE_TITLE" "Evidence" "London Region NHS England Safeguarding Annual Review.ppt"
-	./create-file-if-needed.sh "$ENVIRONMENT" "$WORKSPACE_TITLE" "Evidence" "Midlands & East Region Safeguarding Annual Report.pdf"
-	./create-file-if-needed.sh "$ENVIRONMENT" "$WORKSPACE_TITLE" "Evidence" "South East Region Safeguarding Annual Report.doc"
-fi
+./create-file-if-needed.sh "$ENVIRONMENT" "$WORKSPACE_TITLE" "Data" "Coronavirus Numbers.csv"
+./create-file-if-needed.sh "$ENVIRONMENT" "$WORKSPACE_TITLE" "Data" "Trust List.docx"
+./create-file-if-needed.sh "$ENVIRONMENT" "$WORKSPACE_TITLE" "Data" "Infographic.png"
+./create-file-if-needed.sh "$ENVIRONMENT" "$WORKSPACE_TITLE" "Data" "Surgery.mov"
+./create-file-if-needed.sh "$ENVIRONMENT" "$WORKSPACE_TITLE" "Data" "Leaflet.pdf"
+./create-file-if-needed.sh "$ENVIRONMENT" "$WORKSPACE_TITLE" "Data" "Motivational Speech.pptx"
+./create-file-if-needed.sh "$ENVIRONMENT" "$WORKSPACE_TITLE" "Data" "Encryption Keys.txt"
