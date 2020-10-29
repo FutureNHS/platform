@@ -34,8 +34,8 @@ check: ## Run `cargo check` (because David keeps saying "make check" when he mea
 	cargo check
 
 .PHONY: clippy
-clippy: ## Run `cargo clippy`, the Rust linter.
-	cargo clippy
+clippy: ## Run `cargo clippy`, the Rust linter. --release is to get around some interactions with cargo check.
+	cargo clippy --release -- -D warnings
 
 .PHONY: fmt
 fmt: ## Run `cargo fmt` (convenience so that you can write `make fmt check test clippy` in one command)
