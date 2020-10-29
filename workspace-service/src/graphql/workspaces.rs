@@ -1,4 +1,5 @@
 use crate::db;
+use crate::db::Workspace;
 use crate::graphql::users::User;
 use crate::graphql::RequestingUser;
 use async_graphql::{Context, FieldResult, InputObject, Object, ID};
@@ -6,20 +7,12 @@ use fnhs_event_models::{Event, EventClient, EventPublisher as _, WorkspaceCreate
 use sqlx::PgPool;
 use uuid::Uuid;
 
-pub struct Workspace {
-    id: ID,
-    title: String,
-    description: String,
-    admins: Uuid,
-    members: Uuid,
-}
-
 #[Object]
 /// A workspace
 impl Workspace {
     /// The id of the workspace
     async fn id(&self) -> ID {
-        self.id.clone()
+        self.id.into()
     }
     /// The title of the workspace
     async fn title(&self) -> String {
@@ -42,18 +35,6 @@ impl Workspace {
         let pool = context.data()?;
         let users = db::Group::group_members(self.members, pool).await?;
         Ok(users.into_iter().map(Into::into).collect())
-    }
-}
-
-impl From<db::Workspace> for Workspace {
-    fn from(d: db::Workspace) -> Self {
-        Self {
-            id: d.id.into(),
-            title: d.title,
-            description: d.description,
-            admins: d.admins,
-            members: d.members,
-        }
     }
 }
 
@@ -166,15 +147,13 @@ async fn create_workspace(
         .into());
     }
 
-    let workspace: Workspace = db::Workspace::create(title, description, pool)
-        .await?
-        .into();
+    let workspace: Workspace = db::Workspace::create(title, description, pool).await?;
 
     event_client
         .publish_events(&[Event::new(
-            workspace.id.clone(),
+            workspace.id.to_string(),
             WorkspaceCreatedData {
-                workspace_id: workspace.id.clone().into(),
+                workspace_id: workspace.id.to_string(),
                 // TODO: Fill this in when we have users in the db.
                 user_id: "".into(),
                 title: workspace.title.clone(),
