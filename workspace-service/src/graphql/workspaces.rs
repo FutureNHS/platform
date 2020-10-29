@@ -72,7 +72,7 @@ impl WorkspacesQuery {
         let pool = context.data()?;
         let id = Uuid::parse_str(id.as_str())?;
         let workspace = db::Workspace::find_by_id(id, pool).await?;
-        Ok(workspace.into())
+        Ok(workspace)
     }
 }
 
@@ -118,7 +118,7 @@ impl WorkspacesMutation {
         )
         .await?;
 
-        Ok(workspace.into())
+        Ok(workspace)
     }
 
     /// Delete workspace(returns deleted workspace
@@ -127,7 +127,7 @@ impl WorkspacesMutation {
         let pool = context.data()?;
         let workspace = db::Workspace::delete(Uuid::parse_str(id.as_str())?, pool).await?;
 
-        Ok(workspace.into())
+        Ok(workspace)
     }
 }
 
