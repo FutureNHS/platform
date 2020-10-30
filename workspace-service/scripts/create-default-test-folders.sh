@@ -6,11 +6,15 @@ cd $(dirname $0)
 
 USAGE="
 
-USAGE: $(basename $0) dev-\$FNHSNAME
+EXAMPLE USAGES: 
+
+$(basename $0) dev-\$FNHSNAME
+
+$(basename $0) local
 
 "
 
-ENVIRONMENT="${1:?"${USAGE}Please specify your environment name as the first parameter, e.g. dev-jane"}"
+ENVIRONMENT="${1:?"${USAGE}Please specify your environment name as the first parameter, e.g. dev-jane or local"}"
 WORKSPACE_TITLE="Selenium Testing"
 
 . ./_context.sh
