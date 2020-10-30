@@ -59,7 +59,7 @@ impl WorkspacesQuery {
     async fn workspaces(&self, context: &Context<'_>) -> FieldResult<Vec<Workspace>> {
         let pool = context.data()?;
         let workspaces = db::Workspace::find_all(pool).await?;
-        Ok(workspaces.into_iter().map(Into::into).collect())
+        Ok(workspaces)
     }
 
     /// Get workspace by ID
