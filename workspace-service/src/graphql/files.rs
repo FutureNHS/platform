@@ -1,5 +1,5 @@
-use super::{azure, db, validation, RequestingUser};
-use async_graphql::{Context, FieldResult, InputObject, Object, SimpleObject, ID};
+use super::{azure, db, db::FileWithVersion, validation, RequestingUser};
+use async_graphql::{Context, FieldResult, InputObject, Object, ID};
 use chrono::{DateTime, Utc};
 use fnhs_event_models::{
     Event, EventClient, EventPublisher as _, FileCreatedData, FileUpdatedData,
@@ -40,29 +40,49 @@ lazy_static! {
     .expect("bad regex");
 }
 
+#[Object(name = "File")]
 /// A file
-#[derive(SimpleObject)]
-pub struct File {
+impl FileWithVersion {
     /// The id of the file
-    pub id: ID,
+    async fn id(&self) -> ID {
+        self.id.into()
+    }
     /// The title of the file
-    pub title: String,
+    async fn title(&self) -> String {
+        self.title.clone()
+    }
     /// The description of the file
-    pub description: String,
+    async fn description(&self) -> String {
+        self.description.clone()
+    }
     /// The id of the parent folder
-    pub folder: ID,
+    async fn folder(&self) -> ID {
+        self.folder.into()
+    }
     /// The name of the file
-    pub file_name: String,
+    async fn file_name(&self) -> String {
+        self.file_name.clone()
+    }
     /// The type of the file
-    pub file_type: String,
+    async fn file_type(&self) -> String {
+        self.file_type.clone()
+    }
     /// ID of the latest version of the file
-    pub latest_version: ID,
+    async fn latest_version(&self) -> ID {
+        self.version.into()
+    }
     /// The time the file was created
-    pub created_at: DateTime<Utc>,
+    async fn created_at(&self) -> DateTime<Utc> {
+        self.created_at
+    }
     /// The time the file was modified
-    pub modified_at: DateTime<Utc>,
+    async fn modified_at(&self) -> DateTime<Utc> {
+        self.modified_at
+    }
     /// The time the file was deleted
-    pub deleted_at: Option<DateTime<Utc>>,
+    async fn deleted_at(&self) -> Option<DateTime<Utc>> {
+        self.deleted_at
+    }
 }
 
 #[derive(InputObject, Debug, Validate)]
@@ -153,48 +173,35 @@ fn file_name_matches_file_type(file_name: &str, file_type: &str) -> Result<(), V
     }
 }
 
-impl From<db::FileWithVersion> for File {
-    fn from(d: db::FileWithVersion) -> Self {
-        Self {
-            id: d.id.into(),
-            title: d.title,
-            description: d.description,
-            folder: d.folder.into(),
-            file_name: d.file_name,
-            file_type: d.file_type,
-            latest_version: d.version.into(),
-            created_at: d.created_at,
-            modified_at: d.modified_at,
-            deleted_at: d.deleted_at,
-        }
-    }
-}
-
 #[derive(Default)]
 pub struct FilesQuery;
 
 #[Object]
 impl FilesQuery {
     /// Get all Files in a Folder
-    async fn files_by_folder(&self, context: &Context<'_>, folder: ID) -> FieldResult<Vec<File>> {
+    async fn files_by_folder(
+        &self,
+        context: &Context<'_>,
+        folder: ID,
+    ) -> FieldResult<Vec<FileWithVersion>> {
         let pool = context.data()?;
         let folder = Uuid::parse_str(&folder)?;
-        let files = db::FileWithVersion::find_by_folder(folder, pool).await?;
+        let files = FileWithVersion::find_by_folder(folder, pool).await?;
 
         Ok(files.into_iter().map(Into::into).collect())
     }
 
     /// Get file by ID
-    async fn file(&self, context: &Context<'_>, id: ID) -> FieldResult<File> {
+    async fn file(&self, context: &Context<'_>, id: ID) -> FieldResult<FileWithVersion> {
         self.get_file(context, id).await
     }
 
     #[graphql(entity)]
-    async fn get_file(&self, context: &Context<'_>, id: ID) -> FieldResult<File> {
+    async fn get_file(&self, context: &Context<'_>, id: ID) -> FieldResult<FileWithVersion> {
         let pool = context.data()?;
         let id = Uuid::parse_str(&id)?;
-        let file = db::FileWithVersion::find_by_id(id, pool).await?;
-        Ok(file.into())
+        let file = FileWithVersion::find_by_id(id, pool).await?;
+        Ok(file)
     }
 }
 
@@ -204,7 +211,11 @@ pub struct FilesMutation;
 #[Object]
 impl FilesMutation {
     /// Create a new file (returns the created file)
-    async fn create_file(&self, context: &Context<'_>, new_file: NewFile) -> FieldResult<File> {
+    async fn create_file(
+        &self,
+        context: &Context<'_>,
+        new_file: NewFile,
+    ) -> FieldResult<FileWithVersion> {
         let pool = context.data()?;
         let azure_config = context.data()?;
         let requesting_user = context.data::<super::RequestingUser>()?;
@@ -224,7 +235,7 @@ impl FilesMutation {
         &self,
         context: &Context<'_>,
         new_version: NewFileVersion,
-    ) -> FieldResult<File> {
+    ) -> FieldResult<FileWithVersion> {
         let pool = context.data()?;
         let azure_config = context.data()?;
         let requesting_user = context.data::<super::RequestingUser>()?;
@@ -241,13 +252,11 @@ impl FilesMutation {
     }
 
     /// Deletes a file by id(returns delete file
-    async fn delete_file(&self, context: &Context<'_>, id: ID) -> FieldResult<File> {
+    async fn delete_file(&self, context: &Context<'_>, id: ID) -> FieldResult<FileWithVersion> {
         let pool = context.data()?;
         let requesting_user = context.data::<super::RequestingUser>()?;
         let user = db::User::find_by_auth_id(&requesting_user.auth_id, pool).await?;
-        let file: File = db::FileWithVersion::delete(Uuid::parse_str(&id)?, user.id, pool)
-            .await?
-            .into();
+        let file = FileWithVersion::delete(Uuid::parse_str(&id)?, user.id, pool).await?;
 
         Ok(file)
     }
@@ -259,7 +268,7 @@ async fn create_file(
     azure_config: &azure::Config,
     requesting_user: &RequestingUser,
     event_client: &EventClient,
-) -> FieldResult<File> {
+) -> FieldResult<FileWithVersion> {
     new_file
         .validate()
         .map_err(validation::ValidationError::from)?;
@@ -274,7 +283,7 @@ async fn create_file(
 
     let folder = db::Folder::find_by_id(folder_id, pool).await?;
 
-    let file: File = db::FileWithVersion::create(
+    let file = FileWithVersion::create(
         db::CreateFileArgs {
             user_id: user.id,
             folder_id,
@@ -286,12 +295,11 @@ async fn create_file(
         },
         pool,
     )
-    .await?
-    .into();
+    .await?;
 
     event_client
         .publish_events(&[Event::new(
-            file.id.clone(),
+            file.id.to_string(),
             FileCreatedData {
                 file_id: file.id.to_string(),
                 created_at: file.created_at.to_rfc3339(),
@@ -301,7 +309,7 @@ async fn create_file(
                 folder_id: folder_id.to_string(),
                 user_id: user.id.to_string(),
                 workspace_id: folder.workspace.to_string(),
-                version_id: file.latest_version.to_string(),
+                version_id: file.version.to_string(),
             },
         )])
         .await?;
@@ -315,7 +323,7 @@ async fn create_file_version(
     azure_config: &azure::Config,
     requesting_user: &RequestingUser,
     event_client: &EventClient,
-) -> FieldResult<File> {
+) -> FieldResult<FileWithVersion> {
     new_version
         .validate()
         .map_err(validation::ValidationError::from)?;
@@ -323,7 +331,7 @@ async fn create_file_version(
     let current_file_id = Uuid::parse_str(&new_version.file)?;
     let current_latest_version_id = Uuid::parse_str(&new_version.latest_version)?;
 
-    let current_file = db::FileWithVersion::find_by_id(current_file_id, pool).await?;
+    let current_file = FileWithVersion::find_by_id(current_file_id, pool).await?;
     if current_file.version != current_latest_version_id {
         // Early check to see if the latest version matches to avoid potentially copying the
         // file unnecessarily. There is still a chance someone else creates a new version in
@@ -349,7 +357,7 @@ async fn create_file_version(
     };
 
     let version_number = current_file.version_number + 1;
-    let file: File = db::FileWithVersion::create_version(
+    let file = FileWithVersion::create_version(
         db::CreateFileVersionArgs {
             user_id: user.id,
             file_id: current_file_id,
@@ -373,12 +381,11 @@ async fn create_file_version(
         },
         pool,
     )
-    .await?
-    .into();
+    .await?;
 
     event_client
         .publish_events(&[Event::new(
-            file.id.clone(),
+            file.id.to_string(),
             FileUpdatedData {
                 file_id: file.id.to_string(),
                 file_description: file.description.clone(),
@@ -508,7 +515,7 @@ mod test {
         let requesting_user = mock_unprivileged_requesting_user();
 
         let file_id = Uuid::new_v4();
-        let current_file = db::FileWithVersion::find_by_id(file_id, &pool).await?;
+        let current_file = FileWithVersion::find_by_id(file_id, &pool).await?;
         let (events, event_client) = mock_event_emitter();
 
         let result = create_file_version(
@@ -534,7 +541,10 @@ mod test {
 
         assert_eq!(result.title, "title");
         assert_eq!(result.description, "fake file for tests");
-        assert_eq!(result.folder, "d890181d-6b17-428e-896b-f76add15b54a");
+        assert_eq!(
+            result.folder.to_string(),
+            "d890181d-6b17-428e-896b-f76add15b54a"
+        );
         assert_eq!(result.file_name, "file.txt");
         assert_eq!(result.file_type, "text/plain");
         assert!(events
