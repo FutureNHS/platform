@@ -1,21 +1,31 @@
-use super::{db, RequestingUser};
-use async_graphql::{Context, FieldResult, InputObject, Object, SimpleObject, ID};
+use super::{db::User, RequestingUser};
+use async_graphql::{Context, FieldResult, InputObject, Object, ID};
 use sqlx::PgPool;
 use uuid::Uuid;
 
 /// A user
-#[derive(SimpleObject)]
-pub struct User {
+#[Object]
+impl User {
     /// The id of the user
-    pub id: ID,
+    async fn id(&self) -> ID {
+        self.id.into()
+    }
     /// The auth id of the user
-    pub auth_id: ID,
+    async fn auth_id(&self) -> ID {
+        self.auth_id.into()
+    }
     /// The name of the user
-    pub name: String,
+    async fn name(&self) -> String {
+        self.name.clone()
+    }
     /// The email of the user
-    pub email_address: String,
+    async fn email_address(&self) -> String {
+        self.email_address.clone()
+    }
     /// If true, user has full platform access
-    pub is_platform_admin: bool,
+    async fn is_platform_admin(&self) -> bool {
+        self.is_platform_admin
+    }
 }
 
 #[derive(InputObject)]
@@ -29,18 +39,6 @@ pub struct NewUser {
 pub struct UpdateUser {
     pub auth_id: ID,
     pub is_platform_admin: bool,
-}
-
-impl From<db::User> for User {
-    fn from(d: db::User) -> Self {
-        Self {
-            id: d.id.into(),
-            name: d.name,
-            auth_id: d.auth_id.into(),
-            email_address: d.email_address,
-            is_platform_admin: d.is_platform_admin,
-        }
-    }
 }
 
 #[derive(Default)]
@@ -57,11 +55,7 @@ impl UsersMutation {
         let pool: &PgPool = context.data()?;
         let auth_id = Uuid::parse_str(&new_user.auth_id)?;
 
-        Ok(
-            db::User::get_or_create(&auth_id, &new_user.name, &new_user.email_address, pool)
-                .await?
-                .into(),
-        )
+        Ok(User::get_or_create(&auth_id, &new_user.name, &new_user.email_address, pool).await?)
     }
 
     /// Update a user (returns the user)
@@ -82,7 +76,7 @@ async fn update_user_impl(
     requesting_user: &RequestingUser,
     update_user: UpdateUser,
 ) -> FieldResult<User> {
-    let requesting_user = db::User::find_by_auth_id(&requesting_user.auth_id, pool).await?;
+    let requesting_user = User::find_by_auth_id(&requesting_user.auth_id, pool).await?;
     if !requesting_user.is_platform_admin {
         return Err(anyhow::anyhow!(
             "User with auth_id {} is not a platform admin.",
@@ -92,11 +86,7 @@ async fn update_user_impl(
     }
 
     let auth_id = Uuid::parse_str(&update_user.auth_id)?;
-    Ok(
-        db::User::update(&auth_id, update_user.is_platform_admin, pool)
-            .await?
-            .into(),
-    )
+    Ok(User::update(&auth_id, update_user.is_platform_admin, pool).await?)
 }
 
 #[cfg(test)]

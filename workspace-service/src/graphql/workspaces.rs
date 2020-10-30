@@ -1,6 +1,5 @@
 use crate::db;
-use crate::db::Workspace;
-use crate::graphql::users::User;
+use crate::db::{User, Workspace};
 use crate::graphql::RequestingUser;
 use async_graphql::{Context, FieldResult, InputObject, Object, ID};
 use fnhs_event_models::{Event, EventClient, EventPublisher as _, WorkspaceCreatedData};
@@ -27,14 +26,14 @@ impl Workspace {
     async fn admins(&self, context: &Context<'_>) -> FieldResult<Vec<User>> {
         let pool = context.data()?;
         let users = db::Group::group_members(self.admins, pool).await?;
-        Ok(users.into_iter().map(Into::into).collect())
+        Ok(users)
     }
 
     /// List of all users who are members of this workspace
     async fn members(&self, context: &Context<'_>) -> FieldResult<Vec<User>> {
         let pool = context.data()?;
         let users = db::Group::group_members(self.members, pool).await?;
-        Ok(users.into_iter().map(Into::into).collect())
+        Ok(users)
     }
 }
 
