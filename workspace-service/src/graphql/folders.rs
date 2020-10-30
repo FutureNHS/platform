@@ -1,30 +1,27 @@
-use super::db;
-use async_graphql::{Context, FieldResult, InputObject, Object, SimpleObject, ID};
+use crate::db::Folder;
+use async_graphql::{Context, FieldResult, InputObject, Object, ID};
 use fnhs_event_models::{Event, EventClient, EventPublisher, FolderCreatedData};
 use sqlx::PgPool;
 use uuid::Uuid;
 
+#[Object]
 /// A folder
-#[derive(SimpleObject)]
-pub struct Folder {
+impl Folder {
     /// The id of the folder
-    id: ID,
+    async fn id(&self) -> ID {
+        self.id.into()
+    }
     /// The title of the folder
-    title: String,
+    async fn title(&self) -> String {
+        self.title.clone()
+    }
     /// The description of the folder
-    description: String,
+    async fn description(&self) -> String {
+        self.description.clone()
+    }
     /// The workspace that this folder is in
-    workspace: ID,
-}
-
-impl From<db::Folder> for Folder {
-    fn from(d: db::Folder) -> Self {
-        Self {
-            id: d.id.into(),
-            title: d.title,
-            description: d.description,
-            workspace: d.workspace.into(),
-        }
+    async fn workspace(&self) -> ID {
+        self.workspace.into()
     }
 }
 
@@ -54,8 +51,8 @@ impl FoldersQuery {
     ) -> FieldResult<Vec<Folder>> {
         let pool = context.data()?;
         let workspace = Uuid::parse_str(&workspace)?;
-        let folders = db::Folder::find_by_workspace(workspace, pool).await?;
-        Ok(folders.into_iter().map(Into::into).collect())
+        let folders = Folder::find_by_workspace(workspace, pool).await?;
+        Ok(folders)
     }
 
     /// Get folder by ID
@@ -67,8 +64,8 @@ impl FoldersQuery {
     async fn get_folder(&self, context: &Context<'_>, id: ID) -> FieldResult<Folder> {
         let pool = context.data()?;
         let id = Uuid::parse_str(&id)?;
-        let folder = db::Folder::find_by_id(id, pool).await?;
-        Ok(folder.into())
+        let folder = Folder::find_by_id(id, pool).await?;
+        Ok(folder)
     }
 }
 
@@ -106,7 +103,7 @@ impl FoldersMutation {
     ) -> FieldResult<Folder> {
         // TODO: Add event
         let pool = context.data()?;
-        let folder = db::Folder::update(
+        let folder = Folder::update(
             Uuid::parse_str(&id)?,
             &folder.title,
             &folder.description,
@@ -114,16 +111,16 @@ impl FoldersMutation {
         )
         .await?;
 
-        Ok(folder.into())
+        Ok(folder)
     }
 
     /// Delete folder (returns deleted folder
     async fn delete_folder(&self, context: &Context<'_>, id: ID) -> FieldResult<Folder> {
         // TODO: Add event
         let pool = context.data()?;
-        let folder = db::Folder::delete(Uuid::parse_str(&id)?, pool).await?;
+        let folder = Folder::delete(Uuid::parse_str(&id)?, pool).await?;
 
-        Ok(folder.into())
+        Ok(folder)
     }
 }
 
@@ -134,16 +131,14 @@ async fn create_folder(
     pool: &PgPool,
     event_client: &EventClient,
 ) -> FieldResult<Folder> {
-    let folder: Folder = db::Folder::create(&title, &description, workspace, pool)
-        .await?
-        .into();
+    let folder: Folder = Folder::create(&title, &description, workspace, pool).await?;
 
     event_client
         .publish_events(&[Event::new(
-            folder.id.clone(),
+            folder.id.to_string(),
             FolderCreatedData {
-                folder_id: folder.id.clone().into(),
-                workspace_id: folder.workspace.clone().into(),
+                folder_id: folder.id.clone().to_string(),
+                workspace_id: folder.workspace.clone().to_string(),
                 // TODO: Fill this in when we have users in the db.
                 user_id: "".into(),
                 title: folder.title.clone(),
