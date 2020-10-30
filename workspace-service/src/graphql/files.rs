@@ -36,7 +36,7 @@ lazy_static! {
             (txt)|
             (webp)|
             (xls)|
-            (xslx)
+            (xlsx)
         )$"
     )
     .expect("bad regex");
