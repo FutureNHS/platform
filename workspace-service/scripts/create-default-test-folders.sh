@@ -6,7 +6,7 @@ cd $(dirname $0)
 
 USAGE="
 
-EXAMPLE USAGES: 
+EXAMPLE USAGES:
 
 $(basename $0) dev-\$FNHSNAME
 
@@ -46,7 +46,7 @@ _verify_environment_and_get_graphql_endpoint $ENVIRONMENT
 ./create-file-if-needed.sh "$ENVIRONMENT" "$WORKSPACE_TITLE" "Data" "Coronavirus Numbers.csv"
 ./create-file-if-needed.sh "$ENVIRONMENT" "$WORKSPACE_TITLE" "Data" "Trust List.docx"
 ./create-file-if-needed.sh "$ENVIRONMENT" "$WORKSPACE_TITLE" "Data" "Infographic.png"
-./create-file-if-needed.sh "$ENVIRONMENT" "$WORKSPACE_TITLE" "Data" "Surgery.mov"
+./create-file-if-needed.sh "$ENVIRONMENT" "$WORKSPACE_TITLE" "Data" "River.mov"
 ./create-file-if-needed.sh "$ENVIRONMENT" "$WORKSPACE_TITLE" "Data" "Leaflet.pdf"
 ./create-file-if-needed.sh "$ENVIRONMENT" "$WORKSPACE_TITLE" "Data" "Motivational Speech.pptx"
 ./create-file-if-needed.sh "$ENVIRONMENT" "$WORKSPACE_TITLE" "Data" "Encryption Keys.txt"
