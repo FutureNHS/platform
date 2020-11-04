@@ -1,5 +1,7 @@
 # Frontend
 
+CHANGE
+
 ## How to use
 
 The frontend development server relies on some services that are available in the development cluster. Specifically, it calls out to the workspace service when doing server-side rendering, and also runs a graphql federation proxy at `/hapi/graphql` that proxies to `$WORKSPACE_SERVICE_GRAPHQL_ENDPOINT`.
