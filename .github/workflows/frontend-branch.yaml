@@ -21,7 +21,7 @@ jobs:
           path: futurenhs-platform
 
       - name: "Login to docker"
-        if: github.head_ref != null
+        if: github.head_ref == null
         uses: azure/docker-login@v1
         with:
           login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
@@ -59,7 +59,7 @@ jobs:
           make docker-build tag=${TAG}
 
       - name: "Push image"
-        if: env.GITHUB_HEAD_REF != null && env.GITHUB_BASE_REF != null
+        if: env.GITHUB_HEAD_REF == null && env.GITHUB_BASE_REF == null
         working-directory: futurenhs-platform/frontend
         run: |
           make docker-push tag=${TAG}
