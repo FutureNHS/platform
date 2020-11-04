@@ -23,14 +23,6 @@ jobs:
         with:
           path: futurenhs-platform
 
-      - name: "Login to docker"
-        if: github.base_ref == null && github.head_ref == null
-        uses: azure/docker-login@v1
-        with:
-          login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
-          username: ${{ secrets.REGISTRY_USERNAME }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
-
       - name: Run cypress tests
         uses: cypress-io/github-action@v2
         with:
@@ -64,8 +56,16 @@ jobs:
       - name: Test dev overlay creation
         run: $GITHUB_WORKSPACE/futurenhs-platform/infrastructure/scripts/create-dev-overlays.py
 
+      - name: "Login to docker"
+        if: github.base_ref == null && github.head_ref == null
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
       - name: "Push image"
-        if: env.GITHUB_HEAD_REF == null && env.GITHUB_BASE_REF == null
+        if: github.base_ref == null && github.head_ref == null
         working-directory: futurenhs-platform/frontend
         run: |
           make docker-push tag=${TAG}
@@ -73,68 +73,13 @@ jobs:
           echo "DIGEST=$DIGEST" >>$GITHUB_ENV
 
       - name: Clone Deployments repo
-        if: env.GITHUB_HEAD_REF == null && env.GITHUB_BASE_REF == null
+        if: github.base_ref == null && github.head_ref == null
         uses: actions/checkout@v2
         with:
           repository: FutureNHS/futurenhs-deployments
           path: futurenhs-deployments
           ssh-key: ${{ secrets.DEPLOY_KEY }}
 
-      - name: Checkout the correct Deployments repo branch
-        if: env.GITHUB_HEAD_REF == null && env.GITHUB_BASE_REF == null
-        working-directory: futurenhs-deployments
-        run: |
-          set -eux
-          git config --local user.email "futurenhs-devs@red-badger.com"
-          git config --local user.name "FutureNHS CI/CD"
-          if git fetch --unshallow origin pr-$GITHUB_HEAD_REF master ; then
-            git checkout origin/pr-$GITHUB_HEAD_REF -b pr-$GITHUB_HEAD_REF
-            git merge origin/master --strategy=recursive --strategy-option=ours
-          else
-            git checkout HEAD -b pr-$GITHUB_HEAD_REF
-          fi
-
-      - name: Prepare and copy manifests
-        if: env.GITHUB_HEAD_REF == null && env.GITHUB_BASE_REF == null
-        run: |
-          set -eux
-
-          cd $HOME
-          curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
-
-          # it might actually be possible to kustomize the production version
-          # and let the other overlays pick up the change.
-          cd $GITHUB_WORKSPACE/futurenhs-platform/frontend/manifests/dev-template
-          $HOME/kustomize edit set image $DIGEST
-
-          $GITHUB_WORKSPACE/futurenhs-platform/infrastructure/scripts/create-dev-overlays.py
-          # TODO: would be nice if the deployments repo followed the same structure
-          # as the platform repo, but only contained manifests.
-          mkdir -p $GITHUB_WORKSPACE/futurenhs-deployments/frontend
-          cp -r $GITHUB_WORKSPACE/futurenhs-platform/frontend/manifests/* $GITHUB_WORKSPACE/futurenhs-deployments/frontend
-
       - name: Deploy
-        if: env.GITHUB_HEAD_REF == null && env.GITHUB_BASE_REF == null
-        working-directory: futurenhs-deployments
-        run: |
-          set -eux
-
-          git add -A
-          # TODO: can we make this commit message reflect the message at the tip of the platform repo?
-          git diff-index --quiet HEAD || git commit -am "CI: Update dev image for ${TAG}"
-
-          declare -i n
-          n=0
-          until [ $n -ge 5 ]
-          do
-            git push origin "HEAD:pr-$GITHUB_HEAD_REF" && break
-            n+=1
-            git fetch origin pr-$GITHUB_HEAD_REF
-            git merge origin/pr-$GITHUB_HEAD_REF --strategy=recursive --strategy-option=ours
-          done
-
-          if [ $n -ge 5 ]
-          then
-            echo "ran out of retries"
-            exit 1
-          fi
+        if: github.base_ref == null && github.head_ref == null
+        run: $GITHUB_WORKSPACE/futurenhs-platform/.github/workflows/deploy-branch.sh frontend
