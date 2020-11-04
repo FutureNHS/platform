@@ -21,6 +21,7 @@ jobs:
           path: futurenhs-platform
 
       - name: "Login to docker"
+        if: github.head_ref != null
         uses: azure/docker-login@v1
         with:
           login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
@@ -50,14 +51,19 @@ jobs:
           name: frontend-cypress-videos
           path: futurenhs-platform/frontend/cypress/videos
 
-      - name: "Build & Push image"
+      - name: "Build image"
         working-directory: futurenhs-platform/frontend
         run: |
           TAG="$(git rev-parse --short=7 ${{ github.sha }})"
+          echo "TAG=$TAG" >>$GITHUB_ENV
           make docker-build tag=${TAG}
+
+      - name: "Push image"
+        if: env.GITHUB_HEAD_REF != null && env.GITHUB_BASE_REF != null
+        working-directory: futurenhs-platform/frontend
+        run: |
           make docker-push tag=${TAG}
           DIGEST="$(docker inspect --format='{{index .RepoDigests 0}}' ${{ secrets.REGISTRY_LOGIN_SERVER }}/frontend:${TAG})"
-          echo "TAG=$TAG" >>$GITHUB_ENV
           echo "DIGEST=$DIGEST" >>$GITHUB_ENV
 
       - name: Clone Deployments repo
