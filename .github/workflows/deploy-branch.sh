@@ -36,6 +36,7 @@ fi
 
 # Get commit message
 cd $GITHUB_WORKSPACE/futurenhs-platform
+git fetch origin HEAD --deepen=2
 COMMIT_MESSAGE=$(git log --no-merges -1 --format=%s)
 
 # Commit and push changes to deployments repo
