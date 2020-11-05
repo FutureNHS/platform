@@ -25,17 +25,17 @@ jobs:
 
           echo "$GITHUB_CONTEXT"
 
-          git log --format=%s -n 1 "${{ github.event.after }}"
+          git log --format=%s -n 1 ${{ github.event.pull_request.head.sha }}
           git log --format=%s -n 1 "$GITHUB_SHA"
           git log --no-merges -1 --format=%s
 
           git fetch origin HEAD --deepen=2
-          git log --format=%s -n 1 "${{ github.event.after }}"
+          git log --format=%s -n 1 ${{ github.event.pull_request.head.sha }}
           git log --format=%s -n 1 "$GITHUB_SHA"
           git log --no-merges -1 --format=%s
 
           git fetch origin "$GITHUB_REF" --deepen=2
-          git log --format=%s -n 1 "${{ github.event.after }}"
+          git log --format=%s -n 1 ${{ github.event.pull_request.head.sha }}
           git log --format=%s -n 1 "$GITHUB_SHA"
           git log --no-merges -1 --format=%s
       - uses: hashicorp/setup-terraform@v1.2.1
