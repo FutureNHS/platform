@@ -84,8 +84,19 @@ jobs:
           echo "TAG=$TAG" >>$GITHUB_ENV
           make docker-build tag=${TAG}
 
+      - name: Check if we can deploy
+        env:
+          REGISTRY_LOGIN_SERVER: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+          REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
+          REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+        run: |
+          if [[ -n "$REGISTRY_LOGIN_SERVER" ]] && [[ -n "$REGISTRY_USERNAME" ]] && [[ -n "$REGISTRY_PASSWORD" ]] && [[ -n "$DEPLOY_KEY" ]]; then
+            echo "CAN_DEPLOY=true" >>$GITHUB_ENV
+          fi
+
       - name: "Login to docker"
-        if: secrets.REGISTRY_LOGIN_SERVER != null && secrets.REGISTRY_USERNAME != null && secrets.REGISTRY_PASSWORD != null
+        if: env.CAN_DEPLOY == 'true'
         uses: azure/docker-login@v1
         with:
           login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
@@ -93,7 +104,7 @@ jobs:
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
       - name: Push image
-        if: secrets.REGISTRY_LOGIN_SERVER != null && secrets.REGISTRY_USERNAME != null && secrets.REGISTRY_PASSWORD != null
+        if: env.CAN_DEPLOY == 'true'
         working-directory: futurenhs-platform/workspace-service
         run: |
           make docker-push tag=${TAG}
@@ -101,7 +112,7 @@ jobs:
           echo "DIGEST=$DIGEST" >>$GITHUB_ENV
 
       - name: Clone Deployments repo
-        if: secrets.DEPLOY_KEY != null
+        if: env.CAN_DEPLOY == 'true'
         uses: actions/checkout@v2
         with:
           repository: FutureNHS/futurenhs-deployments
@@ -109,5 +120,5 @@ jobs:
           ssh-key: ${{ secrets.DEPLOY_KEY }}
 
       - name: Deploy
-        if: secrets.DEPLOY_KEY != null
+        if: env.CAN_DEPLOY == 'true'
         run: $GITHUB_WORKSPACE/futurenhs-platform/.github/workflows/deploy-branch.sh workspace-service
