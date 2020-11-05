@@ -15,9 +15,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: ENV
-        run: env
-
       - name: Clone Platform repo
         uses: actions/checkout@v2
         with:
@@ -57,7 +54,7 @@ jobs:
         run: $GITHUB_WORKSPACE/futurenhs-platform/infrastructure/scripts/create-dev-overlays.py
 
       - name: "Login to docker"
-        if: github.base_ref == null && github.head_ref == null
+        if: secrets.REGISTRY_LOGIN_SERVER != null && secrets.REGISTRY_USERNAME != null && secrets.REGISTRY_PASSWORD != null
         uses: azure/docker-login@v1
         with:
           login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
@@ -65,7 +62,7 @@ jobs:
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
       - name: "Push image"
-        if: github.base_ref == null && github.head_ref == null
+        if: secrets.REGISTRY_LOGIN_SERVER != null && secrets.REGISTRY_USERNAME != null && secrets.REGISTRY_PASSWORD != null
         working-directory: futurenhs-platform/frontend
         run: |
           make docker-push tag=${TAG}
@@ -73,7 +70,7 @@ jobs:
           echo "DIGEST=$DIGEST" >>$GITHUB_ENV
 
       - name: Clone Deployments repo
-        if: github.base_ref == null && github.head_ref == null
+        if: secrets.DEPLOY_KEY != null
         uses: actions/checkout@v2
         with:
           repository: FutureNHS/futurenhs-deployments
@@ -81,5 +78,5 @@ jobs:
           ssh-key: ${{ secrets.DEPLOY_KEY }}
 
       - name: Deploy
-        if: github.base_ref == null && github.head_ref == null
+        if: secrets.DEPLOY_KEY != null
         run: $GITHUB_WORKSPACE/futurenhs-platform/.github/workflows/deploy-branch.sh frontend

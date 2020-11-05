@@ -43,7 +43,7 @@ jobs:
           terraform validate
 
       - name: Clone Deployments repo
-        if: github.base_ref == null && github.head_ref == null
+        if: secrets.DEPLOY_KEY != null
         uses: actions/checkout@v2
         with:
           repository: FutureNHS/futurenhs-deployments
@@ -51,5 +51,5 @@ jobs:
           ssh-key: ${{ secrets.DEPLOY_KEY }}
 
       - name: Deploy
-        if: github.base_ref == null && github.head_ref == null
+        if: secrets.DEPLOY_KEY != null
         run: $GITHUB_WORKSPACE/futurenhs-platform/.github/workflows/deploy-branch.sh infrastructure
