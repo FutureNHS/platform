@@ -20,13 +20,13 @@ cd $HOME
 curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
 
 # Prepare manifests and copy to deployments repo
-cd $GITHUB_WORKSPACE/futurenhs-platform/$COMPONENT/manifests/dev-template
 if [ "$COMPONENT" = "infrastructure" ]; then
 	mkdir -p $GITHUB_WORKSPACE/futurenhs-deployments/cert-manager
 	cp -r $GITHUB_WORKSPACE/futurenhs-platform/infrastructure/kubernetes/cert-manager/* $GITHUB_WORKSPACE/futurenhs-deployments/cert-manager
 	mkdir -p $GITHUB_WORKSPACE/futurenhs-deployments/ingress
 	cp -r $GITHUB_WORKSPACE/futurenhs-platform/infrastructure/kubernetes/ingress/* $GITHUB_WORKSPACE/futurenhs-deployments/ingress
 else
+	cd $GITHUB_WORKSPACE/futurenhs-platform/$COMPONENT/manifests/dev-template
 	$HOME/kustomize edit set image $DIGEST
 	$GITHUB_WORKSPACE/futurenhs-platform/infrastructure/scripts/create-dev-overlays.py
 	mkdir -p $GITHUB_WORKSPACE/futurenhs-deployments/$COMPONENT
@@ -35,14 +35,13 @@ fi
 
 # Get commit message
 cd $GITHUB_WORKSPACE/futurenhs-platform
-git fetch origin HEAD --deepen=2
-COMMIT_MESSAGE=$(git log --format=%B -n 1 $GITHUB_SHA)
+COMMIT_MESSAGE=$(git show --format=%s --no-patch $GITHUB_SHA)
 
 # Commit and push changes to deployments repo
 cd $GITHUB_WORKSPACE/futurenhs-deployments
 
 git add -A
-git diff-index --quiet HEAD || git commit -am "$COMPONENT-branch: $COMMIT_MESSAGE ${TAG:-""}"
+git diff-index --quiet HEAD || git commit -am "($COMPONENT-branch) tag:${TAG:-"none"} msg:$COMMIT_MESSAGE"
 
 declare -i n
 n=0
