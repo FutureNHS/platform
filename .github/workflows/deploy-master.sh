@@ -34,15 +34,13 @@ git diff-index --quiet HEAD || git commit -am "($COMPONENT-master) tag:${TAG:-"n
 
 declare -i n
 n=0
-until [ $n -ge 5 ]
-do
+until [ $n -ge 5 ]; do
 	git push && break
 	n+=1
 	git pull --rebase
 done
 
-if [ $n -ge 5 ]
-then
+if [ $n -ge 5 ]; then
 	echo "ran out of retries"
 	exit 1
 fi
