@@ -16,6 +16,28 @@ jobs:
         uses: actions/checkout@v2
         with:
           path: futurenhs-platform
+      - name: Get commit message
+        working-directory: futurenhs-platform
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: |
+          set -x
+
+          echo "$GITHUB_CONTEXT"
+
+          git log --format=%s -n 1 "${{ github.event.after }}"
+          git log --format=%s -n 1 "$GITHUB_SHA"
+          git log --no-merges -1 --format=%s
+
+          git fetch origin HEAD --deepen=2
+          git log --format=%s -n 1 "${{ github.event.after }}"
+          git log --format=%s -n 1 "$GITHUB_SHA"
+          git log --no-merges -1 --format=%s
+
+          git fetch origin "$GITHUB_REF" --deepen=2
+          git log --format=%s -n 1 "${{ github.event.after }}"
+          git log --format=%s -n 1 "$GITHUB_SHA"
+          git log --no-merges -1 --format=%s
       - uses: hashicorp/setup-terraform@v1.2.1
         with:
           terraform_version: 0.13.4
