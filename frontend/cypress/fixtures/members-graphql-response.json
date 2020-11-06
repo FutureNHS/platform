@@ -1,0 +1,61 @@
+{
+  "data": {
+    "workspace": {
+      "id": "01bb9a4d-2977-4c43-b28c-2a72b4eda453",
+      "title": "Selenium Testing",
+      "admins": [
+        {
+          "authId": "88872e58-a867-4381-8597-943f98aee98b",
+          "emailAddress": "lisa.pink@example.com",
+          "id": "2a8c30e3-4b0e-4c52-990f-f678a94fdcf1",
+          "name": "Lisa Pink",
+          "__typename": "User"
+        }
+      ],
+      "members": [
+        {
+          "authId": "362e9c32-31b2-48bb-beb4-23c5dcbb526c",
+          "emailAddress": "lauren.smith@example.com",
+          "id": "0c4cc5a1-cf31-473d-b8cf-3aa3d74dddcb",
+          "name": "Lauren Smith",
+          "__typename": "User"
+        },
+        {
+          "authId": "5e917d67-6c1d-43e1-96e7-0e9bdf0b8ff6",
+          "emailAddress": "amy.grey@example.com",
+          "id": "1d70ceac-5fe5-4d85-911c-ac3e115be1bb",
+          "name": "Amy Grey",
+          "__typename": "User"
+        },
+        {
+          "authId": "88872e58-a867-4381-8597-943f98aee98b",
+          "emailAddress": "lisa.pink@example.com",
+          "id": "2a8c30e3-4b0e-4c52-990f-f678a94fdcf1",
+          "name": "Lisa Pink",
+          "__typename": "User"
+        },
+        {
+          "authId": "ef65ade3-e2bd-433a-a443-8ba0f57d3fc5",
+          "emailAddress": "dorian.black@example.com",
+          "id": "0093085d-3520-48fb-a684-ade4db6b256a",
+          "name": "Dorian Black",
+          "__typename": "User"
+        },
+        {
+          "authId": "60eb8d0a-ab25-4f02-8dc5-f64bb3f19f91",
+          "emailAddress": "daniel.silver%@example.com",
+          "id": "9c1bd630-414c-4876-8ef3-77630f3b6bda",
+          "name": "Daniel Silver",
+          "__typename": "User"
+        },
+        {
+          "authId": "feedface-0000-0000-0000-000000000000",
+          "emailAddress": "unknown@localhost",
+          "id": "29b12053-e97a-413c-86b4-224d0a662f7b",
+          "name": "Initial Admin User",
+          "__typename": "User"
+        }
+      ]
+    }
+  }
+}
