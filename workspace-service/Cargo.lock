@@ -779,12 +779,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "chunked_transfer"
-version = "1.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7477065d45a8fe57167bf3cf8bcd3729b54cfcb81cca49bda2d038ea89ae82ca"
-
-[[package]]
 name = "cipher"
 version = "0.2.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -853,22 +847,6 @@ dependencies = [
  "sha2",
  "time 0.2.22",
  "version_check",
-]
-
-[[package]]
-name = "cookie_store"
-version = "0.12.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3818dfca4b0cb5211a659bbcbb94225b7127407b2b135e650d717bfb78ab10d3"
-dependencies = [
- "cookie",
- "idna",
- "log",
- "publicsuffix",
- "serde",
- "serde_json",
- "time 0.2.22",
- "url",
 ]
 
 [[package]]
@@ -1155,15 +1133,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "801bbab217d7f79c0062f4f7205b5d4427c6d1a7bd7aafdd1475f7c59d62b283"
 dependencies = [
  "cfg-if 1.0.0",
-]
-
-[[package]]
-name = "error-chain"
-version = "0.12.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2d2f06b9cac1506ece98fe3231e3cc9c4410ec3d5b1f24ae1c8946f0742cdefc"
-dependencies = [
- "version_check",
 ]
 
 [[package]]
@@ -1674,7 +1643,7 @@ dependencies = [
  "futures-util",
  "hyper",
  "log",
- "rustls 0.17.0",
+ "rustls",
  "rustls-native-certs",
  "tokio 0.2.22",
  "tokio-rustls",
@@ -2181,17 +2150,44 @@ dependencies = [
 ]
 
 [[package]]
-name = "opentelemetry-application-insights"
-version = "0.4.0"
+name = "opentelemetry"
+version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e727d8fb8e70239dfeab520674eb58c41dd63086b4d37373d79d439f6300a4b5"
+checksum = "4281f4b4b62fd9f6aa99abdaac38b15fdaf129f8b51b5c26bb6e05c3b74576c3"
 dependencies = [
+ "async-trait",
+ "futures",
+ "lazy_static",
+ "percent-encoding",
+ "pin-project 0.4.27",
+ "rand",
+ "regex",
+]
+
+[[package]]
+name = "opentelemetry-application-insights"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cfdecb4062ff9c863bf53cf24f8066034a2be05a81feec7bcb5bb9d2de34ab5a"
+dependencies = [
+ "async-trait",
+ "bytes",
  "chrono",
+ "http",
  "log",
- "opentelemetry",
+ "opentelemetry 0.9.1",
+ "opentelemetry-semantic-conventions",
  "serde",
  "serde_json",
- "ureq",
+]
+
+[[package]]
+name = "opentelemetry-semantic-conventions"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bdabd15e99df9cd587cf9af3c2679e9783eb176acb002cc85a8b044a4d343651"
+dependencies = [
+ "opentelemetry 0.9.1",
 ]
 
 [[package]]
@@ -2446,28 +2442,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6d147edb77bcccbfc81fabffdc7bd50c13e103b15ca1e27515fe40de69a5776b"
 
 [[package]]
-name = "publicsuffix"
-version = "1.5.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3bbaa49075179162b49acac1c6aa45fb4dafb5f13cf6794276d77bc7fd95757b"
-dependencies = [
- "error-chain",
- "idna",
- "lazy_static",
- "regex",
- "url",
-]
-
-[[package]]
-name = "qstring"
-version = "0.7.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d464fae65fff2680baf48019211ce37aaec0c78e9264c84a3e484717f965104e"
-dependencies = [
- "percent-encoding",
-]
-
-[[package]]
 name = "quick-error"
 version = "1.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2652,26 +2626,13 @@ dependencies = [
 ]
 
 [[package]]
-name = "rustls"
-version = "0.18.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5d1126dcf58e93cee7d098dbda643b5f92ed724f1f6a63007c1116eed6700c81"
-dependencies = [
- "base64 0.12.3",
- "log",
- "ring",
- "sct",
- "webpki",
-]
-
-[[package]]
 name = "rustls-native-certs"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a75ffeb84a6bd9d014713119542ce415db3a3e4748f0bfce1e1416cd224a23a5"
 dependencies = [
  "openssl-probe",
- "rustls 0.17.0",
+ "rustls",
  "schannel",
  "security-framework 0.4.4",
 ]
@@ -3413,7 +3374,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "15cb62a0d2770787abc96e99c1cd98fcf17f94959f3af63ca85bdfb203f051b4"
 dependencies = [
  "futures-core",
- "rustls 0.17.0",
+ "rustls",
  "tokio 0.2.22",
  "webpki",
 ]
@@ -3517,7 +3478,7 @@ version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8aba1fbd3e3152340cfa12087759543277affcce4a40a659bdb5ec21f725d3d6"
 dependencies = [
- "opentelemetry",
+ "opentelemetry 0.8.0",
  "rand",
  "tracing",
  "tracing-core",
@@ -3651,27 +3612,6 @@ name = "untrusted"
 version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a156c684c91ea7d62626509bce3cb4e1d9ed5c4d978f7b4352658f96a4c26b4a"
-
-[[package]]
-name = "ureq"
-version = "1.5.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a599426c7388ab189dfd0eeb84c8d879490abc73e3e62a0b6a40e286f6427ab7"
-dependencies = [
- "base64 0.13.0",
- "chunked_transfer",
- "cookie",
- "cookie_store",
- "log",
- "once_cell",
- "qstring",
- "rustls 0.18.1",
- "serde",
- "serde_json",
- "url",
- "webpki",
- "webpki-roots",
-]
 
 [[package]]
 name = "url"
@@ -3876,15 +3816,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "webpki-roots"
-version = "0.20.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0f20dea7535251981a9670857150d571846545088359b28e4951d350bdaf179f"
-dependencies = [
- "webpki",
-]
-
-[[package]]
 name = "wepoll-sys"
 version = "3.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3960,7 +3891,7 @@ dependencies = [
  "http-types",
  "lazy_static",
  "mime-db",
- "opentelemetry",
+ "opentelemetry 0.8.0",
  "opentelemetry-application-insights",
  "percent-encoding",
  "regex",
