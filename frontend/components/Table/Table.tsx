@@ -50,6 +50,7 @@ const ExpanderCell = styled(ContentCell)`
 `;
 
 const ExtraDetailCell = styled(NHSTable.Cell)`
+  pointer-events: none;
   padding-top: 8px;
   padding-bottom: 16px;
   &.withoutBottomBorder {
@@ -143,29 +144,31 @@ const TableComponent = <ItemType extends Item>({
                     extraDetails.map((c, i) => {
                       const withoutBottomBorder = i < extraDetails.length - 1;
                       return (
-                        <NHSTable.Row key={i}>
-                          {c.heading && (
+                        <>
+                          <NHSTable.Row key={i}>
+                            {c.heading && (
+                              <ExtraDetailCell
+                                className={classNames({
+                                  withoutBottomBorder,
+                                })}
+                              >
+                                <StyledHeading>{c.heading}</StyledHeading>
+                              </ExtraDetailCell>
+                            )}
                             <ExtraDetailCell
                               className={classNames({
                                 withoutBottomBorder,
                               })}
                             >
-                              <StyledHeading>{c.heading}</StyledHeading>
+                              {c.content(x)}
                             </ExtraDetailCell>
-                          )}
-                          <ExtraDetailCell
-                            className={classNames({
-                              withoutBottomBorder,
-                            })}
-                          >
-                            {c.content(x)}
-                          </ExtraDetailCell>
-                          <ExtraDetailCell
-                            className={classNames({
-                              withoutBottomBorder,
-                            })}
-                          ></ExtraDetailCell>
-                        </NHSTable.Row>
+                            <ExtraDetailCell
+                              className={classNames({
+                                withoutBottomBorder,
+                              })}
+                            />
+                          </NHSTable.Row>
+                        </>
                       );
                     })}
                 </React.Fragment>

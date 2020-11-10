@@ -2,6 +2,7 @@ import React, { FC } from "react";
 
 import { NextPage } from "next";
 import { useRouter } from "next/router";
+import { Button } from "nhsuk-react-components";
 import styled from "styled-components";
 
 import { Footer } from "../../../components/Footer";
@@ -35,6 +36,10 @@ const ContentWrapper = styled.div`
 const CountSentence = styled.p`
   margin: 0;
   padding-top: 16px;
+`;
+
+const StyledButton = styled(Button)`
+  pointer-events: auto;
 `;
 
 const nameCell: FC<User> = ({ name }) => <div>{name}</div>;
@@ -89,6 +94,27 @@ const WorkspaceMembersPage: NextPage = () => {
                         // eslint-disable-next-line react/display-name
                         content: () => <>Administrator</>,
                       },
+                      {
+                        // eslint-disable-next-line react/display-name
+                        heading: () => <div>&nbsp;</div>,
+                        // eslint-disable-next-line react/display-name
+                        content: () => (
+                          <>
+                            Administrators can manager folder, members and
+                            workspace details
+                          </>
+                        ),
+                      },
+                      {
+                        // eslint-disable-next-line react/display-name
+                        heading: () => <div>&nbsp;</div>,
+                        // eslint-disable-next-line react/display-name
+                        content: () => (
+                          <>
+                            <StyledButton secondary>Make Member</StyledButton>
+                          </>
+                        ),
+                      },
                     ]}
                     data={data.workspace.admins as User[]}
                   />
@@ -107,6 +133,29 @@ const WorkspaceMembersPage: NextPage = () => {
                         heading: "Permissions",
                         // eslint-disable-next-line react/display-name
                         content: () => <>Member</>,
+                      },
+                      {
+                        // eslint-disable-next-line react/display-name
+                        heading: () => <div>&nbsp;</div>,
+                        // eslint-disable-next-line react/display-name
+                        content: () => (
+                          <>
+                            Administrators can manager folder, members and
+                            workspace details
+                          </>
+                        ),
+                      },
+                      {
+                        // eslint-disable-next-line react/display-name
+                        heading: () => <div>&nbsp;</div>,
+                        // eslint-disable-next-line react/display-name
+                        content: () => (
+                          <>
+                            <StyledButton secondary>
+                              Make Administrator
+                            </StyledButton>
+                          </>
+                        ),
                       },
                     ]}
                     data={data.workspace.members as User[]}
