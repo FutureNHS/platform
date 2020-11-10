@@ -2,6 +2,7 @@ use crate::{
     db,
     db::{Role, WorkspaceRepo},
     graphql::{users::User, RequestingUser},
+    services::workspace::{self, WorkspaceService, WorkspaceServiceImpl},
 };
 use async_graphql::{Context, Enum, FieldResult, InputObject, Object, ID};
 use fnhs_event_models::{
@@ -17,6 +18,18 @@ pub struct Workspace {
     description: String,
     admins: Uuid,
     members: Uuid,
+}
+
+impl From<workspace::Workspace> for Workspace {
+    fn from(workspace: workspace::Workspace) -> Self {
+        Workspace {
+            id: workspace.id.into(),
+            title: workspace.title,
+            description: workspace.description,
+            admins: workspace.admins.into(),
+            members: workspace.members.into(),
+        }
+    }
 }
 
 #[derive(Enum, Copy, Clone, Eq, PartialEq)]
@@ -151,18 +164,17 @@ impl WorkspacesMutation {
         context: &Context<'_>,
         new_workspace: NewWorkspace,
     ) -> FieldResult<Workspace> {
-        let pool = context.data()?;
-        let event_client: &EventClient = context.data()?;
+        let workspace_service = context.data::<WorkspaceServiceImpl>()?;
         let requesting_user = context.data::<RequestingUser>()?;
 
-        create_workspace(
-            &new_workspace.title,
-            &new_workspace.description,
-            requesting_user,
-            pool,
-            event_client,
-        )
-        .await
+        let new_workspace = workspace_service
+            .create(
+                &new_workspace.title,
+                &new_workspace.description,
+                requesting_user.auth_id.into(),
+            )
+            .await?;
+        Ok(new_workspace.into())
     }
 
     /// Update workspace (returns updated workspace)

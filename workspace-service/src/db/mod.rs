@@ -26,12 +26,6 @@ pub use teams::TeamRepo;
 #[cfg(test)]
 pub use teams::TeamRepoFake as TeamRepo;
 
-pub use users::User;
-#[cfg(not(test))]
-pub use users::UserRepo;
-#[cfg(test)]
-pub use users::UserRepoFake as UserRepo;
-
 pub use workspaces::Workspace;
 #[cfg(not(test))]
 pub use workspaces::WorkspaceRepo;

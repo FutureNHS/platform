@@ -3957,6 +3957,7 @@ dependencies = [
  "azure_sdk_storage_blob",
  "azure_sdk_storage_core",
  "chrono",
+ "derive_more",
  "fnhs-event-models",
  "http-types",
  "lazy_static",

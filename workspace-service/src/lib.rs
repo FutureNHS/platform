@@ -2,6 +2,7 @@ pub mod azure;
 pub mod config;
 mod db;
 mod graphql;
+mod services;
 
 use fnhs_event_models::EventClient;
 pub use graphql::generate_graphql_schema;

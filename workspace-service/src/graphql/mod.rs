@@ -11,6 +11,7 @@ mod validation;
 mod workspaces;
 
 use super::{azure, db};
+use crate::services::workspace::WorkspaceServiceImpl;
 use async_graphql::{
     http::{playground_source, GraphQLPlaygroundConfig},
     EmptySubscription, MergedObject, Schema,
@@ -24,6 +25,7 @@ use uuid::Uuid;
 pub struct State {
     schema: Schema<Query, Mutation, EmptySubscription>,
     event_client: EventClient,
+    workspace_service: WorkspaceServiceImpl,
 }
 
 impl State {
@@ -36,6 +38,7 @@ impl State {
                 .data(azure_config)
                 .finish(),
             event_client,
+            workspace_service: WorkspaceServiceImpl::new(),
         }
     }
 }
