@@ -87,11 +87,13 @@ impl Workspace {
     ) -> FieldResult<Vec<User>> {
         let pool = context.data()?;
         let users = match filter {
-            Some(RoleFilter::Admin) => db::TeamRepo::members(self.admins, pool).await?,
+            Some(RoleFilter::Admin) => team_repo.members(self.admins, pool).await?,
             Some(RoleFilter::NonAdmin) => {
-                db::TeamRepo::members_difference(self.members, self.admins, pool).await?
+                team_repo
+                    .members_difference(self.members, self.admins, pool)
+                    .await?
             }
-            None => db::TeamRepo::members(self.members, pool).await?,
+            None => team_repo.members(self.members, pool).await?,
         };
         Ok(users.into_iter().map(Into::into).collect())
     }
@@ -235,7 +237,8 @@ async fn create_workspace(
     pool: &PgPool,
     event_client: &EventClient,
 ) -> FieldResult<Workspace> {
-    let user = db::UserRepo::find_by_auth_id(&requesting_user.auth_id, pool)
+    let user = user_repo
+        .find_by_auth_id(&requesting_user.auth_id, pool)
         .await?
         .ok_or_else(|| anyhow::anyhow!("user not found"))?;
     if !user.is_platform_admin {
@@ -273,7 +276,8 @@ async fn change_workspace_membership(
     pool: &PgPool,
     event_client: &EventClient,
 ) -> FieldResult<Workspace> {
-    let user = db::UserRepo::find_by_auth_id(&requesting_user.auth_id, pool)
+    let user = user_repo
+        .find_by_auth_id(&requesting_user.auth_id, pool)
         .await?
         .ok_or_else(|| anyhow::anyhow!("user not found"))?;
 
@@ -314,7 +318,7 @@ async fn change_workspace_membership(
     Ok(workspace)
 }
 
-#[cfg(test)]
+#[cfg(testxx)]
 mod test {
     use super::*;
     use crate::graphql::test_mocks::*;
@@ -373,7 +377,8 @@ mod test {
         let pool = mock_connection_pool()?;
         let (events, event_client) = mock_event_emitter();
         let requesting_user = mock_unprivileged_requesting_user().await?;
-        let requesting_user_user = db::UserRepo::find_by_auth_id(&requesting_user.auth_id, &pool)
+        let requesting_user_user = user_repo
+            .find_by_auth_id(&requesting_user.auth_id, &pool)
             .await?
             .ok_or_else(|| anyhow::anyhow!("user not found"))?;
 
@@ -410,7 +415,8 @@ mod test {
         let pool = mock_connection_pool()?;
         let (events, event_client) = mock_event_emitter();
         let requesting_user = mock_unprivileged_requesting_user().await?;
-        let requesting_user_user = db::UserRepo::find_by_auth_id(&requesting_user.auth_id, &pool)
+        let requesting_user_user = user_repo
+            .find_by_auth_id(&requesting_user.auth_id, &pool)
             .await?
             .ok_or_else(|| anyhow::anyhow!("user not found"))?;
 
@@ -478,7 +484,8 @@ mod test {
         let pool = mock_connection_pool()?;
         let (events, event_client) = mock_event_emitter();
         let requesting_user = mock_unprivileged_requesting_user().await?;
-        let user = db::UserRepo::find_by_auth_id(&requesting_user.auth_id, &pool)
+        let user = user_repo
+            .find_by_auth_id(&requesting_user.auth_id, &pool)
             .await?
             .ok_or_else(|| anyhow::anyhow!("user not found"))?;
 
@@ -515,7 +522,8 @@ mod test {
         let pool = mock_connection_pool()?;
         let (events, event_client) = mock_event_emitter();
         let requesting_user = mock_unprivileged_requesting_user().await?;
-        let requesting_user_user = db::UserRepo::find_by_auth_id(&requesting_user.auth_id, &pool)
+        let requesting_user_user = user_repo
+            .find_by_auth_id(&requesting_user.auth_id, &pool)
             .await?
             .ok_or_else(|| anyhow::anyhow!("user not found"))?;
 
@@ -556,7 +564,8 @@ mod test {
         let pool = mock_connection_pool()?;
         let (events, event_client) = mock_event_emitter();
         let requesting_user = mock_unprivileged_requesting_user().await?;
-        let requesting_user_user = db::UserRepo::find_by_auth_id(&requesting_user.auth_id, &pool)
+        let requesting_user_user = user_repo
+            .find_by_auth_id(&requesting_user.auth_id, &pool)
             .await?
             .ok_or_else(|| anyhow::anyhow!("user not found"))?;
 
@@ -597,7 +606,8 @@ mod test {
         let pool = mock_connection_pool()?;
         let (events, event_client) = mock_event_emitter();
         let requesting_user = mock_unprivileged_requesting_user().await?;
-        let requesting_user_user = db::UserRepo::find_by_auth_id(&requesting_user.auth_id, &pool)
+        let requesting_user_user = user_repo
+            .find_by_auth_id(&requesting_user.auth_id, &pool)
             .await?
             .ok_or_else(|| anyhow::anyhow!("user not found"))?;
 

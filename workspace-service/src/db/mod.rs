@@ -6,7 +6,6 @@ mod users;
 mod workspaces;
 
 pub use file_versions::*;
-pub use workspaces::Role;
 
 #[cfg(not(test))]
 pub use files::FileWithVersionRepo;
@@ -19,18 +18,6 @@ pub use folders::Folder;
 pub use folders::FolderRepo;
 #[cfg(test)]
 pub use folders::FolderRepoFake as FolderRepo;
-
-pub use teams::Team;
-#[cfg(not(test))]
-pub use teams::TeamRepo;
-#[cfg(test)]
-pub use teams::TeamRepoFake as TeamRepo;
-
-pub use workspaces::Workspace;
-#[cfg(not(test))]
-pub use workspaces::WorkspaceRepo;
-#[cfg(test)]
-pub use workspaces::WorkspaceRepoFake as WorkspaceRepo;
 
 use anyhow::Result;
 use sqlx::{Executor, Postgres};
