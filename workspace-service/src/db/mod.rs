@@ -21,10 +21,7 @@ pub use folders::FolderRepo;
 pub use folders::FolderRepoFake as FolderRepo;
 
 pub use teams::Team;
-#[cfg(not(test))]
 pub use teams::TeamRepo;
-#[cfg(test)]
-pub use teams::TeamRepoFake as TeamRepo;
 
 pub use users::User;
 #[cfg(not(test))]

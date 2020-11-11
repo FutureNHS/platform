@@ -3,7 +3,7 @@
 
 use crate::db;
 use anyhow::{Context, Result};
-use sqlx::{types::Uuid, PgPool};
+use sqlx::{types::Uuid, PgPool, Postgres, Transaction};
 use std::fmt::Display;
 
 #[derive(Clone)]
@@ -39,16 +39,37 @@ impl Display for Role {
     }
 }
 
+struct RepoFactory<'conn> {
+    pub(crate) executor: Transaction<'conn, Postgres>,
+}
+
+impl<'conn> RepoFactory<'conn> {
+    fn team<'r>(&'r mut self) -> TeamRepo<'r>
+    where
+        'conn: 'r,
+    {
+        TeamRepo {
+            executor: &mut self.executor,
+        }
+    }
+}
+
 #[cfg_attr(test, allow(dead_code))]
 pub struct WorkspaceRepo {}
 
 #[cfg_attr(test, allow(dead_code))]
 impl WorkspaceRepo {
     pub async fn create(title: &str, description: &str, pool: &PgPool) -> Result<Workspace> {
-        let mut tx = pool.begin().await?;
+        let tx: Transaction<Postgres> = pool.begin().await?;
 
-        let admins = db::TeamRepo::create(&format!("{} Admins", title), &mut tx).await?;
-        let members = db::TeamRepo::create(&format!("{} Members", title), &mut tx).await?;
+        let mut fact = RepoFactory { executor: tx };
+        let mut team_repo = fact.team();
+        let admins = team_repo.create(&format!("{} Admins", title)).await?;
+        drop(team_repo);
+
+        let mut team_repo = fact.team();
+        let members = team_repo.create(&format!("{} Members", title)).await?;
+        drop(team_repo);
 
         let workspace = sqlx::query_file_as!(
             Workspace,
@@ -58,10 +79,10 @@ impl WorkspaceRepo {
             admins.id,
             members.id
         )
-        .fetch_one(&mut tx)
+        .fetch_one(&mut fact.executor)
         .await
         .context("create workspace")?;
-        tx.commit().await?;
+        fact.executor.commit().await?;
 
         Ok(workspace)
     }
@@ -163,6 +184,8 @@ pub struct WorkspaceRepoFake {}
 use std::collections::HashMap;
 #[cfg(test)]
 use std::sync::Mutex;
+
+use super::TeamRepo;
 
 #[cfg(test)]
 lazy_static::lazy_static! {

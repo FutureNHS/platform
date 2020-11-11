@@ -3,7 +3,7 @@
 
 use crate::db::User;
 use anyhow::{Context, Result};
-use sqlx::{types::Uuid, Executor, Postgres};
+use sqlx::{types::Uuid, Executor, Postgres, Transaction};
 
 #[derive(Clone)]
 pub struct Team {
@@ -11,17 +11,22 @@ pub struct Team {
     pub title: String,
 }
 
-#[cfg_attr(test, allow(dead_code))]
-pub struct TeamRepo {}
+// enum Either{
+//     A(Transaction)
+//     B(PgPool)
+// }
+// impl Executor for Either {}
 
 #[cfg_attr(test, allow(dead_code))]
-impl TeamRepo {
-    pub async fn create<'c, E>(title: &str, executor: E) -> Result<Team>
-    where
-        E: Executor<'c, Database = Postgres>,
-    {
-        let group = sqlx::query_file_as!(Team, "sql/teams/create.sql", title)
-            .fetch_one(executor)
+pub struct TeamRepo<'conn> {
+    pub(crate) executor: &'conn mut Transaction<'conn, Postgres>,
+}
+
+impl<'conn> TeamRepo<'conn> {
+    pub async fn create(&mut self, title: &str) -> Result<Team> {
+        let q = sqlx::query_file_as!(Team, "sql/teams/create.sql", title);
+        let group = q
+            .fetch_one(&mut *self.executor)
             .await
             .context("create team")?;
 
@@ -94,82 +99,6 @@ impl TeamRepo {
             .await
             .context("remove member from team")?;
 
-        Ok(())
-    }
-}
-
-#[cfg(test)]
-pub struct TeamRepoFake {}
-#[cfg(test)]
-use std::collections::HashSet;
-#[cfg(test)]
-use std::sync::Mutex;
-
-#[cfg(test)]
-lazy_static::lazy_static! {
-    static ref TEAM_MEMBERS: Mutex<HashSet<(Uuid, Uuid)>> = Mutex::new(HashSet::new());
-}
-
-// Fake implementation for tests. If you want integration tests that exercise the database,
-// see https://doc.rust-lang.org/rust-by-example/testing/integration_testing.html.
-#[cfg(test)]
-impl TeamRepoFake {
-    #[allow(dead_code)]
-    pub async fn create<'c, E>(title: &str, _executor: E) -> Result<Team>
-    where
-        E: Executor<'c, Database = Postgres>,
-    {
-        let team = Team {
-            id: Uuid::new_v4(),
-            title: title.to_string(),
-        };
-        Ok(team)
-    }
-
-    pub async fn members<'c, E>(id: Uuid, executor: E) -> Result<Vec<User>>
-    where
-        E: Executor<'c, Database = Postgres>,
-    {
-        if let Some(user) = crate::db::UserRepo::find_by_auth_id(&id, executor).await? {
-            Ok(vec![user])
-        } else {
-            Ok(vec![])
-        }
-    }
-    pub async fn members_difference<'c, E>(
-        _team_a_id: Uuid,
-        _team_b_id: Uuid,
-        _executor: E,
-    ) -> Result<Vec<User>>
-    where
-        E: Executor<'c, Database = Postgres>,
-    {
-        todo!()
-    }
-
-    pub async fn is_member<'c, E>(team_id: Uuid, user_id: Uuid, _executor: E) -> Result<bool>
-    where
-        E: Executor<'c, Database = Postgres>,
-    {
-        let teams = TEAM_MEMBERS.lock().unwrap();
-        Ok(teams.contains(&(team_id, user_id)))
-    }
-
-    pub async fn add_member<'c, E>(team_id: Uuid, user_id: Uuid, _executor: E) -> Result<()>
-    where
-        E: Executor<'c, Database = Postgres>,
-    {
-        let mut teams = TEAM_MEMBERS.lock().unwrap();
-        teams.replace((team_id, user_id));
-        Ok(())
-    }
-
-    pub async fn remove_member<'c, E>(team_id: Uuid, user_id: Uuid, _executor: E) -> Result<()>
-    where
-        E: Executor<'c, Database = Postgres>,
-    {
-        let mut teams = TEAM_MEMBERS.lock().unwrap();
-        teams.remove(&(team_id, user_id));
         Ok(())
     }
 }
