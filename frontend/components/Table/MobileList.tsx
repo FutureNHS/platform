@@ -109,7 +109,7 @@ export const MobileList = <ItemType extends Item>({
                   expanded &&
                   extraDetails.map((c, i) => (
                     <React.Fragment key={i}>
-                      {c.heading && <h4>{c.heading}</h4>}
+                      <h4>{c.heading || " "}</h4>
                       <div>{c.content(x)}</div>
                     </React.Fragment>
                   ))}

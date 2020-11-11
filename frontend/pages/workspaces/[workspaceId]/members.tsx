@@ -89,14 +89,11 @@ const WorkspaceMembersPage: NextPage = () => {
                     ]}
                     extraDetails={[
                       {
-                        // eslint-disable-next-line react/display-name
                         heading: "Permissions",
                         // eslint-disable-next-line react/display-name
                         content: () => <>Administrator</>,
                       },
                       {
-                        // eslint-disable-next-line react/display-name
-                        heading: () => <div>&nbsp;</div>,
                         // eslint-disable-next-line react/display-name
                         content: () => (
                           <>
@@ -106,8 +103,6 @@ const WorkspaceMembersPage: NextPage = () => {
                         ),
                       },
                       {
-                        // eslint-disable-next-line react/display-name
-                        heading: () => <div>&nbsp;</div>,
                         // eslint-disable-next-line react/display-name
                         content: () => (
                           <>
@@ -130,14 +125,11 @@ const WorkspaceMembersPage: NextPage = () => {
                     ]}
                     extraDetails={[
                       {
-                        // eslint-disable-next-line react/display-name
                         heading: "Permissions",
                         // eslint-disable-next-line react/display-name
                         content: () => <>Member</>,
                       },
                       {
-                        // eslint-disable-next-line react/display-name
-                        heading: " ",
                         // eslint-disable-next-line react/display-name
                         content: () => (
                           <>
@@ -147,8 +139,6 @@ const WorkspaceMembersPage: NextPage = () => {
                         ),
                       },
                       {
-                        // eslint-disable-next-line react/display-name
-                        heading: " ",
                         // eslint-disable-next-line react/display-name
                         content: () => (
                           <>
