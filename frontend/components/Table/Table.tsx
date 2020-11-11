@@ -30,6 +30,9 @@ const IconWrapper = styled.div`
 `;
 
 const StyledTable = styled(NHSTable)`
+  tbody tr:hover:not(&.withoutBottomBorder) {
+    background: ${({ theme }) => theme.colorNhsukWhite};
+  }
   td {
     font-size: 16px;
   }
@@ -140,29 +143,27 @@ const TableComponent = <ItemType extends Item>({
                     extraDetails.map((c, i) => {
                       const withoutBottomBorder = i < extraDetails.length - 1;
                       return (
-                        <>
-                          <NHSTable.Row key={i}>
-                            <ExtraDetailCell
-                              className={classNames({
-                                withoutBottomBorder,
-                              })}
-                            >
-                              <StyledHeading>{c.heading || " "}</StyledHeading>
-                            </ExtraDetailCell>
-                            <ExtraDetailCell
-                              className={classNames({
-                                withoutBottomBorder,
-                              })}
-                            >
-                              {c.content(x)}
-                            </ExtraDetailCell>
-                            <ExtraDetailCell
-                              className={classNames({
-                                withoutBottomBorder,
-                              })}
-                            />
-                          </NHSTable.Row>
-                        </>
+                        <NHSTable.Row key={i}>
+                          <ExtraDetailCell
+                            className={classNames({
+                              withoutBottomBorder,
+                            })}
+                          >
+                            <StyledHeading>{c.heading || " "}</StyledHeading>
+                          </ExtraDetailCell>
+                          <ExtraDetailCell
+                            className={classNames({
+                              withoutBottomBorder,
+                            })}
+                          >
+                            {c.content(x)}
+                          </ExtraDetailCell>
+                          <ExtraDetailCell
+                            className={classNames({
+                              withoutBottomBorder,
+                            })}
+                          />
+                        </NHSTable.Row>
                       );
                     })}
                 </React.Fragment>
