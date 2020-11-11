@@ -38,10 +38,6 @@ const CountSentence = styled.p`
   padding-top: 16px;
 `;
 
-const StyledButton = styled(Button)`
-  pointer-events: auto;
-`;
-
 const nameCell: FC<User> = ({ name }) => <div>{name}</div>;
 const emailAddressCell: FC<User> = ({ emailAddress }) => (
   <a
@@ -106,7 +102,7 @@ const WorkspaceMembersPage: NextPage = () => {
                         // eslint-disable-next-line react/display-name
                         content: () => (
                           <>
-                            <StyledButton secondary>Make Member</StyledButton>
+                            <Button secondary>Make Member</Button>
                           </>
                         ),
                       },
@@ -142,9 +138,7 @@ const WorkspaceMembersPage: NextPage = () => {
                         // eslint-disable-next-line react/display-name
                         content: () => (
                           <>
-                            <StyledButton secondary>
-                              Make Administrator
-                            </StyledButton>
+                            <Button secondary>Make Administrator</Button>
                           </>
                         ),
                       },

@@ -30,9 +30,6 @@ const IconWrapper = styled.div`
 `;
 
 const StyledTable = styled(NHSTable)`
-  tbody tr:hover {
-    background: ${({ theme }) => theme.colorNhsukWhite};
-  }
   td {
     font-size: 16px;
   }
@@ -50,7 +47,6 @@ const ExpanderCell = styled(ContentCell)`
 `;
 
 const ExtraDetailCell = styled(NHSTable.Cell)`
-  pointer-events: none;
   padding-top: 8px;
   padding-bottom: 16px;
   &.withoutBottomBorder {
@@ -146,15 +142,13 @@ const TableComponent = <ItemType extends Item>({
                       return (
                         <>
                           <NHSTable.Row key={i}>
-                            {c.heading && (
-                              <ExtraDetailCell
-                                className={classNames({
-                                  withoutBottomBorder,
-                                })}
-                              >
-                                <StyledHeading>{c.heading}</StyledHeading>
-                              </ExtraDetailCell>
-                            )}
+                            <ExtraDetailCell
+                              className={classNames({
+                                withoutBottomBorder,
+                              })}
+                            >
+                              <StyledHeading>{c.heading || " "}</StyledHeading>
+                            </ExtraDetailCell>
                             <ExtraDetailCell
                               className={classNames({
                                 withoutBottomBorder,
