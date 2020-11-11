@@ -8,6 +8,8 @@ use crate::services::{
 use anyhow::{Context, Result};
 use sqlx::{types::Uuid, Executor, Postgres};
 
+use super::DbUser;
+
 #[derive(Clone)]
 pub struct DbTeam {
     pub id: Uuid,
@@ -28,35 +30,41 @@ impl TeamRepo for TeamRepoImpl {
     where
         E: Executor<'c, Database = Postgres>,
     {
-        let group = sqlx::query_file_as!(Team, "sql/teams/create.sql", title)
+        let group = sqlx::query_file_as!(DbTeam, "sql/teams/create.sql", title)
             .fetch_one(executor)
             .await
-            .context("create team")?;
+            .context("create team")?
+            .into();
 
         Ok(group)
     }
 
-    async fn members<'c, E>(&self, id: TeamId, executor: E) -> Result<Vec<User>> {
+    async fn members<'c, E>(id: TeamId, executor: E) -> Result<Vec<User>>
+    where
+        E: Executor<'c, Database = Postgres>,
+    {
         let id: Uuid = id.into();
 
-        let users = sqlx::query_file_as!(User, "sql/teams/members.sql", id)
+        let users: Vec<DbUser> = sqlx::query_file_as!(DbUser, "sql/teams/members.sql", id)
             .fetch_all(executor)
             .await
             .context("get team members")?;
 
-        Ok(users)
+        Ok(users.iter().cloned().map(Into::into).collect())
     }
 
     async fn members_difference<'c, E>(
-        &self,
         team_a_id: TeamId,
         team_b_id: TeamId,
         executor: E,
-    ) -> Result<Vec<User>> {
+    ) -> Result<Vec<User>>
+    where
+        E: Executor<'c, Database = Postgres>,
+    {
         let team_a_id: Uuid = team_a_id.into();
         let team_b_id: Uuid = team_b_id.into();
-        let users = sqlx::query_file_as!(
-            User,
+        let users: Vec<DbUser> = sqlx::query_file_as!(
+            DbUser,
             "sql/teams/members_difference.sql",
             team_a_id,
             team_b_id
@@ -65,15 +73,13 @@ impl TeamRepo for TeamRepoImpl {
         .await
         .context("get members of team A that aren't in team B")?;
 
-        Ok(users)
+        Ok(users.iter().cloned().map(Into::into).collect())
     }
 
-    async fn is_member<'c, E>(
-        &self,
-        team_id: TeamId,
-        user_id: UserId,
-        executor: E,
-    ) -> Result<bool> {
+    async fn is_member<'c, E>(team_id: TeamId, user_id: UserId, executor: E) -> Result<bool>
+    where
+        E: Executor<'c, Database = Postgres>,
+    {
         let team_id: Uuid = team_id.into();
         let user_id: Uuid = user_id.into();
         let found = sqlx::query_file!("sql/teams/is_member.sql", team_id, user_id)
@@ -84,7 +90,10 @@ impl TeamRepo for TeamRepoImpl {
         Ok(found.is_some())
     }
 
-    async fn add_member<'c, E>(&self, team_id: TeamId, user_id: UserId, executor: E) -> Result<()> {
+    async fn add_member<'c, E>(team_id: TeamId, user_id: UserId, executor: E) -> Result<()>
+    where
+        E: Executor<'c, Database = Postgres>,
+    {
         let team_id: Uuid = team_id.into();
         let user_id: Uuid = user_id.into();
         sqlx::query_file!("sql/teams/add_member.sql", team_id, user_id)
@@ -95,12 +104,10 @@ impl TeamRepo for TeamRepoImpl {
         Ok(())
     }
 
-    async fn remove_member<'c, E>(
-        &self,
-        team_id: TeamId,
-        user_id: UserId,
-        executor: E,
-    ) -> Result<()> {
+    async fn remove_member<'c, E>(team_id: TeamId, user_id: UserId, executor: E) -> Result<()>
+    where
+        E: Executor<'c, Database = Postgres>,
+    {
         let team_id: Uuid = team_id.into();
         let user_id: Uuid = user_id.into();
         sqlx::query_file!("sql/teams/remove_member.sql", team_id, user_id)

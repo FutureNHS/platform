@@ -40,7 +40,7 @@ impl WorkspaceRepo for WorkspaceRepoImpl {
         let admins_team_id: Uuid = admins_team_id.into();
         let members_team_id: Uuid = members_team_id.into();
         let workspace = sqlx::query_file_as!(
-            Workspace,
+            DbWorkspace,
             "sql/workspaces/create.sql",
             title,
             description,
@@ -49,7 +49,8 @@ impl WorkspaceRepo for WorkspaceRepoImpl {
         )
         .fetch_one(executor)
         .await
-        .context("create workspace")?;
+        .context("create workspace")?
+        .into();
 
         Ok(workspace)
     }
@@ -58,12 +59,13 @@ impl WorkspaceRepo for WorkspaceRepoImpl {
     where
         E: Executor<'c, Database = Postgres>,
     {
-        let workspaces = sqlx::query_file_as!(Workspace, "sql/workspaces/find_all.sql")
-            .fetch_all(executor)
-            .await
-            .context("find all workspaces")?;
+        let workspaces: Vec<DbWorkspace> =
+            sqlx::query_file_as!(DbWorkspace, "sql/workspaces/find_all.sql")
+                .fetch_all(executor)
+                .await
+                .context("find all workspaces")?;
 
-        Ok(workspaces)
+        Ok(workspaces.iter().cloned().map(Into::into).collect())
     }
 
     async fn find_by_id<'c, E>(id: WorkspaceId, executor: E) -> Result<Workspace>
@@ -71,10 +73,11 @@ impl WorkspaceRepo for WorkspaceRepoImpl {
         E: Executor<'c, Database = Postgres>,
     {
         let id: Uuid = id.into();
-        let workspace = sqlx::query_file_as!(Workspace, "sql/workspaces/find_by_id.sql", id)
+        let workspace = sqlx::query_file_as!(DbWorkspace, "sql/workspaces/find_by_id.sql", id)
             .fetch_one(executor)
             .await
-            .context("find a workspace by id")?;
+            .context("find a workspace by id")?
+            .into();
 
         Ok(workspace)
     }
@@ -88,8 +91,9 @@ impl WorkspaceRepo for WorkspaceRepoImpl {
     where
         E: Executor<'c, Database = Postgres>,
     {
+        let id: Uuid = id.into();
         let workspace = sqlx::query_file_as!(
-            Workspace,
+            DbWorkspace,
             "sql/workspaces/update.sql",
             id,
             title,
@@ -97,7 +101,8 @@ impl WorkspaceRepo for WorkspaceRepoImpl {
         )
         .fetch_one(executor)
         .await
-        .context("update workspace")?;
+        .context("update workspace")?
+        .into();
 
         Ok(workspace)
     }
@@ -106,10 +111,12 @@ impl WorkspaceRepo for WorkspaceRepoImpl {
     where
         E: Executor<'c, Database = Postgres>,
     {
-        let workspace = sqlx::query_file_as!(Workspace, "sql/workspaces/delete.sql", id)
+        let id: Uuid = id.into();
+        let workspace = sqlx::query_file_as!(DbWorkspace, "sql/workspaces/delete.sql", id)
             .fetch_one(executor)
             .await
-            .context("delete workspace")?;
+            .context("delete workspace")?
+            .into();
 
         Ok(workspace)
     }

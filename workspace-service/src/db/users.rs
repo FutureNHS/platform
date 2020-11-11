@@ -32,7 +32,7 @@ impl UserRepo for UserRepoImpl {
         let user = sqlx::query_file_as!(DbUser, "sql/users/find_by_auth_id.sql", auth_id)
             .fetch_optional(executor)
             .await?
-            .into();
+            .map(Into::into);
 
         Ok(user)
     }
@@ -45,7 +45,7 @@ impl UserRepo for UserRepoImpl {
         let user = sqlx::query_file_as!(DbUser, "sql/users/find_by_id.sql", id)
             .fetch_optional(executor)
             .await?
-            .into();
+            .map(Into::into);
 
         Ok(user)
     }
@@ -68,7 +68,8 @@ impl UserRepo for UserRepoImpl {
             email_address
         )
         .fetch_one(executor)
-        .await?;
+        .await?
+        .into();
 
         Ok(user)
     }

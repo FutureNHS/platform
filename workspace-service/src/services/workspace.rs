@@ -72,7 +72,7 @@ pub trait WorkspaceRepo {
     where
         E: Executor<'c, Database = Postgres>;
 
-    async fn delete<'c, E>(&self, id: WorkspaceId, executor: E) -> Result<Workspace>
+    async fn delete<'c, E>(id: WorkspaceId, executor: E) -> Result<Workspace>
     where
         E: Executor<'c, Database = Postgres>;
 }
