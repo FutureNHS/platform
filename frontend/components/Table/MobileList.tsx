@@ -75,7 +75,7 @@ interface Props<ItemType extends Item> {
   }>;
   data: ItemType[];
   extraDetails?: Array<{
-    heading?: string;
+    heading?: (x: ItemType) => ReactNode;
     content: (x: ItemType) => ReactNode;
   }>;
 }
@@ -109,7 +109,7 @@ export const MobileList = <ItemType extends Item>({
                   expanded &&
                   extraDetails.map((c, i) => (
                     <React.Fragment key={i}>
-                      {c.heading && <h4>{c.heading}</h4>}
+                      {c.heading && <h4>{c.heading(x)}</h4>}
                       <div>{c.content(x)}</div>
                     </React.Fragment>
                   ))}

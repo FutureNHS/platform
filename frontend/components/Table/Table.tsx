@@ -77,7 +77,7 @@ interface Props<ItemType extends Item> {
   }>;
   data: ItemType[];
   extraDetails?: Array<{
-    heading?: string;
+    heading?: (x: ItemType) => ReactNode;
     content: (x: ItemType) => ReactNode;
   }>;
 }
@@ -152,7 +152,7 @@ const TableComponent = <ItemType extends Item>({
                                   withoutBottomBorder,
                                 })}
                               >
-                                <StyledHeading>{c.heading}</StyledHeading>
+                                <StyledHeading>{c.heading(x)}</StyledHeading>
                               </ExtraDetailCell>
                             )}
                             <ExtraDetailCell

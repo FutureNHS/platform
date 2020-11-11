@@ -80,7 +80,6 @@ const WorkspaceMembersPage: NextPage = () => {
                 <>
                   <CountSentence>
                     Showing all administrators ({data.workspace.admins.length})
-                    {/* FIXME: think about the huge void caused by position:34 in the table below */}
                   </CountSentence>
                   <ResponsiveTable
                     tableHeading="Administrators"
@@ -90,7 +89,8 @@ const WorkspaceMembersPage: NextPage = () => {
                     ]}
                     extraDetails={[
                       {
-                        heading: "Permissions",
+                        // eslint-disable-next-line react/display-name
+                        heading: () => <>Permissions</>,
                         // eslint-disable-next-line react/display-name
                         content: () => <>Administrator</>,
                       },
@@ -130,7 +130,8 @@ const WorkspaceMembersPage: NextPage = () => {
                     ]}
                     extraDetails={[
                       {
-                        heading: "Permissions",
+                        // eslint-disable-next-line react/display-name
+                        heading: () => <>Permissions</>,
                         // eslint-disable-next-line react/display-name
                         content: () => <>Member</>,
                       },
