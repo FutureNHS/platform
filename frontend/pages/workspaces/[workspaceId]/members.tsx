@@ -90,7 +90,7 @@ const WorkspaceMembersPage: NextPage = () => {
                     extraDetails={[
                       {
                         // eslint-disable-next-line react/display-name
-                        heading: () => <>Permissions</>,
+                        heading: "Permissions",
                         // eslint-disable-next-line react/display-name
                         content: () => <>Administrator</>,
                       },
@@ -131,13 +131,13 @@ const WorkspaceMembersPage: NextPage = () => {
                     extraDetails={[
                       {
                         // eslint-disable-next-line react/display-name
-                        heading: () => <>Permissions</>,
+                        heading: "Permissions",
                         // eslint-disable-next-line react/display-name
                         content: () => <>Member</>,
                       },
                       {
                         // eslint-disable-next-line react/display-name
-                        heading: () => <div>&nbsp;</div>,
+                        heading: " ",
                         // eslint-disable-next-line react/display-name
                         content: () => (
                           <>
@@ -148,7 +148,7 @@ const WorkspaceMembersPage: NextPage = () => {
                       },
                       {
                         // eslint-disable-next-line react/display-name
-                        heading: () => <div>&nbsp;</div>,
+                        heading: " ",
                         // eslint-disable-next-line react/display-name
                         content: () => (
                           <>

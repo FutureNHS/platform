@@ -14,7 +14,7 @@ interface Props<ItemType extends Item> {
     content: (x: ItemType) => ReactNode;
   }>;
   extraDetails: Array<{
-    heading?: (x: ItemType) => ReactNode;
+    heading?: string;
     content: (x: ItemType) => ReactNode;
   }>;
   data: ItemType[];
