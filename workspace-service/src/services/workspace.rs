@@ -1,12 +1,12 @@
 use super::{
     team::TeamRepo,
     user::{AuthId, UserId, UserRepo},
-    DB,
 };
 use anyhow::Result;
 use async_trait::async_trait;
 use derive_more::{Display, From, Into};
 use fnhs_event_models::{Event, WorkspaceCreatedData, WorkspaceMembershipChangedData};
+use sqlx::{Executor, Postgres};
 use uuid::Uuid;
 
 pub struct Workspace {
@@ -43,31 +43,38 @@ impl std::fmt::Display for Role {
 #[derive(From, Into, Display, Copy, Clone)]
 pub struct WorkspaceId(Uuid);
 
-#[derive(From, Into, Display)]
-pub struct TeamId(Uuid);
-
 #[async_trait::async_trait]
 pub trait WorkspaceRepo {
-    async fn create<'c>(
+    async fn create<'c, E>(
         title: &str,
         description: &str,
         admins_team_id: TeamId,
         members_team_id: TeamId,
-        executor: &DB<'c>,
-    ) -> Result<Workspace>;
+        executor: E,
+    ) -> Result<Workspace>
+    where
+        E: Executor<'c, Database = Postgres>;
 
-    async fn find_all<'c>(executor: &DB<'c>) -> Result<Vec<Workspace>>;
+    async fn find_all<'c, E>(executor: E) -> Result<Vec<Workspace>>
+    where
+        E: Executor<'c, Database = Postgres>;
 
-    async fn find_by_id<'c>(id: WorkspaceId, executor: &DB<'c>) -> Result<Workspace>;
+    async fn find_by_id<'c, E>(id: WorkspaceId, executor: E) -> Result<Workspace>
+    where
+        E: Executor<'c, Database = Postgres>;
 
-    async fn update<'c>(
+    async fn update<'c, E>(
         id: WorkspaceId,
         title: &str,
         description: &str,
-        executor: &DB<'c>,
-    ) -> Result<Workspace>;
+        executor: E,
+    ) -> Result<Workspace>
+    where
+        E: Executor<'c, Database = Postgres>;
 
-    async fn delete<'c>(&self, id: WorkspaceId, executor: &DB<'c>) -> Result<Workspace>;
+    async fn delete<'c, E>(&self, id: WorkspaceId, executor: E) -> Result<Workspace>
+    where
+        E: Executor<'c, Database = Postgres>;
 }
 
 #[async_trait::async_trait]
@@ -125,7 +132,13 @@ where
 }
 
 #[async_trait]
-impl<E, T, U, W> WorkspaceService<'c> for WorkspaceServiceImpl<E, T, U, W> {
+impl<'c, E, T, U, W> WorkspaceService<'c> for WorkspaceServiceImpl<E, T, U, W>
+where
+    E: EventRepo,
+    T: TeamRepo,
+    U: UserRepo,
+    W: WorkspaceRepo,
+{
     async fn create(
         &self,
         title: &str,
@@ -144,7 +157,7 @@ impl<E, T, U, W> WorkspaceService<'c> for WorkspaceServiceImpl<E, T, U, W> {
             )
             .into());
         }
-        let mut tx = DB::new(self.executor.connection.clone().begin().await?);
+        let mut tx = self.executor.begin().await?;
 
         let admins = self
             .team_repo
@@ -174,14 +187,14 @@ impl<E, T, U, W> WorkspaceService<'c> for WorkspaceServiceImpl<E, T, U, W> {
     }
 
     async fn is_admin(&self, workspace_id: WorkspaceId, user_id: UserId) -> Result<bool> {
-        match self.user_repo.find_by_id(&user_id, executor).await? {
+        match self.user_repo.find_by_id(&user_id, self.executor).await? {
             Some(user) => {
                 let workspace = self
                     .workspace_repo
-                    .find_by_id(workspace_id, executor)
+                    .find_by_id(workspace_id, self.executor)
                     .await?;
                 self.team_repo
-                    .is_member(workspace.admins, user.id, executor)
+                    .is_member(workspace.admins, user.id, self.executor)
                     .await
             }
             None => Ok(false),
