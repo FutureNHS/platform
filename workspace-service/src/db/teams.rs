@@ -18,11 +18,11 @@ pub struct Team {
 // impl Executor for Either {}
 
 #[cfg_attr(test, allow(dead_code))]
-pub struct TeamRepo<'conn> {
-    pub(crate) executor: &'conn mut Transaction<'conn, Postgres>,
+pub struct TeamRepo<'a, 'ex> {
+    pub(crate) executor: &'a mut Transaction<'ex, Postgres>,
 }
 
-impl<'conn> TeamRepo<'conn> {
+impl<'a, 'ex> TeamRepo<'a, 'ex> {
     pub async fn create(&mut self, title: &str) -> Result<Team> {
         let q = sqlx::query_file_as!(Team, "sql/teams/create.sql", title);
         let group = q

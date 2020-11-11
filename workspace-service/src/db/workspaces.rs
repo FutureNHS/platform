@@ -44,7 +44,7 @@ struct RepoFactory<'conn> {
 }
 
 impl<'conn> RepoFactory<'conn> {
-    fn team<'r>(&'r mut self) -> TeamRepo<'r>
+    fn team<'r>(&'r mut self) -> TeamRepo<'r, 'conn>
     where
         'conn: 'r,
     {
