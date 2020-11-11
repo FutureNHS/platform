@@ -1,4 +1,5 @@
 use super::{azure, db, validation, RequestingUser};
+use crate::services::user::UserRepo;
 use async_graphql::{Context, FieldResult, InputObject, Object, SimpleObject, ID};
 use chrono::{DateTime, Utc};
 use fnhs_event_models::{
@@ -264,7 +265,7 @@ async fn create_file(
         .map_err(validation::ValidationError::from)?;
 
     let folder_id = Uuid::parse_str(&new_file.folder)?;
-    let user = db::UserRepoImpl::find_by_auth_id(&requesting_user.auth_id, pool)
+    let user = db::UserRepoImpl::find_by_auth_id(requesting_user.auth_id.into(), pool)
         .await?
         .ok_or_else(|| anyhow::anyhow!("user not found"))?;
     let destination = azure::copy_blob_from_url(
@@ -277,7 +278,7 @@ async fn create_file(
 
     let file = db::FileWithVersionRepo::create(
         db::CreateFileArgs {
-            user_id: user.id,
+            user_id: user.id.into(),
             folder_id,
             title: &new_file.title,
             description: &new_file.description,
@@ -333,7 +334,7 @@ async fn create_file_version(
         return Err("specified version is not the latest version of the file".into());
     }
 
-    let user = db::UserRepoImpl::find_by_auth_id(&requesting_user.auth_id, pool)
+    let user = db::UserRepoImpl::find_by_auth_id(requesting_user.auth_id.into(), pool)
         .await?
         .ok_or_else(|| anyhow::anyhow!("user not found"))?;
     let folder_id = match &new_version.folder {
@@ -354,7 +355,7 @@ async fn create_file_version(
     let version_number = current_file.version_number + 1;
     let file: File = db::FileWithVersionRepo::create_version(
         db::CreateFileVersionArgs {
-            user_id: user.id,
+            user_id: user.id.into(),
             file_id: current_file_id,
             latest_version: current_latest_version_id,
             folder_id,
@@ -406,10 +407,10 @@ async fn delete_file(
     requesting_user: &RequestingUser,
     event_client: &EventClient,
 ) -> FieldResult<File> {
-    let user = db::UserRepoImpl::find_by_auth_id(&requesting_user.auth_id, pool)
+    let user = db::UserRepoImpl::find_by_auth_id(requesting_user.auth_id.into(), pool)
         .await?
         .ok_or_else(|| anyhow::anyhow!("user not found"))?;
-    let file = db::FileWithVersionRepo::delete(Uuid::parse_str(&id)?, user.id, pool).await?;
+    let file = db::FileWithVersionRepo::delete(Uuid::parse_str(&id)?, user.id.into(), pool).await?;
 
     let folder = db::FolderRepo::find_by_id(file.folder, pool).await?;
 
