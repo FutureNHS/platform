@@ -10,6 +10,7 @@ pub use files::{
     CreateFileArgs, CreateFileVersionArgs, File, FileRepo, FileWithVersion, FileWithVersionRepo,
 };
 pub use folders::{Folder, FolderRepo};
+pub use teams::TeamRepoImpl;
 pub use users::{DbUser, UserRepoImpl};
 pub use workspaces::{DbWorkspace, WorkspaceRepoImpl};
 

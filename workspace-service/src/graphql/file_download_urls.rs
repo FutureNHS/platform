@@ -55,34 +55,34 @@ async fn file_download_url(
     )?)
 }
 
-#[cfg(test)]
-mod test {
-    use super::*;
-    use crate::graphql::test_mocks::*;
-    use fnhs_event_models::EventData;
-    #[async_std::test]
-    async fn file_download_url_emits_event() -> anyhow::Result<()> {
-        let pool = mock_connection_pool()?;
-        let azure_config = mock_azure_config()?;
+// #[cfg(test)]
+// mod test {
+//     use super::*;
+//     use crate::graphql::test_mocks::*;
+//     use fnhs_event_models::EventData;
+//     #[async_std::test]
+//     async fn file_download_url_emits_event() -> anyhow::Result<()> {
+//         let pool = mock_connection_pool()?;
+//         let azure_config = mock_azure_config()?;
 
-        let requesting_user = mock_unprivileged_requesting_user().await?;
+//         let requesting_user = mock_unprivileged_requesting_user().await?;
 
-        let (events, event_client) = mock_event_emitter();
+//         let (events, event_client) = mock_event_emitter();
 
-        file_download_url(
-            "1f20fa4c-543c-45b4-93bb-a6e21a8e4de5".into(),
-            &pool,
-            &azure_config,
-            &event_client,
-            &requesting_user,
-        )
-        .await
-        .unwrap();
+//         file_download_url(
+//             "1f20fa4c-543c-45b4-93bb-a6e21a8e4de5".into(),
+//             &pool,
+//             &azure_config,
+//             &event_client,
+//             &requesting_user,
+//         )
+//         .await
+//         .unwrap();
 
-        assert!(events
-            .try_iter()
-            .any(|e| matches!(e.data, EventData::FileDownloaded(_))));
+//         assert!(events
+//             .try_iter()
+//             .any(|e| matches!(e.data, EventData::FileDownloaded(_))));
 
-        Ok(())
-    }
-}
+//         Ok(())
+//     }
+// }

@@ -1,6 +1,6 @@
 use super::{
-    team::TeamRepo,
-    user::{AuthId, UserId, UserRepo},
+    team::{TeamId, TeamRepo},
+    user::{AuthId, User, UserId, UserRepo},
 };
 use anyhow::Result;
 use async_trait::async_trait;
@@ -26,6 +26,14 @@ pub enum Role {
     NonMember,
 }
 
+#[derive(Copy, Clone)]
+pub enum RoleFilter {
+    /// Only return Admins
+    Admin,
+    /// Only return Non-Admins
+    NonAdmin,
+}
+
 impl std::fmt::Display for Role {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
@@ -46,11 +54,11 @@ pub struct WorkspaceId(Uuid);
 #[async_trait::async_trait]
 pub trait WorkspaceRepo {
     async fn create<'c, E>(
+        &self,
         title: &str,
         description: &str,
         admins_team_id: TeamId,
         members_team_id: TeamId,
-        executor: E,
     ) -> Result<Workspace>
     where
         E: Executor<'c, Database = Postgres>;
@@ -82,6 +90,8 @@ pub trait EventRepo {}
 
 #[async_trait]
 pub trait WorkspaceService<'c> {
+    async fn members(&self, filter: Option<RoleFilter>) -> Result<Vec<User>>;
+
     async fn create(
         &self,
         title: &str,
@@ -101,29 +111,25 @@ pub trait WorkspaceService<'c> {
 }
 
 #[derive(Clone)]
-pub struct WorkspaceServiceImpl<E, T, U, W>
+pub struct WorkspaceServiceImpl<T, U, W>
 where
-    E: EventRepo,
     T: TeamRepo,
     U: UserRepo,
     W: WorkspaceRepo,
 {
-    event_repo: E,
     team_repo: T,
     user_repo: U,
     workspace_repo: W,
 }
 
-impl<'c, E, T, U, W> WorkspaceServiceImpl<E, T, U, W>
+impl<'c, T, U, W> WorkspaceServiceImpl<T, U, W>
 where
-    E: EventRepo,
     T: TeamRepo,
     U: UserRepo,
     W: WorkspaceRepo,
 {
-    pub fn new(event_repo: E, team_repo: T, user_repo: U, workspace_repo: W) -> Self {
+    pub fn new(team_repo: T, user_repo: U, workspace_repo: W) -> Self {
         Self {
-            event_repo,
             team_repo,
             user_repo,
             workspace_repo,
@@ -132,13 +138,25 @@ where
 }
 
 #[async_trait]
-impl<'c, E, T, U, W> WorkspaceService<'c> for WorkspaceServiceImpl<E, T, U, W>
+impl<'c, T, U, W> WorkspaceService<'c> for WorkspaceServiceImpl<T, U, W>
 where
-    E: EventRepo,
     T: TeamRepo,
     U: UserRepo,
     W: WorkspaceRepo,
 {
+    async fn members(&self, filter: Option<RoleFilter>) -> Result<Vec<User>> {
+        let users = match filter {
+            Some(RoleFilter::Admin) => self.team_repo.members(self.admins, self.executor).await?,
+            Some(RoleFilter::NonAdmin) => {
+                self.team_repo
+                    .members_difference(self.members, self.admins, self.executor)
+                    .await?
+            }
+            None => self.team_repo.members(self.members, self.executor).await?,
+        };
+        Ok(users.into_iter().map(Into::into).collect())
+    }
+
     async fn create(
         &self,
         title: &str,
@@ -147,7 +165,7 @@ where
     ) -> Result<Workspace> {
         let user = self
             .user_repo
-            .find_by_auth_id(&requesting_user)
+            .find_by_auth_id(requesting_user)
             .await?
             .ok_or_else(|| anyhow::anyhow!("user not found"))?;
         if !user.is_platform_admin {

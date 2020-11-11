@@ -215,88 +215,88 @@ async fn delete_folder(
     Ok(folder.into())
 }
 
-#[cfg(test)]
-mod test {
-    use super::*;
-    use crate::graphql::test_mocks::*;
-    use fnhs_event_models::EventData;
+// #[cfg(test)]
+// mod test {
+//     use super::*;
+//     use crate::graphql::test_mocks::*;
+//     use fnhs_event_models::EventData;
 
-    #[async_std::test]
-    async fn deleting_folder_emits_an_event() -> anyhow::Result<()> {
-        let pool = mock_connection_pool()?;
-        let (events, event_client) = mock_event_emitter();
-        let requesting_user = mock_unprivileged_requesting_user().await?;
+//     #[async_std::test]
+//     async fn deleting_folder_emits_an_event() -> anyhow::Result<()> {
+//         let pool = mock_connection_pool()?;
+//         let (events, event_client) = mock_event_emitter();
+//         let requesting_user = mock_unprivileged_requesting_user().await?;
 
-        let folder = delete_folder(
-            "d890181d-6b17-428e-896b-f76add15b54a".into(),
-            &pool,
-            &requesting_user,
-            &event_client,
-        )
-        .await
-        .unwrap();
+//         let folder = delete_folder(
+//             "d890181d-6b17-428e-896b-f76add15b54a".into(),
+//             &pool,
+//             &requesting_user,
+//             &event_client,
+//         )
+//         .await
+//         .unwrap();
 
-        assert_eq!(folder.id, "d890181d-6b17-428e-896b-f76add15b54a");
-        assert!(events
-            .try_iter()
-            .any(|e| matches!(e.data, EventData::FolderDeleted(_))));
+//         assert_eq!(folder.id, "d890181d-6b17-428e-896b-f76add15b54a");
+//         assert!(events
+//             .try_iter()
+//             .any(|e| matches!(e.data, EventData::FolderDeleted(_))));
 
-        Ok(())
-    }
+//         Ok(())
+//     }
 
-    #[async_std::test]
-    async fn creating_folder_emits_an_event() -> anyhow::Result<()> {
-        let pool = mock_connection_pool()?;
-        let (events, event_client) = mock_event_emitter();
-        let requesting_user = mock_unprivileged_requesting_user().await?;
+//     #[async_std::test]
+//     async fn creating_folder_emits_an_event() -> anyhow::Result<()> {
+//         let pool = mock_connection_pool()?;
+//         let (events, event_client) = mock_event_emitter();
+//         let requesting_user = mock_unprivileged_requesting_user().await?;
 
-        let folder = create_folder(
-            "title",
-            "description",
-            Uuid::new_v4(),
-            &pool,
-            &requesting_user,
-            &event_client,
-        )
-        .await
-        .unwrap();
+//         let folder = create_folder(
+//             "title",
+//             "description",
+//             Uuid::new_v4(),
+//             &pool,
+//             &requesting_user,
+//             &event_client,
+//         )
+//         .await
+//         .unwrap();
 
-        assert_eq!(folder.title, "title");
-        assert_eq!(folder.description, "description");
+//         assert_eq!(folder.title, "title");
+//         assert_eq!(folder.description, "description");
 
-        assert!(events
-            .try_iter()
-            .any(|e| matches!(e.data, EventData::FolderCreated(_))));
+//         assert!(events
+//             .try_iter()
+//             .any(|e| matches!(e.data, EventData::FolderCreated(_))));
 
-        Ok(())
-    }
+//         Ok(())
+//     }
 
-    #[async_std::test]
-    async fn update_folder_emits_an_event() -> anyhow::Result<()> {
-        let pool = mock_connection_pool()?;
-        let (events, event_client) = mock_event_emitter();
-        let requesting_user = mock_unprivileged_requesting_user().await?;
-        let current_folder = UpdateFolder {
-            title: "title".to_string(),
-            description: "description".to_string(),
-        };
+//     #[async_std::test]
+//     async fn update_folder_emits_an_event() -> anyhow::Result<()> {
+//         let pool = mock_connection_pool()?;
+//         let (events, event_client) = mock_event_emitter();
+//         let requesting_user = mock_unprivileged_requesting_user().await?;
+//         let current_folder = UpdateFolder {
+//             title: "title".to_string(),
+//             description: "description".to_string(),
+//         };
 
-        let folder = update_folder(
-            "d890181d-6b17-428e-896b-f76add15b54a".into(),
-            current_folder,
-            &pool,
-            &requesting_user,
-            &event_client,
-        )
-        .await
-        .unwrap();
+//         let folder = update_folder(
+//             "d890181d-6b17-428e-896b-f76add15b54a".into(),
+//             current_folder,
+//             &pool,
+//             &requesting_user,
+//             &event_client,
+//         )
+//         .await
+//         .unwrap();
 
-        assert_eq!(folder.title, "title");
-        assert_eq!(folder.description, "description");
-        assert!(events
-            .try_iter()
-            .any(|e| matches!(e.data, EventData::FolderUpdated(_))));
+//         assert_eq!(folder.title, "title");
+//         assert_eq!(folder.description, "description");
+//         assert!(events
+//             .try_iter()
+//             .any(|e| matches!(e.data, EventData::FolderUpdated(_))));
 
-        Ok(())
-    }
-}
+//         Ok(())
+//     }
+// }

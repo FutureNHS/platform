@@ -20,6 +20,7 @@ impl From<DbUser> for User {
     }
 }
 
+#[derive(Clone)]
 pub struct UserRepoImpl {}
 
 #[async_trait::async_trait]

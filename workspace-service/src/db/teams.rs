@@ -22,6 +22,7 @@ impl From<DbTeam> for Team {
     }
 }
 
+#[derive(Clone)]
 pub struct TeamRepoImpl {}
 
 #[async_trait::async_trait]

@@ -429,205 +429,205 @@ async fn delete_file(
 
     Ok(file.into())
 }
-#[cfg(test)]
-mod test {
-    use super::*;
-    use crate::graphql::test_mocks::*;
-    use fnhs_event_models::EventData;
-    use test_case::test_case;
+// #[cfg(test)]
+// mod test {
+//     use super::*;
+//     use crate::graphql::test_mocks::*;
+//     use fnhs_event_models::EventData;
+//     use test_case::test_case;
 
-    #[test_case("filename.doc", Some("application/msword") , None ; "good extension doc")]
-    #[test_case("filename.docx", Some("application/vnd.openxmlformats-officedocument.wordprocessingml.document") , None ; "good extension docx")]
-    #[test_case("image.png", Some("image/png") , None ; "good mime type")]
-    #[test_case("image.png", Some("image/gif") , Some("the file extension is not valid for the specified MIME type") ; "bad mime type")]
-    #[test_case("filename.zip", None , Some("the file name does not have an allowed extension") ; "bad extension zip")]
-    #[test_case("filename.txt", Some("text/plain") , None ; "good extension has dot")]
-    #[test_case("filenametxt", None , Some("the file name does not have an allowed extension") ; "bad extension no dot")]
-    #[test_case(".doc", None , Some("the file name must be between 5 and 255 characters long") ; "too short")]
-    #[test_case("%.doc", None , Some("the file name contains characters that are not alphanumeric, space, period, hyphen or underscore") ; "bad char percent")]
-    #[test_case("%", None , Some("the file name must be between 5 and 255 characters long, the file name contains characters that are not alphanumeric, space, period, hyphen or underscore, the file name does not have an allowed extension") ; "multiple errors")]
-    #[test_case("🦀.doc", None , Some("the file name contains characters that are not alphanumeric, space, period, hyphen or underscore") ; "bad char emoji")]
-    #[test_case("xx\u{0}.doc", None , Some("the file name contains characters that are not alphanumeric, space, period, hyphen or underscore") ; "null char")]
-    fn validate_filename(
-        file_name: &'static str,
-        file_type: Option<&'static str>,
-        expected: Option<&'static str>,
-    ) {
-        validate_new_file_filename(file_name, file_type, expected);
-        validate_new_file_version_filename(file_name, file_type, expected);
-    }
+//     #[test_case("filename.doc", Some("application/msword") , None ; "good extension doc")]
+//     #[test_case("filename.docx", Some("application/vnd.openxmlformats-officedocument.wordprocessingml.document") , None ; "good extension docx")]
+//     #[test_case("image.png", Some("image/png") , None ; "good mime type")]
+//     #[test_case("image.png", Some("image/gif") , Some("the file extension is not valid for the specified MIME type") ; "bad mime type")]
+//     #[test_case("filename.zip", None , Some("the file name does not have an allowed extension") ; "bad extension zip")]
+//     #[test_case("filename.txt", Some("text/plain") , None ; "good extension has dot")]
+//     #[test_case("filenametxt", None , Some("the file name does not have an allowed extension") ; "bad extension no dot")]
+//     #[test_case(".doc", None , Some("the file name must be between 5 and 255 characters long") ; "too short")]
+//     #[test_case("%.doc", None , Some("the file name contains characters that are not alphanumeric, space, period, hyphen or underscore") ; "bad char percent")]
+//     #[test_case("%", None , Some("the file name must be between 5 and 255 characters long, the file name contains characters that are not alphanumeric, space, period, hyphen or underscore, the file name does not have an allowed extension") ; "multiple errors")]
+//     #[test_case("🦀.doc", None , Some("the file name contains characters that are not alphanumeric, space, period, hyphen or underscore") ; "bad char emoji")]
+//     #[test_case("xx\u{0}.doc", None , Some("the file name contains characters that are not alphanumeric, space, period, hyphen or underscore") ; "null char")]
+//     fn validate_filename(
+//         file_name: &'static str,
+//         file_type: Option<&'static str>,
+//         expected: Option<&'static str>,
+//     ) {
+//         validate_new_file_filename(file_name, file_type, expected);
+//         validate_new_file_version_filename(file_name, file_type, expected);
+//     }
 
-    fn validate_new_file_filename(
-        file_name: &'static str,
-        file_type: Option<&'static str>,
-        expected: Option<&'static str>,
-    ) {
-        let new_file = NewFile {
-            title: "".to_string(),
-            description: "".to_string(),
-            folder: "".into(),
-            file_name: file_name.to_string(),
-            file_type: file_type.unwrap_or("").to_string(),
-            temporary_blob_storage_path: "".to_string(),
-        };
-        let actual = new_file
-            .validate()
-            .map_err(validation::ValidationError::from)
-            .map_err(|e| format!("{}", e))
-            .err();
-        assert_eq!(actual.as_deref(), expected);
-    }
+//     fn validate_new_file_filename(
+//         file_name: &'static str,
+//         file_type: Option<&'static str>,
+//         expected: Option<&'static str>,
+//     ) {
+//         let new_file = NewFile {
+//             title: "".to_string(),
+//             description: "".to_string(),
+//             folder: "".into(),
+//             file_name: file_name.to_string(),
+//             file_type: file_type.unwrap_or("").to_string(),
+//             temporary_blob_storage_path: "".to_string(),
+//         };
+//         let actual = new_file
+//             .validate()
+//             .map_err(validation::ValidationError::from)
+//             .map_err(|e| format!("{}", e))
+//             .err();
+//         assert_eq!(actual.as_deref(), expected);
+//     }
 
-    fn validate_new_file_version_filename(
-        file_name: &'static str,
-        file_type: Option<&'static str>,
-        expected: Option<&'static str>,
-    ) {
-        let new_file_version = NewFileVersion {
-            file: "".into(),
-            latest_version: "".into(),
-            title: None,
-            description: None,
-            folder: None,
-            file_name: Some(file_name.to_string()),
-            file_type: file_type.map(Into::into),
-            temporary_blob_storage_path: None,
-        };
-        let actual = new_file_version
-            .validate()
-            .map_err(validation::ValidationError::from)
-            .map_err(|e| format!("{}", e))
-            .err();
-        assert_eq!(actual.as_deref(), expected);
-    }
+//     fn validate_new_file_version_filename(
+//         file_name: &'static str,
+//         file_type: Option<&'static str>,
+//         expected: Option<&'static str>,
+//     ) {
+//         let new_file_version = NewFileVersion {
+//             file: "".into(),
+//             latest_version: "".into(),
+//             title: None,
+//             description: None,
+//             folder: None,
+//             file_name: Some(file_name.to_string()),
+//             file_type: file_type.map(Into::into),
+//             temporary_blob_storage_path: None,
+//         };
+//         let actual = new_file_version
+//             .validate()
+//             .map_err(validation::ValidationError::from)
+//             .map_err(|e| format!("{}", e))
+//             .err();
+//         assert_eq!(actual.as_deref(), expected);
+//     }
 
-    #[async_std::test]
-    async fn create_file_works() -> anyhow::Result<()> {
-        let pool = mock_connection_pool()?;
-        let azure_config = mock_azure_config()?;
-        let requesting_user = mock_unprivileged_requesting_user().await?;
-        let (events, event_client) = mock_event_emitter();
+//     #[async_std::test]
+//     async fn create_file_works() -> anyhow::Result<()> {
+//         let pool = mock_connection_pool()?;
+//         let azure_config = mock_azure_config()?;
+//         let requesting_user = mock_unprivileged_requesting_user().await?;
+//         let (events, event_client) = mock_event_emitter();
 
-        let result = create_file(
-            NewFile {
-                title: "title".into(),
-                description: "description".into(),
-                folder: "d890181d-6b17-428e-896b-f76add15b54a".into(),
-                file_name: "file.txt".into(),
-                file_type: "text/plain".into(),
-                temporary_blob_storage_path: "http://localhost:10000/devstoreaccount1/upload/fake"
-                    .into(),
-            },
-            &pool,
-            &azure_config,
-            &requesting_user,
-            &event_client,
-        )
-        .await;
+//         let result = create_file(
+//             NewFile {
+//                 title: "title".into(),
+//                 description: "description".into(),
+//                 folder: "d890181d-6b17-428e-896b-f76add15b54a".into(),
+//                 file_name: "file.txt".into(),
+//                 file_type: "text/plain".into(),
+//                 temporary_blob_storage_path: "http://localhost:10000/devstoreaccount1/upload/fake"
+//                     .into(),
+//             },
+//             &pool,
+//             &azure_config,
+//             &requesting_user,
+//             &event_client,
+//         )
+//         .await;
 
-        assert_eq!(result.unwrap().title, "title");
-        assert!(events
-            .try_iter()
-            .any(|e| matches!(e.data, EventData::FileCreated(_))));
+//         assert_eq!(result.unwrap().title, "title");
+//         assert!(events
+//             .try_iter()
+//             .any(|e| matches!(e.data, EventData::FileCreated(_))));
 
-        Ok(())
-    }
+//         Ok(())
+//     }
 
-    #[async_std::test]
-    async fn delete_file_works() -> anyhow::Result<()> {
-        let pool = mock_connection_pool()?;
-        let requesting_user = mock_unprivileged_requesting_user().await?;
-        let (events, event_client) = mock_event_emitter();
-        let id: ID = ID::from("96bb1f76-6d0e-4a14-a379-034a738715ec");
+//     #[async_std::test]
+//     async fn delete_file_works() -> anyhow::Result<()> {
+//         let pool = mock_connection_pool()?;
+//         let requesting_user = mock_unprivileged_requesting_user().await?;
+//         let (events, event_client) = mock_event_emitter();
+//         let id: ID = ID::from("96bb1f76-6d0e-4a14-a379-034a738715ec");
 
-        let result = delete_file(id, &pool, &requesting_user, &event_client).await;
+//         let result = delete_file(id, &pool, &requesting_user, &event_client).await;
 
-        assert_eq!(
-            result.unwrap().id,
-            ID::from("96bb1f76-6d0e-4a14-a379-034a738715ec")
-        );
-        assert!(events
-            .try_iter()
-            .any(|e| matches!(e.data, EventData::FileDeleted(_))));
+//         assert_eq!(
+//             result.unwrap().id,
+//             ID::from("96bb1f76-6d0e-4a14-a379-034a738715ec")
+//         );
+//         assert!(events
+//             .try_iter()
+//             .any(|e| matches!(e.data, EventData::FileDeleted(_))));
 
-        Ok(())
-    }
+//         Ok(())
+//     }
 
-    #[async_std::test]
-    async fn create_file_version_works() -> anyhow::Result<()> {
-        let pool = mock_connection_pool()?;
-        let azure_config = mock_azure_config()?;
-        let requesting_user = mock_unprivileged_requesting_user().await?;
+//     #[async_std::test]
+//     async fn create_file_version_works() -> anyhow::Result<()> {
+//         let pool = mock_connection_pool()?;
+//         let azure_config = mock_azure_config()?;
+//         let requesting_user = mock_unprivileged_requesting_user().await?;
 
-        let file_id = Uuid::new_v4();
-        let current_file = db::FileWithVersionRepo::find_by_id(file_id, &pool).await?;
-        let (events, event_client) = mock_event_emitter();
+//         let file_id = Uuid::new_v4();
+//         let current_file = db::FileWithVersionRepo::find_by_id(file_id, &pool).await?;
+//         let (events, event_client) = mock_event_emitter();
 
-        let result = create_file_version(
-            NewFileVersion {
-                file: file_id.into(),
-                latest_version: current_file.version.into(),
-                title: Some("title".into()),
-                description: None,
-                folder: Some("d890181d-6b17-428e-896b-f76add15b54a".into()),
-                file_name: Some("file.txt".into()),
-                file_type: Some("text/plain".into()),
-                temporary_blob_storage_path: Some(
-                    "http://localhost:10000/devstoreaccount1/upload/new-fake".into(),
-                ),
-            },
-            &pool,
-            &azure_config,
-            &requesting_user,
-            &event_client,
-        )
-        .await
-        .unwrap();
+//         let result = create_file_version(
+//             NewFileVersion {
+//                 file: file_id.into(),
+//                 latest_version: current_file.version.into(),
+//                 title: Some("title".into()),
+//                 description: None,
+//                 folder: Some("d890181d-6b17-428e-896b-f76add15b54a".into()),
+//                 file_name: Some("file.txt".into()),
+//                 file_type: Some("text/plain".into()),
+//                 temporary_blob_storage_path: Some(
+//                     "http://localhost:10000/devstoreaccount1/upload/new-fake".into(),
+//                 ),
+//             },
+//             &pool,
+//             &azure_config,
+//             &requesting_user,
+//             &event_client,
+//         )
+//         .await
+//         .unwrap();
 
-        assert_eq!(result.title, "title");
-        assert_eq!(result.description, "fake file for tests");
-        assert_eq!(result.folder, "d890181d-6b17-428e-896b-f76add15b54a");
-        assert_eq!(result.file_name, "file.txt");
-        assert_eq!(result.file_type, "text/plain");
-        assert!(events
-            .try_iter()
-            .any(|e| matches!(e.data, EventData::FileUpdated(_))));
+//         assert_eq!(result.title, "title");
+//         assert_eq!(result.description, "fake file for tests");
+//         assert_eq!(result.folder, "d890181d-6b17-428e-896b-f76add15b54a");
+//         assert_eq!(result.file_name, "file.txt");
+//         assert_eq!(result.file_type, "text/plain");
+//         assert!(events
+//             .try_iter()
+//             .any(|e| matches!(e.data, EventData::FileUpdated(_))));
 
-        Ok(())
-    }
+//         Ok(())
+//     }
 
-    #[async_std::test]
-    async fn create_file_version_fails_if_latest_version_mismatch() -> anyhow::Result<()> {
-        let pool = mock_connection_pool()?;
-        let azure_config = mock_azure_config()?;
-        let requesting_user = mock_unprivileged_requesting_user().await?;
-        let (events, event_client) = mock_event_emitter();
+//     #[async_std::test]
+//     async fn create_file_version_fails_if_latest_version_mismatch() -> anyhow::Result<()> {
+//         let pool = mock_connection_pool()?;
+//         let azure_config = mock_azure_config()?;
+//         let requesting_user = mock_unprivileged_requesting_user().await?;
+//         let (events, event_client) = mock_event_emitter();
 
-        let file_id = Uuid::new_v4();
-        let result = create_file_version(
-            NewFileVersion {
-                file: file_id.into(),
-                latest_version: Uuid::new_v4().into(),
-                title: Some("title".into()),
-                description: None,
-                folder: None,
-                file_name: None,
-                file_type: None,
-                temporary_blob_storage_path: None,
-            },
-            &pool,
-            &azure_config,
-            &requesting_user,
-            &event_client,
-        )
-        .await;
+//         let file_id = Uuid::new_v4();
+//         let result = create_file_version(
+//             NewFileVersion {
+//                 file: file_id.into(),
+//                 latest_version: Uuid::new_v4().into(),
+//                 title: Some("title".into()),
+//                 description: None,
+//                 folder: None,
+//                 file_name: None,
+//                 file_type: None,
+//                 temporary_blob_storage_path: None,
+//             },
+//             &pool,
+//             &azure_config,
+//             &requesting_user,
+//             &event_client,
+//         )
+//         .await;
 
-        assert_eq!(
-            result.err().unwrap().message,
-            "specified version is not the latest version of the file"
-        );
+//         assert_eq!(
+//             result.err().unwrap().message,
+//             "specified version is not the latest version of the file"
+//         );
 
-        assert_eq!(0, events.try_iter().count());
-        Ok(())
-    }
-}
+//         assert_eq!(0, events.try_iter().count());
+//         Ok(())
+//     }
+// }

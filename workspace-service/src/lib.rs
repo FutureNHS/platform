@@ -4,9 +4,11 @@ mod db;
 mod graphql;
 mod services;
 
+use db::{TeamRepoImpl, UserRepoImpl, WorkspaceRepoImpl};
 use fnhs_event_models::EventClient;
 pub use graphql::generate_graphql_schema;
 use opentelemetry::api::{Extractor, TraceContextExt};
+use services::workspace::WorkspaceServiceImpl;
 use sqlx::PgPool;
 use tide::{Middleware, Next, Redirect, Request, Server};
 use tracing::info_span;
@@ -64,11 +66,12 @@ pub async fn create_app(
     connection_pool: PgPool,
     event_client: EventClient,
     azure_config: azure::Config,
-) -> anyhow::Result<Server<graphql::State>> {
+) -> anyhow::Result<Server<graphql::State<TeamRepoImpl, UserRepoImpl, WorkspaceRepoImpl>>> {
+    let service = WorkspaceServiceImpl::new(TeamRepoImpl {}, UserRepoImpl {}, WorkspaceRepoImpl {});
     let mut app = tide::with_state(graphql::State::new(
         connection_pool,
-        event_client,
         azure_config,
+        service,
     ));
 
     app.with(TracingMiddleware);

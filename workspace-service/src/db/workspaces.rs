@@ -6,7 +6,9 @@ use crate::services::{
     workspace::{Workspace, WorkspaceId, WorkspaceRepo},
 };
 use anyhow::{Context, Result};
-use sqlx::{types::Uuid, Executor, Postgres};
+use async_trait::async_trait;
+use sqlx::{types::Uuid, Executor, PgConnection, Postgres};
+use std::sync::Arc;
 
 #[derive(Clone)]
 pub struct DbWorkspace {
@@ -23,20 +25,21 @@ impl From<DbWorkspace> for Workspace {
     }
 }
 
-pub struct WorkspaceRepoImpl {}
+#[derive(Clone)]
+pub struct WorkspaceRepoImpl {
+    connection: Arc<std::sync::Mutex<PgConnection>>,
+}
 
-#[async_trait::async_trait]
+#[async_trait]
 impl WorkspaceRepo for WorkspaceRepoImpl {
-    async fn create<'c, E>(
+    async fn create(
+        &self,
         title: &str,
         description: &str,
         admins_team_id: TeamId,
         members_team_id: TeamId,
-        executor: E,
-    ) -> Result<Workspace>
-    where
-        E: Executor<'c, Database = Postgres>,
-    {
+    ) -> Result<Workspace> {
+        let mut tx = &mut *self.connection;
         let admins_team_id: Uuid = admins_team_id.into();
         let members_team_id: Uuid = members_team_id.into();
         let workspace = sqlx::query_file_as!(
@@ -47,7 +50,7 @@ impl WorkspaceRepo for WorkspaceRepoImpl {
             admins_team_id,
             members_team_id
         )
-        .fetch_one(executor)
+        .fetch_one(tx)
         .await
         .context("create workspace")?
         .into();

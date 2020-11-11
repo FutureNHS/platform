@@ -36,6 +36,17 @@ pub enum RoleFilter {
     NonAdmin,
 }
 
+impl From<workspace::RoleFilter> for RoleFilter {
+    fn from(_: workspace::RoleFilter) -> Self {
+        todo!()
+    }
+}
+impl From<RoleFilter> for workspace::RoleFilter {
+    fn from(_: RoleFilter) -> Self {
+        todo!()
+    }
+}
+
 #[derive(Enum, Copy, Clone, Eq, PartialEq)]
 pub enum NewRole {
     /// Promote to admin
@@ -81,17 +92,9 @@ impl Workspace {
         context: &Context<'_>,
         filter: Option<RoleFilter>,
     ) -> FieldResult<Vec<User>> {
+        let workspace_service = context.data::<WorkspaceServiceImpl>()?;
         let pool = context.data()?;
-        let users = match filter {
-            Some(RoleFilter::Admin) => self.team_repo.members(self.admins, pool).await?,
-            Some(RoleFilter::NonAdmin) => {
-                self.team_repo
-                    .members_difference(self.members, self.admins, pool)
-                    .await?
-            }
-            None => self.team_repo.members(self.members, pool).await?,
-        };
-        Ok(users.into_iter().map(Into::into).collect())
+        workspace_service.members(filter)
     }
 }
 
