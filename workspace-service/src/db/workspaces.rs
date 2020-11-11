@@ -62,14 +62,9 @@ impl WorkspaceRepo {
     pub async fn create(title: &str, description: &str, pool: &PgPool) -> Result<Workspace> {
         let tx: Transaction<Postgres> = pool.begin().await?;
 
-        let mut fact = RepoFactory { executor: tx };
-        let mut team_repo = fact.team();
-        let admins = team_repo.create(&format!("{} Admins", title)).await?;
-        drop(team_repo);
-
-        let mut team_repo = fact.team();
-        let members = team_repo.create(&format!("{} Members", title)).await?;
-        drop(team_repo);
+        let mut repos = RepoFactory { executor: tx };
+        let admins = repos.team().create(&format!("{} Admins", title)).await?;
+        let members = repos.team().create(&format!("{} Members", title)).await?;
 
         let workspace = sqlx::query_file_as!(
             Workspace,
@@ -79,10 +74,10 @@ impl WorkspaceRepo {
             admins.id,
             members.id
         )
-        .fetch_one(&mut fact.executor)
+        .fetch_one(&mut repos.executor)
         .await
         .context("create workspace")?;
-        fact.executor.commit().await?;
+        repos.executor.commit().await?;
 
         Ok(workspace)
     }
