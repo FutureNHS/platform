@@ -264,7 +264,7 @@ async fn create_file(
         .map_err(validation::ValidationError::from)?;
 
     let folder_id = Uuid::parse_str(&new_file.folder)?;
-    let user = db::UserRepo::find_by_auth_id(&requesting_user.auth_id, pool)
+    let user = db::UserRepoImpl::find_by_auth_id(&requesting_user.auth_id, pool)
         .await?
         .ok_or_else(|| anyhow::anyhow!("user not found"))?;
     let destination = azure::copy_blob_from_url(
@@ -333,7 +333,7 @@ async fn create_file_version(
         return Err("specified version is not the latest version of the file".into());
     }
 
-    let user = db::UserRepo::find_by_auth_id(&requesting_user.auth_id, pool)
+    let user = db::UserRepoImpl::find_by_auth_id(&requesting_user.auth_id, pool)
         .await?
         .ok_or_else(|| anyhow::anyhow!("user not found"))?;
     let folder_id = match &new_version.folder {
@@ -406,7 +406,7 @@ async fn delete_file(
     requesting_user: &RequestingUser,
     event_client: &EventClient,
 ) -> FieldResult<File> {
-    let user = db::UserRepo::find_by_auth_id(&requesting_user.auth_id, pool)
+    let user = db::UserRepoImpl::find_by_auth_id(&requesting_user.auth_id, pool)
         .await?
         .ok_or_else(|| anyhow::anyhow!("user not found"))?;
     let file = db::FileWithVersionRepo::delete(Uuid::parse_str(&id)?, user.id, pool).await?;

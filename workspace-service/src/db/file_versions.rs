@@ -21,10 +21,8 @@ pub struct FileVersion {
     pub version_label: String,
 }
 
-#[cfg_attr(test, allow(dead_code))]
 pub struct FileVersionRepo {}
 
-#[cfg_attr(test, allow(dead_code))]
 impl FileVersionRepo {
     #[allow(clippy::too_many_arguments)]
     pub async fn create<'c, E>(

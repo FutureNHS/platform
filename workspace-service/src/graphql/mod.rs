@@ -11,7 +11,11 @@ mod validation;
 mod workspaces;
 
 use super::{azure, db};
-use crate::services::workspace::WorkspaceServiceImpl;
+use crate::services::{
+    team::TeamRepo,
+    user::UserRepo,
+    workspace::{EventRepo, WorkspaceRepo, WorkspaceServiceImpl},
+};
 use async_graphql::{
     http::{playground_source, GraphQLPlaygroundConfig},
     EmptySubscription, MergedObject, Schema,
@@ -22,14 +26,32 @@ use tide::{http::mime, Request, Response, StatusCode};
 use uuid::Uuid;
 
 #[derive(Clone)]
-pub struct State {
+pub struct State<E, T, U, W>
+where
+    E: EventRepo,
+    T: TeamRepo,
+    U: UserRepo,
+    W: WorkspaceRepo,
+{
     schema: Schema<Query, Mutation, EmptySubscription>,
     event_client: EventClient,
-    workspace_service: WorkspaceServiceImpl,
+    workspace_service: WorkspaceServiceImpl<E, T, U, W>,
 }
 
-impl State {
-    pub fn new(pool: PgPool, event_client: EventClient, azure_config: azure::Config) -> State {
+impl<E, T, U, W> State<E, T, U, W>
+where
+    E: EventRepo,
+    T: TeamRepo,
+    U: UserRepo,
+    W: WorkspaceRepo,
+{
+    pub fn new(
+        schema: Schema<Query, Mutation, EmptySubscription>,
+        pool: PgPool,
+        event_client: EventClient,
+        azure_config: azure::Config,
+        workspace_service: WorkspaceServiceImpl<E, T, U, W>,
+    ) -> Self {
         State {
             schema: Schema::build(Query::default(), Mutation::default(), EmptySubscription)
                 .extension(tracing_ext::Tracing)
@@ -38,7 +60,7 @@ impl State {
                 .data(azure_config)
                 .finish(),
             event_client,
-            workspace_service: WorkspaceServiceImpl::new(),
+            workspace_service: todo!(), //WorkspaceServiceImpl::new(),
         }
     }
 }
@@ -65,7 +87,13 @@ pub struct RequestingUser {
     auth_id: Uuid,
 }
 
-pub async fn handle_healthz(req: Request<State>) -> tide::Result {
+pub async fn handle_healthz<E, T, U, W>(req: Request<State<E, T, U, W>>) -> tide::Result
+where
+    E: EventRepo,
+    T: TeamRepo,
+    U: UserRepo,
+    W: WorkspaceRepo,
+{
     let response = if !req.state().event_client.is_configured() {
         Response::builder(500).body("invalid event client").build()
     } else {
@@ -75,7 +103,13 @@ pub async fn handle_healthz(req: Request<State>) -> tide::Result {
     Ok(response)
 }
 
-pub async fn handle_graphql(req: Request<State>) -> tide::Result {
+pub async fn handle_graphql<E, T, U, W>(req: Request<State<E, T, U, W>>) -> tide::Result
+where
+    E: EventRepo,
+    T: TeamRepo,
+    U: UserRepo,
+    W: WorkspaceRepo,
+{
     let schema = req.state().schema.clone();
     let auth_id = req
         .header("x-user-auth-id")
@@ -90,7 +124,13 @@ pub async fn handle_graphql(req: Request<State>) -> tide::Result {
     async_graphql_tide::respond(schema.execute(req).await)
 }
 
-pub async fn handle_graphiql(_: Request<State>) -> tide::Result {
+pub async fn handle_graphiql<E, T, U, W>(_: Request<State<E, T, U, W>>) -> tide::Result
+where
+    E: EventRepo,
+    T: TeamRepo,
+    U: UserRepo,
+    W: WorkspaceRepo,
+{
     let response = Response::builder(StatusCode::Ok)
         .body(playground_source(GraphQLPlaygroundConfig::new("/graphql")))
         .content_type(mime::HTML)

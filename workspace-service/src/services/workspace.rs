@@ -6,7 +6,7 @@ use super::{
 use anyhow::Result;
 use async_trait::async_trait;
 use derive_more::{Display, From, Into};
-use fnhs_event_models::{Event, WorkspaceCreatedData};
+use fnhs_event_models::{Event, WorkspaceCreatedData, WorkspaceMembershipChangedData};
 use uuid::Uuid;
 
 pub struct Workspace {
@@ -47,36 +47,34 @@ pub struct WorkspaceId(Uuid);
 pub struct TeamId(Uuid);
 
 #[async_trait::async_trait]
-pub trait WorkspaceRepo<'c> {
-    async fn create(
-        &self,
+pub trait WorkspaceRepo {
+    async fn create<'c>(
         title: &str,
         description: &str,
         admins_team_id: TeamId,
         members_team_id: TeamId,
-        executor: DB<'c>,
+        executor: &DB<'c>,
     ) -> Result<Workspace>;
 
-    async fn find_all(&self, executor: DB<'c>) -> Result<Vec<Workspace>>;
+    async fn find_all<'c>(executor: &DB<'c>) -> Result<Vec<Workspace>>;
 
-    async fn find_by_id(&self, id: WorkspaceId, executor: DB<'c>) -> Result<Workspace>;
+    async fn find_by_id<'c>(id: WorkspaceId, executor: &DB<'c>) -> Result<Workspace>;
 
-    async fn update(
-        &self,
+    async fn update<'c>(
         id: WorkspaceId,
         title: &str,
         description: &str,
-        executor: DB<'c>,
+        executor: &DB<'c>,
     ) -> Result<Workspace>;
 
-    async fn delete(&self, id: WorkspaceId, executor: DB<'c>) -> Result<Workspace>;
+    async fn delete<'c>(&self, id: WorkspaceId, executor: &DB<'c>) -> Result<Workspace>;
 }
 
 #[async_trait::async_trait]
 pub trait EventRepo {}
 
 #[async_trait]
-pub trait WorkspaceService {
+pub trait WorkspaceService<'c> {
     async fn create(
         &self,
         title: &str,
@@ -91,17 +89,17 @@ pub trait WorkspaceService {
         workspace_id: WorkspaceId,
         user_id: UserId,
         new_role: Role,
-        executor: DB<'c>,
+        requesting_user: AuthId,
     ) -> Result<Workspace>;
 }
 
 #[derive(Clone)]
-pub struct WorkspaceServiceImpl<'c, E, T, U, W>
+pub struct WorkspaceServiceImpl<E, T, U, W>
 where
     E: EventRepo,
     T: TeamRepo,
     U: UserRepo,
-    W: WorkspaceRepo<'c>,
+    W: WorkspaceRepo,
 {
     event_repo: E,
     team_repo: T,
@@ -109,7 +107,13 @@ where
     workspace_repo: W,
 }
 
-impl<'c, E, T, U, W> WorkspaceServiceImpl<'c, E, T, U, W> {
+impl<'c, E, T, U, W> WorkspaceServiceImpl<E, T, U, W>
+where
+    E: EventRepo,
+    T: TeamRepo,
+    U: UserRepo,
+    W: WorkspaceRepo,
+{
     pub fn new(event_repo: E, team_repo: T, user_repo: U, workspace_repo: W) -> Self {
         Self {
             event_repo,
@@ -121,13 +125,12 @@ impl<'c, E, T, U, W> WorkspaceServiceImpl<'c, E, T, U, W> {
 }
 
 #[async_trait]
-impl<'c, E, T, U, W> WorkspaceService for WorkspaceServiceImpl<'c, E, T, U, W> {
+impl<E, T, U, W> WorkspaceService<'c> for WorkspaceServiceImpl<E, T, U, W> {
     async fn create(
         &self,
         title: &str,
         description: &str,
         requesting_user: AuthId,
-        executor: DB<'c>,
     ) -> Result<Workspace> {
         let user = self
             .user_repo
@@ -141,15 +144,15 @@ impl<'c, E, T, U, W> WorkspaceService for WorkspaceServiceImpl<'c, E, T, U, W> {
             )
             .into());
         }
-        let mut tx = executor.begin().await?;
+        let mut tx = DB::new(self.executor.connection.clone().begin().await?);
 
         let admins = self
             .team_repo
-            .create(&format!("{} Admins", title), &mut tx)
+            .create(&format!("{} Admins", title), &tx)
             .await?;
         let members = self
             .team_repo
-            .create(&format!("{} Members", title), &mut tx)
+            .create(&format!("{} Members", title), &tx)
             .await?;
 
         let workspace: Workspace = self.workspace_repo.create(title, description).await?.into();
@@ -170,12 +173,7 @@ impl<'c, E, T, U, W> WorkspaceService for WorkspaceServiceImpl<'c, E, T, U, W> {
         Ok(workspace)
     }
 
-    async fn is_admin(
-        &self,
-        workspace_id: WorkspaceId,
-        user_id: UserId,
-        executor: DB<'c>,
-    ) -> Result<bool> {
+    async fn is_admin(&self, workspace_id: WorkspaceId, user_id: UserId) -> Result<bool> {
         match self.user_repo.find_by_id(&user_id, executor).await? {
             Some(user) => {
                 let workspace = self
@@ -195,14 +193,34 @@ impl<'c, E, T, U, W> WorkspaceService for WorkspaceServiceImpl<'c, E, T, U, W> {
         workspace_id: WorkspaceId,
         user_id: UserId,
         new_role: Role,
-        executor: DB<'c>,
+        requesting_user: AuthId,
     ) -> Result<Workspace> {
-        let mut tx = executor.begin().await?;
+        let user = self
+            .user_repo
+            .find_by_auth_id(&requesting_user, self.executor)
+            .await?
+            .ok_or_else(|| anyhow::anyhow!("user not found"))?;
 
-        let workspace = self
-            .workspace_repo
-            .find_by_id(workspace_id, executor)
-            .await?;
+        if !user.is_platform_admin && !self.is_admin(workspace_id, user.id).await? {
+            return Err(anyhow::anyhow!(
+                "user with auth_id {} does not have permission to update workspace membership",
+                user.auth_id,
+            )
+            .into());
+        }
+
+        if user.id == user_id {
+            return Err(anyhow::anyhow!(
+                "user with auth_id {} cannot demote themselves to {}",
+                user.auth_id,
+                new_role
+            )
+            .into());
+        }
+
+        let mut tx = self.executor.begin().await?;
+
+        let workspace = self.workspace_repo.find_by_id(workspace_id, tx).await?;
 
         match new_role {
             Role::Admin => {
@@ -232,6 +250,18 @@ impl<'c, E, T, U, W> WorkspaceService for WorkspaceServiceImpl<'c, E, T, U, W> {
         }
 
         tx.commit().await?;
+
+        self.event_client
+            .publish_events(&[Event::new(
+                workspace.id.clone(),
+                WorkspaceMembershipChangedData {
+                    requesting_user_id: requesting_user.auth_id.to_string(),
+                    affected_workspace_id: workspace.id.clone().into(),
+                    affected_user_id: user_id.to_string(),
+                    affected_role: new_role.to_string(),
+                },
+            )])
+            .await?;
 
         Ok(workspace)
     }

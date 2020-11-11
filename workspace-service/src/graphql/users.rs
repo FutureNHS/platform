@@ -31,8 +31,8 @@ pub struct UpdateUser {
     pub is_platform_admin: bool,
 }
 
-impl From<db::User> for User {
-    fn from(d: db::User) -> Self {
+impl From<db::DbUser> for User {
+    fn from(d: db::DbUser) -> Self {
         Self {
             id: d.id.into(),
             name: d.name,
@@ -58,9 +58,14 @@ impl UsersMutation {
         let auth_id = Uuid::parse_str(&new_user.auth_id)?;
 
         Ok(
-            db::UserRepo::get_or_create(&auth_id, &new_user.name, &new_user.email_address, pool)
-                .await?
-                .into(),
+            db::UserRepoImpl::get_or_create(
+                &auth_id,
+                &new_user.name,
+                &new_user.email_address,
+                pool,
+            )
+            .await?
+            .into(),
         )
     }
 
@@ -82,7 +87,7 @@ async fn update_user_impl(
     requesting_user: &RequestingUser,
     update_user: UpdateUser,
 ) -> FieldResult<User> {
-    let requesting_user = db::UserRepo::find_by_auth_id(&requesting_user.auth_id, pool)
+    let requesting_user = db::UserRepoImpl::find_by_auth_id(&requesting_user.auth_id, pool)
         .await?
         .ok_or_else(|| anyhow::anyhow!("user not found"))?;
     if !requesting_user.is_platform_admin {
@@ -95,7 +100,7 @@ async fn update_user_impl(
 
     let auth_id = Uuid::parse_str(&update_user.auth_id)?;
     Ok(
-        db::UserRepo::update(&auth_id, update_user.is_platform_admin, pool)
+        db::UserRepoImpl::update(&auth_id, update_user.is_platform_admin, pool)
             .await?
             .into(),
     )

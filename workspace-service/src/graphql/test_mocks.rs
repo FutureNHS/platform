@@ -23,7 +23,7 @@ pub fn mock_event_emitter() -> (Receiver<Event>, EventClient) {
 
 pub async fn mock_admin_requesting_user() -> anyhow::Result<RequestingUser> {
     let pool = mock_connection_pool()?;
-    let requesting_user = db::UserRepo::get_or_create(
+    let requesting_user = db::UserRepoImpl::get_or_create(
         &Uuid::parse_str("feedface-0000-0000-0000-000000000000").unwrap(),
         "admin",
         "email_address",
@@ -37,7 +37,7 @@ pub async fn mock_admin_requesting_user() -> anyhow::Result<RequestingUser> {
 
 pub async fn mock_unprivileged_requesting_user() -> anyhow::Result<RequestingUser> {
     let pool = mock_connection_pool()?;
-    let requesting_user = db::UserRepo::get_or_create(
+    let requesting_user = db::UserRepoImpl::get_or_create(
         &Uuid::parse_str("deadbeef-0000-0000-0000-000000000000").unwrap(),
         "member",
         "email_address",
