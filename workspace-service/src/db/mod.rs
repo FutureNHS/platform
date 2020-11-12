@@ -27,7 +27,7 @@ pub struct RepoFactory<'ex> {
 }
 
 impl<'ex> RepoCreator<'ex> for RepoFactory<'ex> {
-    fn team<'r>(&'r mut self) -> Box<dyn TeamRepo + 'r>
+    fn team<'r>(&'r mut self) -> Box<dyn TeamRepo + Send + 'r>
     where
         'ex: 'r,
     {
@@ -43,7 +43,7 @@ impl<'ex> RepoCreator<'ex> for RepoFactory<'ex> {
             executor: &mut self.executor,
         })
     }
-    fn workspace<'r>(&'r mut self) -> Box<dyn WorkspaceRepo + 'r>
+    fn workspace<'r>(&'r mut self) -> Box<dyn WorkspaceRepo + Send + 'r>
     where
         'ex: 'r,
     {

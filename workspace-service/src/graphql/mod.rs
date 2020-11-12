@@ -63,7 +63,7 @@ pub struct RequestingUser {
     auth_id: Uuid,
 }
 
-pub async fn handle_healthz(req: Request<State>) -> tide::Result {
+pub async fn handle_healthz(_req: Request<State>) -> tide::Result {
     // let response = if !req.state().event_client.is_configured() {
     //     Response::builder(500).body("invalid event client").build()
     // } else {

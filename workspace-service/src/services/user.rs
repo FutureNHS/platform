@@ -6,9 +6,10 @@ use uuid::Uuid;
 #[derive(From, Into, Display, Copy, Clone)]
 pub struct AuthId(Uuid);
 
-#[derive(From, Into, Display, Copy, Clone)]
+#[derive(From, Into, Display, Copy, Clone, PartialEq)]
 pub struct UserId(Uuid);
 
+#[derive(Clone)]
 pub struct User {
     pub id: UserId,
     pub auth_id: AuthId,

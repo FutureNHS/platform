@@ -2,12 +2,9 @@ use super::{
     team::{TeamId, TeamRepo},
     user::{AuthId, User, UserId, UserRepo},
 };
-use crate::db::RepoFactory;
 use anyhow::Result;
 use async_trait::async_trait;
 use derive_more::{Display, From, Into};
-use fnhs_event_models::{Event, WorkspaceCreatedData, WorkspaceMembershipChangedData};
-use sqlx::{Postgres, Transaction};
 use uuid::Uuid;
 
 pub struct Workspace {
@@ -27,14 +24,6 @@ pub enum Role {
     NonMember,
 }
 
-#[derive(Copy, Clone)]
-pub enum RoleFilter {
-    /// Only return Admins
-    Admin,
-    /// Only return Non-Admins
-    NonAdmin,
-}
-
 impl std::fmt::Display for Role {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
@@ -49,11 +38,19 @@ impl std::fmt::Display for Role {
     }
 }
 
+#[derive(Copy, Clone)]
+pub enum RoleFilter {
+    /// Only return Admins
+    Admin,
+    /// Only return Non-Admins
+    NonAdmin,
+}
+
 #[derive(From, Into, Display, Copy, Clone)]
 pub struct WorkspaceId(Uuid);
 
 pub trait RepoCreator<'a> {
-    fn team<'r>(&'r mut self) -> Box<dyn TeamRepo + 'r>
+    fn team<'r>(&'r mut self) -> Box<dyn TeamRepo + Send + 'r>
     where
         'a: 'r;
 
@@ -61,7 +58,7 @@ pub trait RepoCreator<'a> {
     where
         'a: 'r;
 
-    fn workspace<'r>(&'r mut self) -> Box<dyn WorkspaceRepo + 'r>
+    fn workspace<'r>(&'r mut self) -> Box<dyn WorkspaceRepo + Send + 'r>
     where
         'a: 'r;
 }
@@ -91,20 +88,53 @@ pub trait WorkspaceRepo {
 }
 
 #[async_trait]
-pub trait WorkspaceService {
-    async fn members(&self, filter: Option<RoleFilter>) -> Result<Vec<User>>;
+pub trait WorkspaceService<'a> {
+    async fn find_all(
+        &self,
+        mut repo_factory: impl RepoCreator<'a> + Send + 'a,
+    ) -> Result<Vec<Workspace>>;
+
+    async fn find_by_id(
+        &self,
+        mut repo_factory: impl RepoCreator<'a> + Send + 'a,
+        id: WorkspaceId,
+    ) -> Result<Workspace>;
+
+    async fn members(
+        &self,
+        mut repo_factory: impl RepoCreator<'a> + Send + 'a,
+        admins: TeamId,
+        members: TeamId,
+        filter: Option<RoleFilter>,
+    ) -> Result<Vec<User>>;
 
     async fn create(
         &self,
+        mut repo_factory: impl RepoCreator<'a> + Send + 'a,
         title: &str,
         description: &str,
         requesting_user: AuthId,
     ) -> Result<Workspace>;
 
-    async fn is_admin(&self, workspace_id: WorkspaceId, user_id: UserId) -> Result<bool>;
+    async fn update(
+        &self,
+        mut repo_factory: impl RepoCreator<'a> + Send + 'a,
+        id: WorkspaceId,
+        title: &str,
+        description: &str,
+        requesting_user: AuthId,
+    ) -> Result<Workspace>;
+
+    async fn delete(
+        &self,
+        mut repo_factory: impl RepoCreator<'a> + Send + 'a,
+        id: WorkspaceId,
+        requesting_user: AuthId,
+    ) -> Result<Workspace>;
 
     async fn change_workspace_membership(
         &self,
+        mut repo_factory: impl RepoCreator<'a> + Send + 'a,
         workspace_id: WorkspaceId,
         user_id: UserId,
         new_role: Role,
@@ -116,29 +146,55 @@ pub trait WorkspaceService {
 pub struct WorkspaceServiceImpl {}
 
 #[async_trait]
-impl WorkspaceService for WorkspaceServiceImpl {
-    async fn members(&self, filter: Option<RoleFilter>) -> Result<Vec<User>> {
+impl<'a> WorkspaceService<'a> for WorkspaceServiceImpl {
+    async fn find_all(
+        &self,
+        mut repo_factory: impl RepoCreator<'a> + Send + 'a,
+    ) -> Result<Vec<Workspace>> {
+        let workspaces = repo_factory.workspace().find_all().await?;
+        let workspaces = workspaces.into_iter().map(Into::into).collect();
+        Ok(workspaces)
+    }
+
+    async fn find_by_id(
+        &self,
+        mut repo_factory: impl RepoCreator<'a> + Send + 'a,
+        id: WorkspaceId,
+    ) -> Result<Workspace> {
+        let workspace = repo_factory.workspace().find_by_id(id).await?.into();
+        Ok(workspace)
+    }
+
+    async fn members(
+        &self,
+        mut repo_factory: impl RepoCreator<'a> + Send + 'a,
+        admins: TeamId,
+        members: TeamId,
+
+        filter: Option<RoleFilter>,
+    ) -> Result<Vec<User>> {
         let users = match filter {
-            Some(RoleFilter::Admin) => self.team_repo.members(self.admins).await?,
+            Some(RoleFilter::Admin) => repo_factory.team().members(admins).await?,
             Some(RoleFilter::NonAdmin) => {
-                self.team_repo
-                    .members_difference(self.members, self.admins)
+                repo_factory
+                    .team()
+                    .members_difference(members, admins)
                     .await?
             }
-            None => self.team_repo.members(self.members).await?,
+            None => repo_factory.team().members(members).await?,
         };
-        Ok(users.into_iter().map(Into::into).collect())
+        let users = users.into_iter().map(Into::into).collect();
+        Ok(users)
     }
 
     async fn create(
         &self,
+        mut repo_factory: impl RepoCreator<'a> + Send + 'a,
         title: &str,
         description: &str,
         requesting_user: AuthId,
     ) -> Result<Workspace> {
-        let tx: Transaction<Postgres> = pool.begin().await?;
-        let mut repos = RepoFactory { executor: tx };
-        let user = repos
+        let user = repo_factory
             .user()
             .find_by_auth_id(requesting_user)
             .await?
@@ -150,119 +206,148 @@ impl WorkspaceService for WorkspaceServiceImpl {
             )
             .into());
         }
-        let mut tx = self.executor.begin().await?;
-
-        let admins = self
-            .team_repo
-            .create(&format!("{} Admins", title), &tx)
+        let admins = repo_factory
+            .team()
+            .create(&format!("{} Admins", title))
             .await?;
-        let members = self
-            .team_repo
-            .create(&format!("{} Members", title), &tx)
+        let members = repo_factory
+            .team()
+            .create(&format!("{} Members", title))
             .await?;
 
-        let workspace: Workspace = self.workspace_repo.create(title, description).await?.into();
+        let workspace: Workspace = repo_factory
+            .workspace()
+            .create(title, description, admins.id, members.id)
+            .await?
+            .into();
 
-        tx.commit().await?;
-
-        self.event_client
-            .publish_events(&[Event::new(
-                workspace.id.to_string(),
-                WorkspaceCreatedData {
-                    workspace_id: workspace.id.to_string(),
-                    user_id: requesting_user.to_string(),
-                    title: workspace.title,
-                },
-            )])
-            .await?;
+        // self.event_client
+        //     .publish_events(&[Event::new(
+        //         workspace.id.to_string(),
+        //         WorkspaceCreatedData {
+        //             workspace_id: workspace.id.to_string(),
+        //             user_id: requesting_user.to_string(),
+        //             title: workspace.title,
+        //         },
+        //     )])
+        //     .await?;
 
         Ok(workspace)
     }
 
-    async fn is_admin(&self, workspace_id: WorkspaceId, user_id: UserId) -> Result<bool> {
-        match self.user_repo.find_by_id(&user_id).await? {
-            Some(user) => {
-                let workspace = self.workspace_repo.find_by_id(workspace_id).await?;
-                self.team_repo.is_member(workspace.admins, user.id).await
-            }
-            None => Ok(false),
-        }
+    async fn update(
+        &self,
+        mut repo_factory: impl RepoCreator<'a> + Send + 'a,
+        id: WorkspaceId,
+        title: &str,
+        description: &str,
+        requesting_user: AuthId,
+    ) -> Result<Workspace> {
+        let workspace = repo_factory
+            .workspace()
+            .update(id, title, description)
+            .await?
+            .into();
+        Ok(workspace)
+    }
+
+    async fn delete(
+        &self,
+        mut repo_factory: impl RepoCreator<'a> + Send + 'a,
+        id: WorkspaceId,
+        requesting_user: AuthId,
+    ) -> Result<Workspace> {
+        let workspace = repo_factory.workspace().delete(id).await?.into();
+        Ok(workspace)
     }
 
     async fn change_workspace_membership(
         &self,
+        mut repo_factory: impl RepoCreator<'a> + Send + 'a,
         workspace_id: WorkspaceId,
         user_id: UserId,
         new_role: Role,
         requesting_user: AuthId,
     ) -> Result<Workspace> {
-        let user = self
-            .user_repo
-            .find_by_auth_id(&requesting_user)
+        let requesting_user = repo_factory
+            .user()
+            .find_by_auth_id(requesting_user)
             .await?
             .ok_or_else(|| anyhow::anyhow!("user not found"))?;
 
-        if !user.is_platform_admin && !self.is_admin(workspace_id, user.id).await? {
+        let user = repo_factory.user().find_by_id(user_id).await?;
+        let is_workspace_admin = match user {
+            Some(user) => {
+                let workspace = repo_factory.workspace().find_by_id(workspace_id).await?;
+                repo_factory
+                    .team()
+                    .is_member(workspace.admins, user.id)
+                    .await?
+            }
+            None => false,
+        };
+
+        if !requesting_user.is_platform_admin && !is_workspace_admin {
             return Err(anyhow::anyhow!(
                 "user with auth_id {} does not have permission to update workspace membership",
-                user.auth_id,
-            )
-            .into());
+                requesting_user.auth_id,
+            ));
         }
 
-        if user.id == user_id {
+        if requesting_user.id == user_id {
             return Err(anyhow::anyhow!(
                 "user with auth_id {} cannot demote themselves to {}",
-                user.auth_id,
+                requesting_user.auth_id,
                 new_role
-            )
-            .into());
+            ));
         }
 
-        let mut tx = self.executor.begin().await?;
-
-        let workspace = self.workspace_repo.find_by_id(workspace_id, tx).await?;
+        let workspace = repo_factory.workspace().find_by_id(workspace_id).await?;
 
         match new_role {
             Role::Admin => {
-                self.team_repo
-                    .add_member(workspace.admins, user_id, &mut tx)
+                repo_factory
+                    .team()
+                    .add_member(workspace.admins, user_id)
                     .await?;
-                self.team_repo
-                    .add_member(workspace.members, user_id, &mut tx)
+                repo_factory
+                    .team()
+                    .add_member(workspace.members, user_id)
                     .await?;
             }
             Role::NonAdmin => {
-                self.team_repo
-                    .remove_member(workspace.admins, user_id, &mut tx)
+                repo_factory
+                    .team()
+                    .remove_member(workspace.admins, user_id)
                     .await?;
-                self.team_repo
-                    .add_member(workspace.members, user_id, &mut tx)
+                repo_factory
+                    .team()
+                    .add_member(workspace.members, user_id)
                     .await?;
             }
             Role::NonMember => {
-                self.team_repo
-                    .remove_member(workspace.admins, user_id, &mut tx)
+                repo_factory
+                    .team()
+                    .remove_member(workspace.admins, user_id)
                     .await?;
-                self.team_repo
-                    .remove_member(workspace.members, user_id, &mut tx)
+                repo_factory
+                    .team()
+                    .remove_member(workspace.members, user_id)
                     .await?;
             }
         }
 
-        tx.commit().await?;
-
-        self.event_client
-            .publish_events(&[Event::new(
-                workspace.id.clone(),
-                WorkspaceMembershipChangedData {
-                    requesting_user_id: requesting_user.auth_id.to_string(),
-                    affected_workspace_id: workspace.id.clone().into(),
-                    affected_user_id: user_id.to_string(),
-                    affected_role: new_role.to_string(),
-                },
-            )])
-            .await?;
+        // self.event_client
+        //     .publish_events(&[Event::new(
+        //         workspace.id.clone(),
+        //         WorkspaceMembershipChangedData {
+        //             requesting_user_id: requesting_user.auth_id.to_string(),
+        //             affected_workspace_id: workspace.id.clone().into(),
+        //             affected_user_id: user_id.to_string(),
+        //             affected_role: new_role.to_string(),
+        //         },
+        //     )])
+        //     .await?;
 
         Ok(workspace)
     }

@@ -1,10 +1,10 @@
 use crate::{
-    db,
+    db::{self, RepoFactory},
     graphql::{users::User, RequestingUser},
     services::workspace::{self, Role, WorkspaceService, WorkspaceServiceImpl},
 };
 use async_graphql::{Context, Enum, FieldResult, InputObject, Object, ID};
-use fnhs_event_models::EventClient;
+use sqlx::{PgPool, Postgres, Transaction};
 use std::convert::TryInto;
 use uuid::Uuid;
 
@@ -93,8 +93,18 @@ impl Workspace {
         filter: Option<RoleFilter>,
     ) -> FieldResult<Vec<User>> {
         let workspace_service = context.data::<WorkspaceServiceImpl>()?;
-        let pool = context.data()?;
-        workspace_service.members(filter)
+        let pool: &PgPool = context.data()?;
+        let tx: Transaction<Postgres> = pool.begin().await?;
+        let repos = RepoFactory { executor: tx };
+        let members = workspace_service
+            .members(
+                repos,
+                self.admins.into(),
+                self.members.into(),
+                filter.map(Into::into),
+            )
+            .await?;
+        Ok(members.iter().cloned().map(Into::into).collect())
     }
 }
 
@@ -135,9 +145,11 @@ pub struct WorkspacesQuery;
 impl WorkspacesQuery {
     /// Get all Workspaces
     async fn workspaces(&self, context: &Context<'_>) -> FieldResult<Vec<Workspace>> {
-        let pool = context.data()?;
         let workspace_service = context.data::<WorkspaceServiceImpl>()?;
-        let workspaces = workspace_service.find_all(pool).await?;
+        let pool: &PgPool = context.data()?;
+        let tx: Transaction<Postgres> = pool.begin().await?;
+        let repos = RepoFactory { executor: tx };
+        let workspaces = workspace_service.find_all(repos).await?;
         Ok(workspaces.into_iter().map(Into::into).collect())
     }
 
@@ -148,10 +160,12 @@ impl WorkspacesQuery {
 
     #[graphql(entity)]
     async fn get_workspace(&self, context: &Context<'_>, id: ID) -> FieldResult<Workspace> {
-        let pool = context.data()?;
         let workspace_service = context.data::<WorkspaceServiceImpl>()?;
+        let pool: &PgPool = context.data()?;
+        let tx: Transaction<Postgres> = pool.begin().await?;
+        let repos = RepoFactory { executor: tx };
         let id = Uuid::parse_str(id.as_str())?;
-        let workspace = workspace_service.find_by_id(id, pool).await?;
+        let workspace = workspace_service.find_by_id(repos, id.into()).await?;
         Ok(workspace.into())
     }
 }
@@ -168,10 +182,14 @@ impl WorkspacesMutation {
         new_workspace: NewWorkspace,
     ) -> FieldResult<Workspace> {
         let workspace_service = context.data::<WorkspaceServiceImpl>()?;
+        let pool: &PgPool = context.data()?;
+        let tx: Transaction<Postgres> = pool.begin().await?;
+        let repos = RepoFactory { executor: tx };
         let requesting_user = context.data::<RequestingUser>()?;
 
         let new_workspace = workspace_service
             .create(
+                repos,
                 &new_workspace.title,
                 &new_workspace.description,
                 requesting_user.auth_id.into(),
@@ -188,13 +206,17 @@ impl WorkspacesMutation {
         workspace: UpdateWorkspace,
     ) -> FieldResult<Workspace> {
         let workspace_service = context.data::<WorkspaceServiceImpl>()?;
-        let pool = context.data()?;
+        let pool: &PgPool = context.data()?;
+        let tx: Transaction<Postgres> = pool.begin().await?;
+        let repos = RepoFactory { executor: tx };
+        let requesting_user = context.data::<RequestingUser>()?;
         let workspace = workspace_service
             .update(
-                Uuid::parse_str(id.as_str())?,
+                repos,
+                Uuid::parse_str(id.as_str())?.into(),
                 &workspace.title,
                 &workspace.description,
-                pool,
+                requesting_user.auth_id.into(),
             )
             .await?;
 
@@ -205,9 +227,16 @@ impl WorkspacesMutation {
     /// Delete workspace (returns deleted workspace)
     async fn delete_workspace(&self, context: &Context<'_>, id: ID) -> FieldResult<Workspace> {
         let workspace_service = context.data::<WorkspaceServiceImpl>()?;
-        let pool = context.data()?;
+        let pool: &PgPool = context.data()?;
+        let tx: Transaction<Postgres> = pool.begin().await?;
+        let repos = RepoFactory { executor: tx };
+        let requesting_user = context.data::<RequestingUser>()?;
         let workspace = workspace_service
-            .delete(Uuid::parse_str(id.as_str())?, pool)
+            .delete(
+                repos,
+                Uuid::parse_str(id.as_str())?.into(),
+                requesting_user.auth_id.into(),
+            )
             .await?;
 
         // TODO: Add event
@@ -221,20 +250,22 @@ impl WorkspacesMutation {
         input: MembershipChange,
     ) -> FieldResult<Workspace> {
         let workspace_service = context.data::<WorkspaceServiceImpl>()?;
-        let pool = context.data()?;
+        let pool: &PgPool = context.data()?;
+        let tx: Transaction<Postgres> = pool.begin().await?;
+        let repos = RepoFactory { executor: tx };
         let requesting_user = context.data::<RequestingUser>()?;
-        let event_client: &EventClient = context.data()?;
-
-        workspace_service
+        let workspace_id: Uuid = input.workspace.try_into()?;
+        let user_id: Uuid = input.user.try_into()?;
+        let workspace = workspace_service
             .change_workspace_membership(
-                input.workspace.try_into()?,
-                input.user.try_into()?,
+                repos,
+                workspace_id.into(),
+                user_id.into(),
                 input.new_role.into(),
-                requesting_user,
-                pool,
-                event_client,
+                requesting_user.auth_id.into(),
             )
-            .await
+            .await?;
+        Ok(workspace.into())
     }
 }
 

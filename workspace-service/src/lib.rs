@@ -4,7 +4,7 @@ mod db;
 mod graphql;
 mod services;
 
-use fnhs_event_models::EventClient;
+// use fnhs_event_models::EventClient;
 pub use graphql::generate_graphql_schema;
 use opentelemetry::api::{Extractor, TraceContextExt};
 use services::workspace::WorkspaceServiceImpl;
@@ -63,7 +63,7 @@ impl<State: Clone + Send + Sync + 'static> Middleware<State> for TracingMiddlewa
 
 pub async fn create_app(
     connection_pool: PgPool,
-    event_client: EventClient,
+    // event_client: EventClient,
     azure_config: azure::Config,
 ) -> anyhow::Result<Server<graphql::State>> {
     let service = WorkspaceServiceImpl {};
