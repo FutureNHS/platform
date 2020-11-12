@@ -103,15 +103,18 @@ impl Workspace {
     ) -> FieldResult<Vec<User>> {
         let workspace_service = context.data::<WorkspaceServiceImpl>()?;
         let pool: &PgPool = context.data()?;
-        let repos = RepoFactory::new(pool.begin().await?);
+        let mut repos = RepoFactory::new(pool.begin().await?);
         let members = workspace_service
             .members(
-                repos,
+                &mut repos,
                 self.admins.into(),
                 self.members.into(),
                 filter.map(Into::into),
             )
             .await?;
+
+        repos.commit().await?;
+
         Ok(members.iter().cloned().map(Into::into).collect())
     }
 }
@@ -155,8 +158,9 @@ impl WorkspacesQuery {
     async fn workspaces(&self, context: &Context<'_>) -> FieldResult<Vec<Workspace>> {
         let workspace_service = context.data::<WorkspaceServiceImpl>()?;
         let pool: &PgPool = context.data()?;
-        let repos = RepoFactory::new(pool.begin().await?);
-        let workspaces = workspace_service.find_all(repos).await?;
+        let mut repos = RepoFactory::new(pool.begin().await?);
+        let workspaces = workspace_service.find_all(&mut repos).await?;
+        repos.commit().await?;
         Ok(workspaces.into_iter().map(Into::into).collect())
     }
 
@@ -169,9 +173,12 @@ impl WorkspacesQuery {
     async fn get_workspace(&self, context: &Context<'_>, id: ID) -> FieldResult<Workspace> {
         let workspace_service = context.data::<WorkspaceServiceImpl>()?;
         let pool: &PgPool = context.data()?;
-        let repos = RepoFactory::new(pool.begin().await?);
+        let mut repos = RepoFactory::new(pool.begin().await?);
         let id = Uuid::parse_str(id.as_str())?;
-        let workspace = workspace_service.find_by_id(repos, id.into()).await?;
+        let workspace = workspace_service.find_by_id(&mut repos, id.into()).await?;
+
+        repos.commit().await?;
+
         Ok(workspace.into())
     }
 }
@@ -188,18 +195,21 @@ impl WorkspacesMutation {
         new_workspace: NewWorkspace,
     ) -> FieldResult<Workspace> {
         let workspace_service = context.data::<WorkspaceServiceImpl>()?;
-        let pool: &PgPool = context.data()?;
-        let repos = RepoFactory::new(pool.begin().await?);
         let requesting_user = context.data::<RequestingUser>()?;
+        let pool: &PgPool = context.data()?;
+        let mut repos = RepoFactory::new(pool.begin().await?);
 
         let new_workspace = workspace_service
             .create(
-                repos,
+                &mut repos,
                 &new_workspace.title,
                 &new_workspace.description,
                 requesting_user.auth_id.into(),
             )
             .await?;
+
+        repos.commit().await?;
+
         Ok(new_workspace.into())
     }
 
@@ -212,17 +222,19 @@ impl WorkspacesMutation {
     ) -> FieldResult<Workspace> {
         let workspace_service = context.data::<WorkspaceServiceImpl>()?;
         let pool: &PgPool = context.data()?;
-        let repos = RepoFactory::new(pool.begin().await?);
+        let mut repos = RepoFactory::new(pool.begin().await?);
         let requesting_user = context.data::<RequestingUser>()?;
         let workspace = workspace_service
             .update(
-                repos,
+                &mut repos,
                 Uuid::parse_str(id.as_str())?.into(),
                 &workspace.title,
                 &workspace.description,
                 requesting_user.auth_id.into(),
             )
             .await?;
+
+        repos.commit().await?;
 
         // TODO: Add event
         Ok(workspace.into())
@@ -232,15 +244,17 @@ impl WorkspacesMutation {
     async fn delete_workspace(&self, context: &Context<'_>, id: ID) -> FieldResult<Workspace> {
         let workspace_service = context.data::<WorkspaceServiceImpl>()?;
         let pool: &PgPool = context.data()?;
-        let repos = RepoFactory::new(pool.begin().await?);
+        let mut repos = RepoFactory::new(pool.begin().await?);
         let requesting_user = context.data::<RequestingUser>()?;
         let workspace = workspace_service
             .delete(
-                repos,
+                &mut repos,
                 Uuid::parse_str(id.as_str())?.into(),
                 requesting_user.auth_id.into(),
             )
             .await?;
+
+        repos.commit().await?;
 
         // TODO: Add event
         Ok(workspace.into())
@@ -254,19 +268,22 @@ impl WorkspacesMutation {
     ) -> FieldResult<Workspace> {
         let workspace_service = context.data::<WorkspaceServiceImpl>()?;
         let pool: &PgPool = context.data()?;
-        let repos = RepoFactory::new(pool.begin().await?);
+        let mut repos = RepoFactory::new(pool.begin().await?);
         let requesting_user = context.data::<RequestingUser>()?;
         let workspace_id: Uuid = input.workspace.try_into()?;
         let user_id: Uuid = input.user.try_into()?;
         let workspace = workspace_service
             .change_workspace_membership(
-                repos,
+                &mut repos,
                 workspace_id.into(),
                 user_id.into(),
                 input.new_role.into(),
                 requesting_user.auth_id.into(),
             )
             .await?;
+
+        repos.commit().await?;
+
         Ok(workspace.into())
     }
 }

@@ -30,6 +30,11 @@ impl<'ex> RepoFactory<'ex> {
     pub fn new(executor: Transaction<'ex, Postgres>) -> Self {
         Self { executor }
     }
+
+    pub async fn commit(self) -> Result<()> {
+        self.executor.commit().await?;
+        Ok(())
+    }
 }
 
 impl<'ex> RepoCreator<'ex> for RepoFactory<'ex> {

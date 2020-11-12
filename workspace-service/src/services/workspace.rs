@@ -88,91 +88,109 @@ pub trait WorkspaceRepo {
 }
 
 #[async_trait]
-pub trait WorkspaceService<'a> {
-    async fn find_all(
-        &self,
-        mut repo_factory: impl RepoCreator<'a> + Send + 'a,
-    ) -> Result<Vec<Workspace>>;
+pub trait WorkspaceService<'a, 'b> {
+    async fn find_all<T>(&self, repo_factory: &'a mut T) -> Result<Vec<Workspace>>
+    where
+        T: RepoCreator<'b> + Send,
+        'b: 'a;
 
-    async fn find_by_id(
-        &self,
-        mut repo_factory: impl RepoCreator<'a> + Send + 'a,
-        id: WorkspaceId,
-    ) -> Result<Workspace>;
+    async fn find_by_id<T>(&self, repo_factory: &'a mut T, id: WorkspaceId) -> Result<Workspace>
+    where
+        T: RepoCreator<'b> + Send,
+        'b: 'a;
 
-    async fn members(
+    async fn members<T>(
         &self,
-        mut repo_factory: impl RepoCreator<'a> + Send + 'a,
+        repo_factory: &'a mut T,
         admins: TeamId,
         members: TeamId,
         filter: Option<RoleFilter>,
-    ) -> Result<Vec<User>>;
+    ) -> Result<Vec<User>>
+    where
+        T: RepoCreator<'b> + Send,
+        'b: 'a;
 
-    async fn create(
+    async fn create<T>(
         &self,
-        mut repo_factory: impl RepoCreator<'a> + Send + 'a,
+        repo_factory: &'a mut T,
         title: &str,
         description: &str,
         requesting_user: AuthId,
-    ) -> Result<Workspace>;
+    ) -> Result<Workspace>
+    where
+        T: RepoCreator<'b> + Send,
+        'b: 'a;
 
-    async fn update(
+    async fn update<T>(
         &self,
-        mut repo_factory: impl RepoCreator<'a> + Send + 'a,
+        repo_factory: &'a mut T,
         id: WorkspaceId,
         title: &str,
         description: &str,
         requesting_user: AuthId,
-    ) -> Result<Workspace>;
+    ) -> Result<Workspace>
+    where
+        T: RepoCreator<'b> + Send,
+        'b: 'a;
 
-    async fn delete(
+    async fn delete<T>(
         &self,
-        mut repo_factory: impl RepoCreator<'a> + Send + 'a,
+        repo_factory: &'a mut T,
         id: WorkspaceId,
         requesting_user: AuthId,
-    ) -> Result<Workspace>;
+    ) -> Result<Workspace>
+    where
+        T: RepoCreator<'b> + Send,
+        'b: 'a;
 
-    async fn change_workspace_membership(
+    async fn change_workspace_membership<T>(
         &self,
-        mut repo_factory: impl RepoCreator<'a> + Send + 'a,
+        repo_factory: &'a mut T,
         workspace_id: WorkspaceId,
         user_id: UserId,
         new_role: Role,
         requesting_user: AuthId,
-    ) -> Result<Workspace>;
+    ) -> Result<Workspace>
+    where
+        T: RepoCreator<'b> + Send,
+        'b: 'a;
 }
 
 #[derive(Clone)]
 pub struct WorkspaceServiceImpl {}
 
 #[async_trait]
-impl<'a> WorkspaceService<'a> for WorkspaceServiceImpl {
-    async fn find_all(
-        &self,
-        mut repo_factory: impl RepoCreator<'a> + Send + 'a,
-    ) -> Result<Vec<Workspace>> {
+impl<'a, 'b> WorkspaceService<'a, 'b> for WorkspaceServiceImpl {
+    async fn find_all<T>(&self, repo_factory: &'a mut T) -> Result<Vec<Workspace>>
+    where
+        T: RepoCreator<'b> + Send,
+        'b: 'a,
+    {
         let workspaces = repo_factory.workspace().find_all().await?;
         let workspaces = workspaces.into_iter().map(Into::into).collect();
         Ok(workspaces)
     }
 
-    async fn find_by_id(
-        &self,
-        mut repo_factory: impl RepoCreator<'a> + Send + 'a,
-        id: WorkspaceId,
-    ) -> Result<Workspace> {
+    async fn find_by_id<T>(&self, repo_factory: &'a mut T, id: WorkspaceId) -> Result<Workspace>
+    where
+        T: RepoCreator<'b> + Send,
+        'b: 'a,
+    {
         let workspace = repo_factory.workspace().find_by_id(id).await?;
         Ok(workspace)
     }
 
-    async fn members(
+    async fn members<T>(
         &self,
-        mut repo_factory: impl RepoCreator<'a> + Send + 'a,
+        repo_factory: &'a mut T,
         admins: TeamId,
         members: TeamId,
-
         filter: Option<RoleFilter>,
-    ) -> Result<Vec<User>> {
+    ) -> Result<Vec<User>>
+    where
+        T: RepoCreator<'b> + Send,
+        'b: 'a,
+    {
         let users = match filter {
             Some(RoleFilter::Admin) => repo_factory.team().members(admins).await?,
             Some(RoleFilter::NonAdmin) => {
@@ -187,13 +205,17 @@ impl<'a> WorkspaceService<'a> for WorkspaceServiceImpl {
         Ok(users)
     }
 
-    async fn create(
+    async fn create<T>(
         &self,
-        mut repo_factory: impl RepoCreator<'a> + Send + 'a,
+        repo_factory: &'a mut T,
         title: &str,
         description: &str,
         requesting_user: AuthId,
-    ) -> Result<Workspace> {
+    ) -> Result<Workspace>
+    where
+        T: RepoCreator<'b> + Send,
+        'b: 'a,
+    {
         let user = repo_factory
             .user()
             .find_by_auth_id(requesting_user)
@@ -233,14 +255,18 @@ impl<'a> WorkspaceService<'a> for WorkspaceServiceImpl {
         Ok(workspace)
     }
 
-    async fn update(
+    async fn update<T>(
         &self,
-        mut repo_factory: impl RepoCreator<'a> + Send + 'a,
+        repo_factory: &'a mut T,
         id: WorkspaceId,
         title: &str,
         description: &str,
         _requesting_user: AuthId,
-    ) -> Result<Workspace> {
+    ) -> Result<Workspace>
+    where
+        T: RepoCreator<'b> + Send,
+        'b: 'a,
+    {
         let workspace = repo_factory
             .workspace()
             .update(id, title, description)
@@ -248,24 +274,32 @@ impl<'a> WorkspaceService<'a> for WorkspaceServiceImpl {
         Ok(workspace)
     }
 
-    async fn delete(
+    async fn delete<T>(
         &self,
-        mut repo_factory: impl RepoCreator<'a> + Send + 'a,
+        repo_factory: &'a mut T,
         id: WorkspaceId,
         _requesting_user: AuthId,
-    ) -> Result<Workspace> {
+    ) -> Result<Workspace>
+    where
+        T: RepoCreator<'b> + Send,
+        'b: 'a,
+    {
         let workspace = repo_factory.workspace().delete(id).await?;
         Ok(workspace)
     }
 
-    async fn change_workspace_membership(
+    async fn change_workspace_membership<T>(
         &self,
-        mut repo_factory: impl RepoCreator<'a> + Send + 'a,
+        repo_factory: &'a mut T,
         workspace_id: WorkspaceId,
         user_id: UserId,
         new_role: Role,
         requesting_user: AuthId,
-    ) -> Result<Workspace> {
+    ) -> Result<Workspace>
+    where
+        T: RepoCreator<'b> + Send,
+        'b: 'a,
+    {
         let requesting_user = repo_factory
             .user()
             .find_by_auth_id(requesting_user)
