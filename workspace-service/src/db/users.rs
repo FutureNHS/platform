@@ -3,7 +3,8 @@
 
 use crate::services::user::{AuthId, User, UserId, UserRepo};
 use anyhow::Result;
-use sqlx::{types::Uuid, Executor, Postgres};
+use async_trait::async_trait;
+use sqlx::{types::Uuid, Postgres, Transaction};
 
 #[derive(Clone)]
 pub struct DbUser {
@@ -20,46 +21,38 @@ impl From<DbUser> for User {
     }
 }
 
-#[derive(Clone)]
-pub struct UserRepoImpl {}
+pub struct UserRepoImpl<'a, 'ex> {
+    pub(crate) executor: &'a mut Transaction<'ex, Postgres>,
+}
 
-#[async_trait::async_trait]
-impl UserRepo for UserRepoImpl {
-    async fn find_by_auth_id<'c, E>(auth_id: AuthId, executor: E) -> Result<Option<User>>
-    where
-        E: Executor<'c, Database = Postgres>,
-    {
+#[async_trait]
+impl<'a, 'ex> UserRepo for UserRepoImpl<'a, 'ex> {
+    async fn find_by_auth_id(&mut self, auth_id: AuthId) -> Result<Option<User>> {
         let auth_id: Uuid = auth_id.into();
         let user = sqlx::query_file_as!(DbUser, "sql/users/find_by_auth_id.sql", auth_id)
-            .fetch_optional(executor)
+            .fetch_optional(&mut *self.executor)
             .await?
             .map(Into::into);
 
         Ok(user)
     }
 
-    async fn find_by_id<'c, E>(id: UserId, executor: E) -> Result<Option<User>>
-    where
-        E: Executor<'c, Database = Postgres>,
-    {
+    async fn find_by_id(&mut self, id: UserId) -> Result<Option<User>> {
         let id: Uuid = id.into();
         let user = sqlx::query_file_as!(DbUser, "sql/users/find_by_id.sql", id)
-            .fetch_optional(executor)
+            .fetch_optional(&mut *self.executor)
             .await?
             .map(Into::into);
 
         Ok(user)
     }
 
-    async fn get_or_create<'c, E>(
+    async fn get_or_create(
+        &mut self,
         auth_id: AuthId,
         name: &str,
         email_address: &str,
-        executor: E,
-    ) -> Result<User>
-    where
-        E: Executor<'c, Database = Postgres>,
-    {
+    ) -> Result<User> {
         let auth_id: Uuid = auth_id.into();
         let user = sqlx::query_file_as!(
             DbUser,
@@ -68,20 +61,17 @@ impl UserRepo for UserRepoImpl {
             name,
             email_address
         )
-        .fetch_one(executor)
+        .fetch_one(&mut *self.executor)
         .await?
         .into();
 
         Ok(user)
     }
 
-    async fn update<'c, E>(auth_id: AuthId, is_platform_admin: bool, executor: E) -> Result<User>
-    where
-        E: Executor<'c, Database = Postgres>,
-    {
+    async fn update(&mut self, auth_id: AuthId, is_platform_admin: bool) -> Result<User> {
         let auth_id: Uuid = auth_id.into();
         let user = sqlx::query_file_as!(DbUser, "sql/users/update.sql", auth_id, is_platform_admin)
-            .fetch_one(executor)
+            .fetch_one(&mut *self.executor)
             .await?
             .into();
 

@@ -53,56 +53,46 @@ pub struct WorkspaceId(Uuid);
 
 #[async_trait::async_trait]
 pub trait WorkspaceRepo {
-    async fn create<'c, E>(
-        &self,
+    async fn create(
+        &mut self,
         title: &str,
         description: &str,
         admins_team_id: TeamId,
         members_team_id: TeamId,
-    ) -> Result<Workspace>
-    where
-        E: Executor<'c, Database = Postgres>;
+    ) -> Result<Workspace>;
 
-    async fn find_all<'c, E>(executor: E) -> Result<Vec<Workspace>>
-    where
-        E: Executor<'c, Database = Postgres>;
+    async fn find_all(&mut self) -> Result<Vec<Workspace>>;
 
-    async fn find_by_id<'c, E>(id: WorkspaceId, executor: E) -> Result<Workspace>
-    where
-        E: Executor<'c, Database = Postgres>;
+    async fn find_by_id(&mut self, id: WorkspaceId) -> Result<Workspace>;
 
-    async fn update<'c, E>(
+    async fn update(
+        &mut self,
         id: WorkspaceId,
         title: &str,
         description: &str,
-        executor: E,
-    ) -> Result<Workspace>
-    where
-        E: Executor<'c, Database = Postgres>;
+    ) -> Result<Workspace>;
 
-    async fn delete<'c, E>(id: WorkspaceId, executor: E) -> Result<Workspace>
-    where
-        E: Executor<'c, Database = Postgres>;
+    async fn delete(&mut self, id: WorkspaceId) -> Result<Workspace>;
 }
 
 #[async_trait::async_trait]
 pub trait EventRepo {}
 
 #[async_trait]
-pub trait WorkspaceService<'c> {
-    async fn members(&self, filter: Option<RoleFilter>) -> Result<Vec<User>>;
+pub trait WorkspaceService {
+    async fn members(&mut self, filter: Option<RoleFilter>) -> Result<Vec<User>>;
 
     async fn create(
-        &self,
+        &mut self,
         title: &str,
         description: &str,
         requesting_user: AuthId,
     ) -> Result<Workspace>;
 
-    async fn is_admin(&self, workspace_id: WorkspaceId, user_id: UserId) -> Result<bool>;
+    async fn is_admin(&mut self, workspace_id: WorkspaceId, user_id: UserId) -> Result<bool>;
 
     async fn change_workspace_membership(
-        &self,
+        &mut self,
         workspace_id: WorkspaceId,
         user_id: UserId,
         new_role: Role,
@@ -138,7 +128,7 @@ where
 }
 
 #[async_trait]
-impl<'c, T, U, W> WorkspaceService<'c> for WorkspaceServiceImpl<T, U, W>
+impl<'c, T, U, W> WorkspaceService for WorkspaceServiceImpl<T, U, W>
 where
     T: TeamRepo,
     U: UserRepo,
@@ -146,13 +136,13 @@ where
 {
     async fn members(&self, filter: Option<RoleFilter>) -> Result<Vec<User>> {
         let users = match filter {
-            Some(RoleFilter::Admin) => self.team_repo.members(self.admins, self.executor).await?,
+            Some(RoleFilter::Admin) => self.team_repo.members(self.admins).await?,
             Some(RoleFilter::NonAdmin) => {
                 self.team_repo
-                    .members_difference(self.members, self.admins, self.executor)
+                    .members_difference(self.members, self.admins)
                     .await?
             }
-            None => self.team_repo.members(self.members, self.executor).await?,
+            None => self.team_repo.members(self.members).await?,
         };
         Ok(users.into_iter().map(Into::into).collect())
     }
@@ -205,15 +195,10 @@ where
     }
 
     async fn is_admin(&self, workspace_id: WorkspaceId, user_id: UserId) -> Result<bool> {
-        match self.user_repo.find_by_id(&user_id, self.executor).await? {
+        match self.user_repo.find_by_id(&user_id).await? {
             Some(user) => {
-                let workspace = self
-                    .workspace_repo
-                    .find_by_id(workspace_id, self.executor)
-                    .await?;
-                self.team_repo
-                    .is_member(workspace.admins, user.id, self.executor)
-                    .await
+                let workspace = self.workspace_repo.find_by_id(workspace_id).await?;
+                self.team_repo.is_member(workspace.admins, user.id).await
             }
             None => Ok(false),
         }
@@ -228,7 +213,7 @@ where
     ) -> Result<Workspace> {
         let user = self
             .user_repo
-            .find_by_auth_id(&requesting_user, self.executor)
+            .find_by_auth_id(&requesting_user)
             .await?
             .ok_or_else(|| anyhow::anyhow!("user not found"))?;
 

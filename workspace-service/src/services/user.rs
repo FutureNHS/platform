@@ -1,6 +1,6 @@
 use anyhow::Result;
+use async_trait::async_trait;
 use derive_more::{Display, From, Into};
-use sqlx::{Executor, Postgres};
 use uuid::Uuid;
 
 #[derive(From, Into, Display, Copy, Clone)]
@@ -17,26 +17,18 @@ pub struct User {
     pub email_address: String,
 }
 
-#[async_trait::async_trait]
+#[async_trait]
 pub trait UserRepo {
-    async fn find_by_auth_id<'c, E>(auth_id: AuthId, executor: E) -> Result<Option<User>>
-    where
-        E: Executor<'c, Database = Postgres>;
+    async fn find_by_auth_id(&mut self, auth_id: AuthId) -> Result<Option<User>>;
 
-    async fn find_by_id<'c, E>(id: UserId, executor: E) -> Result<Option<User>>
-    where
-        E: Executor<'c, Database = Postgres>;
+    async fn find_by_id(&mut self, id: UserId) -> Result<Option<User>>;
 
-    async fn get_or_create<'c, E>(
+    async fn get_or_create(
+        &mut self,
         auth_id: AuthId,
         name: &str,
         email_address: &str,
-        executor: E,
-    ) -> Result<User>
-    where
-        E: Executor<'c, Database = Postgres>;
+    ) -> Result<User>;
 
-    async fn update<'c, E>(auth_id: AuthId, is_platform_admin: bool, executor: E) -> Result<User>
-    where
-        E: Executor<'c, Database = Postgres>;
+    async fn update(&mut self, auth_id: AuthId, is_platform_admin: bool) -> Result<User>;
 }

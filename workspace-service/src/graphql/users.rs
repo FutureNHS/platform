@@ -1,7 +1,10 @@
 use super::{db, RequestingUser};
-use crate::services::{self, user::UserRepo};
+use crate::{
+    db::RepoFactory,
+    services::{self, user::UserRepo},
+};
 use async_graphql::{Context, FieldResult, InputObject, Object, SimpleObject, ID};
-use sqlx::PgPool;
+use sqlx::{PgPool, Postgres, Transaction};
 use uuid::Uuid;
 
 /// A user
@@ -58,11 +61,14 @@ impl UsersMutation {
         let pool: &PgPool = context.data()?;
         let auth_id = Uuid::parse_str(&new_user.auth_id)?.into();
 
-        Ok(
-            db::UserRepoImpl::get_or_create(auth_id, &new_user.name, &new_user.email_address, pool)
-                .await?
-                .into(),
-        )
+        let tx: Transaction<Postgres> = pool.begin().await?;
+        let mut repos = RepoFactory { executor: tx };
+        let user = repos
+            .user()
+            .get_or_create(auth_id, &new_user.name, &new_user.email_address)
+            .await?
+            .into();
+        Ok(user)
     }
 
     /// Update a user (returns the user)
@@ -83,7 +89,11 @@ async fn update_user_impl(
     requesting_user: &RequestingUser,
     update_user: UpdateUser,
 ) -> FieldResult<User> {
-    let requesting_user = db::UserRepoImpl::find_by_auth_id(requesting_user.auth_id.into(), pool)
+    let tx: Transaction<Postgres> = pool.begin().await?;
+    let mut repos = RepoFactory { executor: tx };
+    let mut user_repo = repos.user();
+    let requesting_user = user_repo
+        .find_by_auth_id(requesting_user.auth_id.into())
         .await?
         .ok_or_else(|| anyhow::anyhow!("user not found"))?;
     if !requesting_user.is_platform_admin {
@@ -95,11 +105,11 @@ async fn update_user_impl(
     }
 
     let auth_id = Uuid::parse_str(&update_user.auth_id)?.into();
-    Ok(
-        db::UserRepoImpl::update(auth_id, update_user.is_platform_admin, pool)
-            .await?
-            .into(),
-    )
+    let user = user_repo
+        .update(auth_id, update_user.is_platform_admin)
+        .await?
+        .into();
+    Ok(user)
 }
 
 // #[cfg(test)]

@@ -1,10 +1,10 @@
 use super::{db, RequestingUser};
-use crate::services::user::UserRepo;
+use crate::{db::RepoFactory, services::user::UserRepo};
 use async_graphql::{Context, FieldResult, InputObject, Object, SimpleObject, ID};
 use fnhs_event_models::{
     Event, EventClient, EventPublisher, FolderCreatedData, FolderDeletedData, FolderUpdatedData,
 };
-use sqlx::PgPool;
+use sqlx::{PgPool, Postgres, Transaction};
 use uuid::Uuid;
 
 /// A folder
@@ -138,7 +138,11 @@ async fn create_folder(
         .await?
         .into();
 
-    let user = db::UserRepoImpl::find_by_auth_id(requesting_user.auth_id.into(), pool)
+    let tx: Transaction<Postgres> = pool.begin().await?;
+    let mut repos = RepoFactory { executor: tx };
+    let user = repos
+        .user()
+        .find_by_auth_id(requesting_user.auth_id.into())
         .await?
         .ok_or_else(|| anyhow::anyhow!("user not found"))?;
 
@@ -171,8 +175,11 @@ async fn update_folder(
         pool,
     )
     .await?;
-
-    let user = db::UserRepoImpl::find_by_auth_id(requesting_user.auth_id.into(), pool)
+    let tx: Transaction<Postgres> = pool.begin().await?;
+    let mut repos = RepoFactory { executor: tx };
+    let user = repos
+        .user()
+        .find_by_auth_id(requesting_user.auth_id.into())
         .await?
         .ok_or_else(|| anyhow::anyhow!("user not found"))?;
 
@@ -199,7 +206,11 @@ async fn delete_folder(
     event_client: &EventClient,
 ) -> FieldResult<Folder> {
     let folder = db::FolderRepo::delete(Uuid::parse_str(&id)?, pool).await?;
-    let user = db::UserRepoImpl::find_by_auth_id(requesting_user.auth_id.into(), pool)
+    let tx: Transaction<Postgres> = pool.begin().await?;
+    let mut repos = RepoFactory { executor: tx };
+    let user = repos
+        .user()
+        .find_by_auth_id(requesting_user.auth_id.into())
         .await?
         .ok_or_else(|| anyhow::anyhow!("user not found"))?;
     event_client
