@@ -1,5 +1,5 @@
 use super::{azure, db};
-use crate::{db::RepoFactory, services::user::UserRepo};
+use crate::{db::RepoFactory, services::workspace::RepoCreator};
 use async_graphql::{Context, FieldResult, Object, ID};
 use fnhs_event_models::{Event, EventClient, EventPublisher as _, FileDownloadedData};
 use sqlx::{PgPool, Postgres, Transaction};

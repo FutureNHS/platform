@@ -5,46 +5,51 @@ mod teams;
 mod users;
 mod workspaces;
 
+use crate::services::{
+    team::TeamRepo,
+    user::UserRepo,
+    workspace::{self, WorkspaceRepo},
+};
+use anyhow::Result;
 pub use file_versions::*;
 pub use files::{
     CreateFileArgs, CreateFileVersionArgs, File, FileRepo, FileWithVersion, FileWithVersionRepo,
 };
 pub use folders::{Folder, FolderRepo};
+use sqlx::{Executor, Postgres, Transaction};
 pub use teams::TeamRepoImpl;
 pub use users::{DbUser, UserRepoImpl};
+use workspace::RepoCreator;
 pub use workspaces::{DbWorkspace, WorkspaceRepoImpl};
-
-use anyhow::Result;
-use sqlx::{Executor, Postgres, Transaction};
 
 pub struct RepoFactory<'ex> {
     pub(crate) executor: Transaction<'ex, Postgres>,
 }
 
-impl<'ex> RepoFactory<'ex> {
-    pub fn team<'r>(&'r mut self) -> TeamRepoImpl<'r, 'ex>
+impl<'ex> RepoCreator<'ex> for RepoFactory<'ex> {
+    fn team<'r>(&'r mut self) -> Box<dyn TeamRepo + 'r>
     where
         'ex: 'r,
     {
-        TeamRepoImpl {
+        Box::new(TeamRepoImpl {
             executor: &mut self.executor,
-        }
+        })
     }
-    pub fn user<'r>(&'r mut self) -> UserRepoImpl<'r, 'ex>
+    fn user<'r>(&'r mut self) -> Box<dyn UserRepo + Send + 'r>
     where
         'ex: 'r,
     {
-        UserRepoImpl {
+        Box::new(UserRepoImpl {
             executor: &mut self.executor,
-        }
+        })
     }
-    pub fn workspace<'r>(&'r mut self) -> WorkspaceRepoImpl<'r, 'ex>
+    fn workspace<'r>(&'r mut self) -> Box<dyn WorkspaceRepo + 'r>
     where
         'ex: 'r,
     {
-        WorkspaceRepoImpl {
+        Box::new(WorkspaceRepoImpl {
             executor: &mut self.executor,
-        }
+        })
     }
 }
 

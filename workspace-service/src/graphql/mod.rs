@@ -9,11 +9,7 @@ mod validation;
 mod workspaces;
 
 use super::{azure, db};
-use crate::services::{
-    team::TeamRepo,
-    user::UserRepo,
-    workspace::{WorkspaceRepo, WorkspaceServiceImpl},
-};
+use crate::services::workspace::WorkspaceServiceImpl;
 use async_graphql::{
     http::{playground_source, GraphQLPlaygroundConfig},
     EmptySubscription, MergedObject, Schema,
@@ -23,26 +19,16 @@ use tide::{http::mime, Request, Response, StatusCode};
 use uuid::Uuid;
 
 #[derive(Clone)]
-pub struct State<T, U, W>
-where
-    T: TeamRepo,
-    U: UserRepo,
-    W: WorkspaceRepo,
-{
+pub struct State {
     schema: Schema<Query, Mutation, EmptySubscription>,
-    workspace_service: WorkspaceServiceImpl<T, U, W>,
+    workspace_service: WorkspaceServiceImpl,
 }
 
-impl<T, U, W> State<T, U, W>
-where
-    T: TeamRepo,
-    U: UserRepo,
-    W: WorkspaceRepo,
-{
+impl State {
     pub fn new(
         pool: PgPool,
         azure_config: azure::Config,
-        workspace_service: WorkspaceServiceImpl<T, U, W>,
+        workspace_service: WorkspaceServiceImpl,
     ) -> Self {
         State {
             schema: Schema::build(Query::default(), Mutation::default(), EmptySubscription)
@@ -77,12 +63,7 @@ pub struct RequestingUser {
     auth_id: Uuid,
 }
 
-pub async fn handle_healthz<T, U, W>(req: Request<State<T, U, W>>) -> tide::Result
-where
-    T: TeamRepo,
-    U: UserRepo,
-    W: WorkspaceRepo,
-{
+pub async fn handle_healthz(req: Request<State>) -> tide::Result {
     // let response = if !req.state().event_client.is_configured() {
     //     Response::builder(500).body("invalid event client").build()
     // } else {
@@ -93,12 +74,7 @@ where
     Ok(response)
 }
 
-pub async fn handle_graphql<T, U, W>(req: Request<State<T, U, W>>) -> tide::Result
-where
-    T: TeamRepo + Clone + Send + Sync + 'static,
-    U: UserRepo + Clone + Send + Sync + 'static,
-    W: WorkspaceRepo + Clone + Send + Sync + 'static,
-{
+pub async fn handle_graphql(req: Request<State>) -> tide::Result {
     let schema = req.state().schema.clone();
     let auth_id = req
         .header("x-user-auth-id")
@@ -113,12 +89,7 @@ where
     async_graphql_tide::respond(schema.execute(req).await)
 }
 
-pub async fn handle_graphiql<T, U, W>(_: Request<State<T, U, W>>) -> tide::Result
-where
-    T: TeamRepo,
-    U: UserRepo,
-    W: WorkspaceRepo,
-{
+pub async fn handle_graphiql(_: Request<State>) -> tide::Result {
     let response = Response::builder(StatusCode::Ok)
         .body(playground_source(GraphQLPlaygroundConfig::new("/graphql")))
         .content_type(mime::HTML)

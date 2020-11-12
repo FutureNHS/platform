@@ -1,7 +1,7 @@
-use super::{db, RequestingUser};
+use super::RequestingUser;
 use crate::{
     db::RepoFactory,
-    services::{self, user::UserRepo},
+    services::{self, workspace::RepoCreator},
 };
 use async_graphql::{Context, FieldResult, InputObject, Object, SimpleObject, ID};
 use sqlx::{PgPool, Postgres, Transaction};

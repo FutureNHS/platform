@@ -2,11 +2,12 @@ use super::{
     team::{TeamId, TeamRepo},
     user::{AuthId, User, UserId, UserRepo},
 };
+use crate::db::RepoFactory;
 use anyhow::Result;
 use async_trait::async_trait;
 use derive_more::{Display, From, Into};
 use fnhs_event_models::{Event, WorkspaceCreatedData, WorkspaceMembershipChangedData};
-use sqlx::{Executor, Postgres};
+use sqlx::{Postgres, Transaction};
 use uuid::Uuid;
 
 pub struct Workspace {
@@ -51,6 +52,20 @@ impl std::fmt::Display for Role {
 #[derive(From, Into, Display, Copy, Clone)]
 pub struct WorkspaceId(Uuid);
 
+pub trait RepoCreator<'a> {
+    fn team<'r>(&'r mut self) -> Box<dyn TeamRepo + 'r>
+    where
+        'a: 'r;
+
+    fn user<'r>(&'r mut self) -> Box<dyn UserRepo + Send + 'r>
+    where
+        'a: 'r;
+
+    fn workspace<'r>(&'r mut self) -> Box<dyn WorkspaceRepo + 'r>
+    where
+        'a: 'r;
+}
+
 #[async_trait::async_trait]
 pub trait WorkspaceRepo {
     async fn create(
@@ -75,24 +90,21 @@ pub trait WorkspaceRepo {
     async fn delete(&mut self, id: WorkspaceId) -> Result<Workspace>;
 }
 
-#[async_trait::async_trait]
-pub trait EventRepo {}
-
 #[async_trait]
 pub trait WorkspaceService {
-    async fn members(&mut self, filter: Option<RoleFilter>) -> Result<Vec<User>>;
+    async fn members(&self, filter: Option<RoleFilter>) -> Result<Vec<User>>;
 
     async fn create(
-        &mut self,
+        &self,
         title: &str,
         description: &str,
         requesting_user: AuthId,
     ) -> Result<Workspace>;
 
-    async fn is_admin(&mut self, workspace_id: WorkspaceId, user_id: UserId) -> Result<bool>;
+    async fn is_admin(&self, workspace_id: WorkspaceId, user_id: UserId) -> Result<bool>;
 
     async fn change_workspace_membership(
-        &mut self,
+        &self,
         workspace_id: WorkspaceId,
         user_id: UserId,
         new_role: Role,
@@ -101,39 +113,10 @@ pub trait WorkspaceService {
 }
 
 #[derive(Clone)]
-pub struct WorkspaceServiceImpl<T, U, W>
-where
-    T: TeamRepo,
-    U: UserRepo,
-    W: WorkspaceRepo,
-{
-    team_repo: T,
-    user_repo: U,
-    workspace_repo: W,
-}
-
-impl<'c, T, U, W> WorkspaceServiceImpl<T, U, W>
-where
-    T: TeamRepo,
-    U: UserRepo,
-    W: WorkspaceRepo,
-{
-    pub fn new(team_repo: T, user_repo: U, workspace_repo: W) -> Self {
-        Self {
-            team_repo,
-            user_repo,
-            workspace_repo,
-        }
-    }
-}
+pub struct WorkspaceServiceImpl {}
 
 #[async_trait]
-impl<'c, T, U, W> WorkspaceService for WorkspaceServiceImpl<T, U, W>
-where
-    T: TeamRepo,
-    U: UserRepo,
-    W: WorkspaceRepo,
-{
+impl WorkspaceService for WorkspaceServiceImpl {
     async fn members(&self, filter: Option<RoleFilter>) -> Result<Vec<User>> {
         let users = match filter {
             Some(RoleFilter::Admin) => self.team_repo.members(self.admins).await?,
@@ -153,8 +136,10 @@ where
         description: &str,
         requesting_user: AuthId,
     ) -> Result<Workspace> {
-        let user = self
-            .user_repo
+        let tx: Transaction<Postgres> = pool.begin().await?;
+        let mut repos = RepoFactory { executor: tx };
+        let user = repos
+            .user()
             .find_by_auth_id(requesting_user)
             .await?
             .ok_or_else(|| anyhow::anyhow!("user not found"))?;
