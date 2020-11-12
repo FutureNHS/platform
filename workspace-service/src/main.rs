@@ -53,23 +53,23 @@ async fn main() -> Result<()> {
     let connection_pool = PgPool::connect(config.database_url.expect("required").as_str()).await?;
     sqlx::migrate!("./migrations").run(&connection_pool).await?;
 
-    // let event_client = if let (Some(topic_endpoint), Some(topic_key)) =
-    //     (config.eventgrid_topic_endpoint, config.eventgrid_topic_key)
-    // {
-    //     EventClient::new(
-    //         topic_endpoint
-    //             .host_str()
-    //             .ok_or_else(|| anyhow!("EVENTGRID_TOPIC_ENDPOINT does not contain host name"))?
-    //             .to_owned(),
-    //         topic_key,
-    //     )
-    // } else {
-    //     EventClient::default()
-    // };
+    let event_client = if let (Some(topic_endpoint), Some(topic_key)) =
+        (config.eventgrid_topic_endpoint, config.eventgrid_topic_key)
+    {
+        EventClient::new(
+            topic_endpoint
+                .host_str()
+                .ok_or_else(|| anyhow!("EVENTGRID_TOPIC_ENDPOINT does not contain host name"))?
+                .to_owned(),
+            topic_key,
+        )
+    } else {
+        EventClient::default()
+    };
 
     let app = workspace_service::create_app(
         connection_pool,
-        // event_client,
+        event_client,
         azure::Config::new(
             config.file_storage_access_key.expect("required"),
             config.upload_container_url.expect("required"),

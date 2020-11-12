@@ -19,8 +19,14 @@ pub struct DbWorkspace {
 }
 
 impl From<DbWorkspace> for Workspace {
-    fn from(_: DbWorkspace) -> Self {
-        todo!()
+    fn from(w: DbWorkspace) -> Self {
+        Self {
+            id: w.id.into(),
+            title: w.title,
+            description: w.description,
+            admins: w.admins.into(),
+            members: w.members.into(),
+        }
     }
 }
 

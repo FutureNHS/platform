@@ -14,6 +14,7 @@ use async_graphql::{
     http::{playground_source, GraphQLPlaygroundConfig},
     EmptySubscription, MergedObject, Schema,
 };
+use fnhs_event_models::EventClient;
 use sqlx::PgPool;
 use tide::{http::mime, Request, Response, StatusCode};
 use uuid::Uuid;
@@ -21,12 +22,13 @@ use uuid::Uuid;
 #[derive(Clone)]
 pub struct State {
     schema: Schema<Query, Mutation, EmptySubscription>,
-    workspace_service: WorkspaceServiceImpl,
+    event_client: EventClient,
 }
 
 impl State {
     pub fn new(
         pool: PgPool,
+        event_client: EventClient,
         azure_config: azure::Config,
         workspace_service: WorkspaceServiceImpl,
     ) -> Self {
@@ -34,9 +36,11 @@ impl State {
             schema: Schema::build(Query::default(), Mutation::default(), EmptySubscription)
                 .extension(tracing_ext::Tracing)
                 .data(pool)
+                .data(workspace_service)
+                .data(event_client.clone())
                 .data(azure_config)
                 .finish(),
-            workspace_service,
+            event_client,
         }
     }
 }

@@ -37,13 +37,22 @@ pub enum RoleFilter {
 }
 
 impl From<workspace::RoleFilter> for RoleFilter {
-    fn from(_: workspace::RoleFilter) -> Self {
-        todo!()
+    fn from(f: workspace::RoleFilter) -> Self {
+        use workspace::RoleFilter::*;
+        match f {
+            Admin => RoleFilter::Admin,
+            NonAdmin => RoleFilter::NonAdmin,
+        }
     }
 }
+
 impl From<RoleFilter> for workspace::RoleFilter {
-    fn from(_: RoleFilter) -> Self {
-        todo!()
+    fn from(f: RoleFilter) -> Self {
+        use workspace::RoleFilter::*;
+        match f {
+            RoleFilter::Admin => Admin,
+            RoleFilter::NonAdmin => NonAdmin,
+        }
     }
 }
 

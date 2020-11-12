@@ -16,8 +16,14 @@ pub struct DbUser {
 }
 
 impl From<DbUser> for User {
-    fn from(_: DbUser) -> Self {
-        todo!()
+    fn from(u: DbUser) -> Self {
+        Self {
+            id: u.id.into(),
+            auth_id: u.auth_id.into(),
+            name: u.name,
+            is_platform_admin: u.is_platform_admin,
+            email_address: u.email_address,
+        }
     }
 }
 

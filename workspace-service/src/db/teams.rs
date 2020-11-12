@@ -18,8 +18,11 @@ pub struct DbTeam {
 }
 
 impl From<DbTeam> for Team {
-    fn from(_: DbTeam) -> Self {
-        todo!()
+    fn from(t: DbTeam) -> Self {
+        Self {
+            id: t.id.into(),
+            title: t.title,
+        }
     }
 }
 

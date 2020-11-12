@@ -161,7 +161,7 @@ impl<'a> WorkspaceService<'a> for WorkspaceServiceImpl {
         mut repo_factory: impl RepoCreator<'a> + Send + 'a,
         id: WorkspaceId,
     ) -> Result<Workspace> {
-        let workspace = repo_factory.workspace().find_by_id(id).await?.into();
+        let workspace = repo_factory.workspace().find_by_id(id).await?;
         Ok(workspace)
     }
 
@@ -203,8 +203,7 @@ impl<'a> WorkspaceService<'a> for WorkspaceServiceImpl {
             return Err(anyhow::anyhow!(
                 "User with auth_id {} does not have permission to create a workspace.",
                 requesting_user,
-            )
-            .into());
+            ));
         }
         let admins = repo_factory
             .team()
@@ -218,8 +217,7 @@ impl<'a> WorkspaceService<'a> for WorkspaceServiceImpl {
         let workspace: Workspace = repo_factory
             .workspace()
             .create(title, description, admins.id, members.id)
-            .await?
-            .into();
+            .await?;
 
         // self.event_client
         //     .publish_events(&[Event::new(
@@ -241,13 +239,12 @@ impl<'a> WorkspaceService<'a> for WorkspaceServiceImpl {
         id: WorkspaceId,
         title: &str,
         description: &str,
-        requesting_user: AuthId,
+        _requesting_user: AuthId,
     ) -> Result<Workspace> {
         let workspace = repo_factory
             .workspace()
             .update(id, title, description)
-            .await?
-            .into();
+            .await?;
         Ok(workspace)
     }
 
@@ -255,9 +252,9 @@ impl<'a> WorkspaceService<'a> for WorkspaceServiceImpl {
         &self,
         mut repo_factory: impl RepoCreator<'a> + Send + 'a,
         id: WorkspaceId,
-        requesting_user: AuthId,
+        _requesting_user: AuthId,
     ) -> Result<Workspace> {
-        let workspace = repo_factory.workspace().delete(id).await?.into();
+        let workspace = repo_factory.workspace().delete(id).await?;
         Ok(workspace)
     }
 
