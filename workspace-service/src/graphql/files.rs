@@ -8,7 +8,7 @@ use fnhs_event_models::{
 use lazy_static::lazy_static;
 use mime_db::extensions2;
 use regex::Regex;
-use sqlx::{PgPool, Postgres, Transaction};
+use sqlx::PgPool;
 use url::Url;
 use uuid::Uuid;
 use validator::{Validate, ValidationError};
@@ -265,8 +265,7 @@ async fn create_file(
         .map_err(validation::ValidationError::from)?;
 
     let folder_id = Uuid::parse_str(&new_file.folder)?;
-    let tx: Transaction<Postgres> = pool.begin().await?;
-    let mut repos = RepoFactory { executor: tx };
+    let mut repos = RepoFactory::new(pool.begin().await?);
     let user = repos
         .user()
         .find_by_auth_id(requesting_user.auth_id.into())
@@ -338,8 +337,7 @@ async fn create_file_version(
         return Err("specified version is not the latest version of the file".into());
     }
 
-    let tx: Transaction<Postgres> = pool.begin().await?;
-    let mut repos = RepoFactory { executor: tx };
+    let mut repos = RepoFactory::new(pool.begin().await?);
     let user = repos
         .user()
         .find_by_auth_id(requesting_user.auth_id.into())
@@ -415,8 +413,7 @@ async fn delete_file(
     requesting_user: &RequestingUser,
     event_client: &EventClient,
 ) -> FieldResult<File> {
-    let tx: Transaction<Postgres> = pool.begin().await?;
-    let mut repos = RepoFactory { executor: tx };
+    let mut repos = RepoFactory::new(pool.begin().await?);
     let user = repos
         .user()
         .find_by_auth_id(requesting_user.auth_id.into())

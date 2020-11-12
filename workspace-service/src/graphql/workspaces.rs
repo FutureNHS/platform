@@ -4,7 +4,7 @@ use crate::{
     services::workspace::{self, Role, WorkspaceService, WorkspaceServiceImpl},
 };
 use async_graphql::{Context, Enum, FieldResult, InputObject, Object, ID};
-use sqlx::{PgPool, Postgres, Transaction};
+use sqlx::PgPool;
 use std::convert::TryInto;
 use uuid::Uuid;
 
@@ -103,8 +103,7 @@ impl Workspace {
     ) -> FieldResult<Vec<User>> {
         let workspace_service = context.data::<WorkspaceServiceImpl>()?;
         let pool: &PgPool = context.data()?;
-        let tx: Transaction<Postgres> = pool.begin().await?;
-        let repos = RepoFactory { executor: tx };
+        let repos = RepoFactory::new(pool.begin().await?);
         let members = workspace_service
             .members(
                 repos,
@@ -156,8 +155,7 @@ impl WorkspacesQuery {
     async fn workspaces(&self, context: &Context<'_>) -> FieldResult<Vec<Workspace>> {
         let workspace_service = context.data::<WorkspaceServiceImpl>()?;
         let pool: &PgPool = context.data()?;
-        let tx: Transaction<Postgres> = pool.begin().await?;
-        let repos = RepoFactory { executor: tx };
+        let repos = RepoFactory::new(pool.begin().await?);
         let workspaces = workspace_service.find_all(repos).await?;
         Ok(workspaces.into_iter().map(Into::into).collect())
     }
@@ -171,8 +169,7 @@ impl WorkspacesQuery {
     async fn get_workspace(&self, context: &Context<'_>, id: ID) -> FieldResult<Workspace> {
         let workspace_service = context.data::<WorkspaceServiceImpl>()?;
         let pool: &PgPool = context.data()?;
-        let tx: Transaction<Postgres> = pool.begin().await?;
-        let repos = RepoFactory { executor: tx };
+        let repos = RepoFactory::new(pool.begin().await?);
         let id = Uuid::parse_str(id.as_str())?;
         let workspace = workspace_service.find_by_id(repos, id.into()).await?;
         Ok(workspace.into())
@@ -192,8 +189,7 @@ impl WorkspacesMutation {
     ) -> FieldResult<Workspace> {
         let workspace_service = context.data::<WorkspaceServiceImpl>()?;
         let pool: &PgPool = context.data()?;
-        let tx: Transaction<Postgres> = pool.begin().await?;
-        let repos = RepoFactory { executor: tx };
+        let repos = RepoFactory::new(pool.begin().await?);
         let requesting_user = context.data::<RequestingUser>()?;
 
         let new_workspace = workspace_service
@@ -216,8 +212,7 @@ impl WorkspacesMutation {
     ) -> FieldResult<Workspace> {
         let workspace_service = context.data::<WorkspaceServiceImpl>()?;
         let pool: &PgPool = context.data()?;
-        let tx: Transaction<Postgres> = pool.begin().await?;
-        let repos = RepoFactory { executor: tx };
+        let repos = RepoFactory::new(pool.begin().await?);
         let requesting_user = context.data::<RequestingUser>()?;
         let workspace = workspace_service
             .update(
@@ -237,8 +232,7 @@ impl WorkspacesMutation {
     async fn delete_workspace(&self, context: &Context<'_>, id: ID) -> FieldResult<Workspace> {
         let workspace_service = context.data::<WorkspaceServiceImpl>()?;
         let pool: &PgPool = context.data()?;
-        let tx: Transaction<Postgres> = pool.begin().await?;
-        let repos = RepoFactory { executor: tx };
+        let repos = RepoFactory::new(pool.begin().await?);
         let requesting_user = context.data::<RequestingUser>()?;
         let workspace = workspace_service
             .delete(
@@ -260,8 +254,7 @@ impl WorkspacesMutation {
     ) -> FieldResult<Workspace> {
         let workspace_service = context.data::<WorkspaceServiceImpl>()?;
         let pool: &PgPool = context.data()?;
-        let tx: Transaction<Postgres> = pool.begin().await?;
-        let repos = RepoFactory { executor: tx };
+        let repos = RepoFactory::new(pool.begin().await?);
         let requesting_user = context.data::<RequestingUser>()?;
         let workspace_id: Uuid = input.workspace.try_into()?;
         let user_id: Uuid = input.user.try_into()?;

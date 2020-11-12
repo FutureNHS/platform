@@ -2,7 +2,7 @@ use super::{azure, db};
 use crate::{db::RepoFactory, services::workspace::RepoCreator};
 use async_graphql::{Context, FieldResult, Object, ID};
 use fnhs_event_models::{Event, EventClient, EventPublisher as _, FileDownloadedData};
-use sqlx::{PgPool, Postgres, Transaction};
+use sqlx::PgPool;
 use url::Url;
 use uuid::Uuid;
 
@@ -29,8 +29,7 @@ async fn file_download_url(
     event_client: &EventClient,
     requesting_user: &super::RequestingUser,
 ) -> FieldResult<Url> {
-    let tx: Transaction<Postgres> = pool.begin().await?;
-    let mut repos = RepoFactory { executor: tx };
+    let mut repos = RepoFactory::new(pool.begin().await?);
     let user = repos
         .user()
         .find_by_auth_id(requesting_user.auth_id.into())

@@ -23,7 +23,13 @@ use workspace::RepoCreator;
 pub use workspaces::{DbWorkspace, WorkspaceRepoImpl};
 
 pub struct RepoFactory<'ex> {
-    pub(crate) executor: Transaction<'ex, Postgres>,
+    executor: Transaction<'ex, Postgres>,
+}
+
+impl<'ex> RepoFactory<'ex> {
+    pub fn new(executor: Transaction<'ex, Postgres>) -> Self {
+        Self { executor }
+    }
 }
 
 impl<'ex> RepoCreator<'ex> for RepoFactory<'ex> {

@@ -4,7 +4,7 @@ use async_graphql::{Context, FieldResult, InputObject, Object, SimpleObject, ID}
 use fnhs_event_models::{
     Event, EventClient, EventPublisher, FolderCreatedData, FolderDeletedData, FolderUpdatedData,
 };
-use sqlx::{PgPool, Postgres, Transaction};
+use sqlx::PgPool;
 use uuid::Uuid;
 
 /// A folder
@@ -138,8 +138,7 @@ async fn create_folder(
         .await?
         .into();
 
-    let tx: Transaction<Postgres> = pool.begin().await?;
-    let mut repos = RepoFactory { executor: tx };
+    let mut repos = RepoFactory::new(pool.begin().await?);
     let user = repos
         .user()
         .find_by_auth_id(requesting_user.auth_id.into())
@@ -175,8 +174,7 @@ async fn update_folder(
         pool,
     )
     .await?;
-    let tx: Transaction<Postgres> = pool.begin().await?;
-    let mut repos = RepoFactory { executor: tx };
+    let mut repos = RepoFactory::new(pool.begin().await?);
     let user = repos
         .user()
         .find_by_auth_id(requesting_user.auth_id.into())
@@ -206,8 +204,7 @@ async fn delete_folder(
     event_client: &EventClient,
 ) -> FieldResult<Folder> {
     let folder = db::FolderRepo::delete(Uuid::parse_str(&id)?, pool).await?;
-    let tx: Transaction<Postgres> = pool.begin().await?;
-    let mut repos = RepoFactory { executor: tx };
+    let mut repos = RepoFactory::new(pool.begin().await?);
     let user = repos
         .user()
         .find_by_auth_id(requesting_user.auth_id.into())

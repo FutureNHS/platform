@@ -4,7 +4,7 @@ use crate::{
     services::{self, workspace::RepoCreator},
 };
 use async_graphql::{Context, FieldResult, InputObject, Object, SimpleObject, ID};
-use sqlx::{PgPool, Postgres, Transaction};
+use sqlx::PgPool;
 use uuid::Uuid;
 
 /// A user
@@ -61,8 +61,7 @@ impl UsersMutation {
         let pool: &PgPool = context.data()?;
         let auth_id = Uuid::parse_str(&new_user.auth_id)?.into();
 
-        let tx: Transaction<Postgres> = pool.begin().await?;
-        let mut repos = RepoFactory { executor: tx };
+        let mut repos = RepoFactory::new(pool.begin().await?);
         let user = repos
             .user()
             .get_or_create(auth_id, &new_user.name, &new_user.email_address)
@@ -89,8 +88,7 @@ async fn update_user_impl(
     requesting_user: &RequestingUser,
     update_user: UpdateUser,
 ) -> FieldResult<User> {
-    let tx: Transaction<Postgres> = pool.begin().await?;
-    let mut repos = RepoFactory { executor: tx };
+    let mut repos = RepoFactory::new(pool.begin().await?);
     let mut user_repo = repos.user();
     let requesting_user = user_repo
         .find_by_auth_id(requesting_user.auth_id.into())
