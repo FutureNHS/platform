@@ -49,6 +49,7 @@ pub enum RoleFilter {
 #[derive(From, Into, Display, Copy, Clone)]
 pub struct WorkspaceId(Uuid);
 
+#[cfg_attr(test, mockall::automock)]
 pub trait RepoCreator<'a> {
     fn team<'r>(&'r mut self) -> Box<dyn TeamRepo + Send + 'r>
     where
@@ -381,5 +382,44 @@ impl<'a, 'b> WorkspaceService<'a, 'b> for WorkspaceServiceImpl {
         //     .await?;
 
         Ok(workspace)
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::services::user::*;
+    use mockall::predicate::*;
+
+    #[async_std::test]
+    async fn creating_workspace_as_non_admin_fails() -> anyhow::Result<()> {
+        let service = WorkspaceServiceImpl {};
+        let requesting_user: AuthId = Uuid::parse_str("deadbeef-0000-0000-0000-000000000000")
+            .unwrap()
+            .into();
+        let mut user_repo = MockUserRepo::new();
+        user_repo
+            .expect_find_by_auth_id()
+            .with(eq(requesting_user))
+            .returning(|auth_id| {
+                Ok(Some(User {
+                    auth_id,
+                    id: Uuid::new_v4().into(),
+                    email_address: "".to_string(),
+                    name: "".to_string(),
+                    is_platform_admin: false,
+                }))
+            });
+        let mut repos = MockRepoCreator::new();
+        repos.expect_user().return_once(move || Box::new(user_repo));
+        let result = service
+            .create(&mut repos, "title", "description", requesting_user)
+            .await;
+
+        assert_eq!(result.err().unwrap().to_string(), "User with auth_id deadbeef-0000-0000-0000-000000000000 does not have permission to create a workspace.");
+
+        // assert_eq!(events.try_iter().count(), 0);
+
+        Ok(())
     }
 }

@@ -49,5 +49,6 @@ git = "https://github.com/launchbadge/sqlx"
 rev = "144dcceb445e804b16258d0dd9e580d6a484a01e"
 
 [dev_dependencies]
+mockall = "0.8.3"
 percent-encoding = "2.1.0"
 test-case = "1.0.0"

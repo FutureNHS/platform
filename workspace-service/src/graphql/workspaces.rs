@@ -320,27 +320,6 @@ impl WorkspacesMutation {
 //     }
 
 //     #[async_std::test]
-//     async fn creating_workspace_as_non_admin_fails() -> anyhow::Result<()> {
-//         let pool = mock_connection_pool()?;
-//         let (events, event_client) = mock_event_emitter();
-
-//         let result = create_workspace(
-//             "title",
-//             "description",
-//             &mock_unprivileged_requesting_user().await?,
-//             &pool,
-//             &event_client,
-//         )
-//         .await;
-
-//         assert_eq!(result.err().unwrap().message, "User with auth_id deadbeef-0000-0000-0000-000000000000 does not have permission to create a workspace.");
-
-//         assert_eq!(events.try_iter().count(), 0);
-
-//         Ok(())
-//     }
-
-//     #[async_std::test]
 //     async fn a_workspace_admin_cannot_demote_themselves_to_member() -> anyhow::Result<()> {
 //         use db::TeamRepo;
 

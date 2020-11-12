@@ -3,7 +3,7 @@ use async_trait::async_trait;
 use derive_more::{Display, From, Into};
 use uuid::Uuid;
 
-#[derive(From, Into, Display, Copy, Clone)]
+#[derive(From, Into, Display, Copy, Clone, Debug, PartialEq)]
 pub struct AuthId(Uuid);
 
 #[derive(From, Into, Display, Copy, Clone, PartialEq)]
@@ -18,6 +18,7 @@ pub struct User {
     pub email_address: String,
 }
 
+#[cfg_attr(test, mockall::automock)]
 #[async_trait]
 pub trait UserRepo {
     async fn find_by_auth_id(&mut self, auth_id: AuthId) -> Result<Option<User>>;
