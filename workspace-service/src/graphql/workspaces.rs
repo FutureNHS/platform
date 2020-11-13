@@ -27,7 +27,7 @@ pub enum RoleFilter {
     NonAdmin,
 }
 
-#[derive(Enum, Copy, Clone, Eq, PartialEq)]
+#[derive(Enum, Copy, Clone, Eq, PartialEq, Debug)]
 pub enum WorkspaceMembership {
     /// Promote to admin
     Admin,
@@ -158,15 +158,8 @@ impl WorkspacesQuery {
     ) -> FieldResult<WorkspaceMembership> {
         let requesting_user = context.data()?;
         let pool = context.data()?;
-        let event_client = context.data()?;
 
-        requesting_user_workspace_rights(
-            workspace_id.try_into()?,
-            requesting_user,
-            pool,
-            event_client,
-        )
-        .await
+        requesting_user_workspace_rights(workspace_id.try_into()?, requesting_user, pool).await
     }
 }
 
@@ -287,7 +280,6 @@ pub async fn requesting_user_workspace_rights(
     workspace_id: Uuid,
     requesting_user: &RequestingUser,
     pool: &PgPool,
-    _event_client: &EventClient,
 ) -> FieldResult<WorkspaceMembership> {
     let user = db::UserRepo::find_by_auth_id(&requesting_user.auth_id, pool)
         .await?
@@ -781,5 +773,39 @@ mod test {
         assert_eq!(events.try_iter().count(), 1);
 
         Ok(())
+    }
+
+    mod requesting_user_workspace_rights {
+        use super::*;
+
+        #[async_std::test]
+        async fn non_platform_admin_non_member_has_no_rights() -> anyhow::Result<()> {
+            let pool = mock_connection_pool()?;
+            let workspace = WorkspaceRepo::create("", "", &pool).await?;
+            let admin = mock_unprivileged_requesting_user().await?;
+
+            let rights = requesting_user_workspace_rights(workspace.id, &admin, &pool)
+                .await
+                .unwrap();
+
+            assert_eq!(rights, WorkspaceMembership::NonMember);
+
+            Ok(())
+        }
+
+        #[async_std::test]
+        async fn platform_admin_non_member_counts_as_admin_for_rights() -> anyhow::Result<()> {
+            let pool = mock_connection_pool()?;
+            let workspace = WorkspaceRepo::create("", "", &pool).await?;
+            let admin = mock_admin_requesting_user().await?;
+
+            let rights = requesting_user_workspace_rights(workspace.id, &admin, &pool)
+                .await
+                .unwrap();
+
+            assert_eq!(rights, WorkspaceMembership::Admin);
+
+            Ok(())
+        }
     }
 }

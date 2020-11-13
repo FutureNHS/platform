@@ -99,9 +99,7 @@ impl FoldersQuery {
         let requesting_user = context.data()?;
         let event_client: &EventClient = context.data()?;
         let folders = db::FolderRepo::find_by_workspace(workspace, pool).await?;
-        let user_role =
-            requesting_user_workspace_rights(workspace, requesting_user, pool, event_client)
-                .await?;
+        let user_role = requesting_user_workspace_rights(workspace, requesting_user, pool).await?;
         Ok(folders
             .into_iter()
             .map(Into::into)
@@ -122,11 +120,9 @@ impl FoldersQuery {
         let pool = context.data()?;
         let id = Uuid::parse_str(&id)?;
         let requesting_user = context.data()?;
-        let event_client: &EventClient = context.data()?;
         let folder = db::FolderRepo::find_by_id(id, pool).await?;
         let user_rights =
-            requesting_user_workspace_rights(folder.workspace, requesting_user, pool, event_client)
-                .await?;
+            requesting_user_workspace_rights(folder.workspace, requesting_user, pool).await?;
         if folder.role_required == "WORKSPACE_MEMBER"
             && user_rights == WorkspaceMembership::NonMember
         {
