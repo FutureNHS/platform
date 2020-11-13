@@ -97,7 +97,6 @@ impl FoldersQuery {
         let pool = context.data()?;
         let workspace = Uuid::parse_str(&workspace)?;
         let requesting_user = context.data()?;
-        let event_client: &EventClient = context.data()?;
         let folders = db::FolderRepo::find_by_workspace(workspace, pool).await?;
         let user_role = requesting_user_workspace_rights(workspace, requesting_user, pool).await?;
         Ok(folders
