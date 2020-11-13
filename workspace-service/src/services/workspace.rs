@@ -404,20 +404,22 @@ mod test {
 
         let mut repos = MockRepoCreator::new();
 
-        let mut user_repo = MockUserRepo::new();
-        user_repo
-            .expect_find_by_auth_id()
-            .with(eq(requesting_user))
-            .return_once(|auth_id| {
-                Ok(Some(User {
-                    auth_id,
-                    id: Uuid::new_v4().into(),
-                    email_address: "".to_string(),
-                    name: "".to_string(),
-                    is_platform_admin: true,
-                }))
-            });
-        repos.expect_user().return_once(move || Box::new(user_repo));
+        repos.expect_user().return_once(move || {
+            let mut user_repo = MockUserRepo::new();
+            user_repo
+                .expect_find_by_auth_id()
+                .with(eq(requesting_user))
+                .return_once(|auth_id| {
+                    Ok(Some(User {
+                        auth_id,
+                        id: Uuid::new_v4().into(),
+                        email_address: "".to_string(),
+                        name: "".to_string(),
+                        is_platform_admin: true,
+                    }))
+                });
+            Box::new(user_repo)
+        });
 
         repos.expect_team().times(2).returning(move || {
             let mut team_repo = MockTeamRepo::new();
@@ -442,37 +444,37 @@ mod test {
             Box::new(team_repo)
         });
 
-        let mut workspace_repo = MockWorkspaceRepo::new();
-        workspace_repo
-            .expect_create()
-            .with(
-                eq("my workspace"),
-                eq("description"),
-                eq(admins_team_id),
-                eq(members_team_id),
-            )
-            .return_once(move |title, description, admins, members| {
-                Ok(Workspace {
-                    id: workspace_id,
-                    title: title.to_string(),
-                    description: description.to_string(),
-                    admins,
-                    members,
-                })
-            });
-        repos
-            .expect_workspace()
-            .return_once(move || Box::new(workspace_repo));
+        repos.expect_workspace().return_once(move || {
+            let mut workspace_repo = MockWorkspaceRepo::new();
+            workspace_repo
+                .expect_create()
+                .with(
+                    eq("my workspace"),
+                    eq("description"),
+                    eq(admins_team_id),
+                    eq(members_team_id),
+                )
+                .return_once(move |title, description, admins, members| {
+                    Ok(Workspace {
+                        id: workspace_id,
+                        title: title.to_string(),
+                        description: description.to_string(),
+                        admins,
+                        members,
+                    })
+                });
+            Box::new(workspace_repo)
+        });
 
-        let workspace = service
+        let actual = service
             .create_workspace(&mut repos, "my workspace", "description", requesting_user)
             .await?;
 
-        assert_eq!(workspace.id, workspace_id);
-        assert_eq!(workspace.title, "my workspace");
-        assert_eq!(workspace.description, "description");
-        assert_eq!(workspace.members, members_team_id);
-        assert_eq!(workspace.admins, admins_team_id);
+        assert_eq!(actual.id, workspace_id);
+        assert_eq!(actual.title, "my workspace");
+        assert_eq!(actual.description, "description");
+        assert_eq!(actual.members, members_team_id);
+        assert_eq!(actual.admins, admins_team_id);
 
         // assert!(events
         //     .try_iter()
@@ -487,27 +489,35 @@ mod test {
         let requesting_user: AuthId = Uuid::parse_str("deadbeef-0000-0000-0000-000000000000")
             .unwrap()
             .into();
-        let mut user_repo = MockUserRepo::new();
-        user_repo
-            .expect_find_by_auth_id()
-            .with(eq(requesting_user))
-            .returning(|auth_id| {
-                Ok(Some(User {
-                    auth_id,
-                    id: Uuid::new_v4().into(),
-                    email_address: "".to_string(),
-                    name: "".to_string(),
-                    is_platform_admin: false,
-                }))
-            });
+
         let mut repos = MockRepoCreator::new();
-        repos.expect_user().return_once(move || Box::new(user_repo));
 
-        let result = service
+        repos.expect_user().return_once(move || {
+            let mut user_repo = MockUserRepo::new();
+            user_repo
+                .expect_find_by_auth_id()
+                .with(eq(requesting_user))
+                .returning(|auth_id| {
+                    Ok(Some(User {
+                        auth_id,
+                        id: Uuid::new_v4().into(),
+                        email_address: "".to_string(),
+                        name: "".to_string(),
+                        is_platform_admin: false,
+                    }))
+                });
+            Box::new(user_repo)
+        });
+
+        let actual = service
             .create_workspace(&mut repos, "title", "description", requesting_user)
-            .await;
+            .await
+            .err()
+            .unwrap()
+            .to_string();
+        let expected = "User with auth_id deadbeef-0000-0000-0000-000000000000 does not have permission to create a workspace.";
 
-        assert_eq!(result.err().unwrap().to_string(), "User with auth_id deadbeef-0000-0000-0000-000000000000 does not have permission to create a workspace.");
+        assert_eq!(actual, expected);
 
         // assert_eq!(events.try_iter().count(), 0);
 
@@ -557,7 +567,7 @@ mod test {
             Box::new(user_repo)
         });
 
-        repos.expect_team().times(1).returning(move || {
+        repos.expect_team().return_once(move || {
             let mut team_repo = MockTeamRepo::new();
             team_repo
                 .expect_is_member()
@@ -566,7 +576,7 @@ mod test {
             Box::new(team_repo)
         });
 
-        repos.expect_workspace().returning(move || {
+        repos.expect_workspace().return_once(move || {
             let mut workspace_repo = MockWorkspaceRepo::new();
             workspace_repo
                 .expect_find_by_id()
@@ -583,7 +593,7 @@ mod test {
             Box::new(workspace_repo)
         });
 
-        let result = service
+        let actual = service
             .change_workspace_membership(
                 &mut repos,
                 workspace_id,
@@ -591,15 +601,16 @@ mod test {
                 Role::NonAdmin,
                 requesting_user,
             )
-            .await;
-
-        assert_eq!(
-            result.err().unwrap().to_string(),
-            format!(
-                "user with auth_id {} cannot demote themselves to NonAdmin",
-                requesting_user
-            )
+            .await
+            .err()
+            .unwrap()
+            .to_string();
+        let expected = format!(
+            "user with auth_id {} cannot demote themselves to NonAdmin",
+            requesting_user
         );
+
+        assert_eq!(actual, expected);
 
         // assert_eq!(events.try_iter().count(), 0);
 
