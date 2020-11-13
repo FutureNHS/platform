@@ -19,18 +19,17 @@ const TableContainer = styled.div`
       background: ${theme.colorNhsukGrey5};
   `}
   }
-  &.have-expander {
-    table {
-      table-layout: fixed;
-      border-collapse: collapse;
-      width: 100%;
-    }
-    th:first-child {
-      width: 160px;
-    }
-    th:last-child {
-      width: 50px;
-    }
+
+  table {
+    table-layout: fixed;
+    border-collapse: collapse;
+    width: 100%;
+  }
+  th:first-child {
+    width: 30%;
+  }
+  th:last-child {
+    width: 10%;
   }
 `;
 
@@ -52,6 +51,9 @@ const StyledTable = styled(NHSTable)`
 `;
 
 const ContentCell = styled(NHSTable.Cell)`
+  a[href^="mailto"] {
+    word-break: break-all;
+  }
   &.withoutBottomBorder {
     border-bottom: none;
   }
@@ -103,11 +105,7 @@ const TableComponent = <ItemType extends Item>({
 }: Props<ItemType>) => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   return (
-    <TableContainer
-      className={classNames({
-        "have-expander": Boolean(extraDetails),
-      })}
-    >
+    <TableContainer>
       <NHSTable.Panel heading={tableHeading}>
         <StyledTable>
           <NHSTable.Head>
