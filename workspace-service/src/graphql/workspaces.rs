@@ -186,7 +186,7 @@ impl WorkspacesQuery {
         let workspace_service = context.data::<WorkspaceServiceImpl>()?;
         let pool: &PgPool = context.data()?;
         let mut repos = RepoFactory::new(pool.begin().await?);
-        let id = Uuid::parse_str(id.as_str())?;
+        let id: Uuid = id.try_into()?;
         let workspace = workspace_service.find_by_id(&mut repos, id.into()).await?;
 
         repos.commit().await?;
@@ -201,18 +201,24 @@ impl WorkspacesQuery {
         context: &Context<'_>,
         workspace_id: ID,
     ) -> FieldResult<WorkspaceMembership> {
-        todo!()
-        // let requesting_user = context.data()?;
-        // let pool = context.data()?;
+        let workspace_service = context.data::<WorkspaceServiceImpl>()?;
+        let pool: &PgPool = context.data()?;
+        let mut repos = RepoFactory::new(pool.begin().await?);
+        let requesting_user = context.data::<RequestingUser>()?;
+        let workspace_id: Uuid = workspace_id.try_into()?;
         // let event_client = context.data()?;
 
-        // requesting_user_workspace_rights(
-        //     workspace_id.try_into()?,
-        //     requesting_user,
-        //     pool,
-        //     event_client,
-        // )
-        // .await
+        let membership = workspace_service
+            .requesting_user_workspace_rights(
+                &mut repos,
+                workspace_id.into(),
+                requesting_user.auth_id.into(),
+            )
+            .await?;
+
+        repos.commit().await?;
+
+        Ok(membership.into())
     }
 }
 
@@ -320,25 +326,6 @@ impl WorkspacesMutation {
         Ok(workspace.into())
     }
 }
-
-// pub async fn requesting_user_workspace_rights(
-//     workspace_id: Uuid,
-//     requesting_user: &RequestingUser,
-//     pool: &PgPool,
-//     _event_client: &EventClient,
-// ) -> FieldResult<WorkspaceMembership> {
-//     let user = db::UserRepo::find_by_auth_id(&requesting_user.auth_id, pool)
-//         .await?
-//         .ok_or_else(|| anyhow::anyhow!("user not found"))?;
-
-//     if user.is_platform_admin {
-//         return Ok(WorkspaceMembership::Admin);
-//     }
-
-//     let user_role = WorkspaceRepo::get_user_role(workspace_id, user.id, pool).await?;
-
-//     Ok(user_role.into())
-// }
 
 // #[cfg(test)]
 // mod test {

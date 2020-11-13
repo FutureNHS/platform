@@ -228,6 +228,47 @@ impl<'a, 'b> WorkspaceService<'a, 'b> for WorkspaceServiceImpl {
 
         Ok(workspace)
     }
+
+    async fn requesting_user_workspace_rights<T>(
+        &self,
+        repo_factory: &'a mut T,
+        workspace_id: WorkspaceId,
+        requesting_user: AuthId,
+    ) -> Result<Role>
+    where
+        T: RepoCreator<'b> + Send,
+        'b: 'a,
+    {
+        let requesting_user = repo_factory
+            .user()
+            .find_by_auth_id(requesting_user)
+            .await?
+            .ok_or_else(|| anyhow::anyhow!("user not found"))?;
+
+        if requesting_user.is_platform_admin {
+            return Ok(Role::Admin);
+        }
+
+        let workspace = repo_factory.workspace().find_by_id(workspace_id).await?;
+        let is_member = repo_factory
+            .team()
+            .is_member(workspace.members, requesting_user.id)
+            .await?;
+        let is_admin = repo_factory
+            .team()
+            .is_member(workspace.admins, requesting_user.id)
+            .await?;
+
+        let user_role = if is_admin {
+            Role::Admin
+        } else if is_member {
+            Role::NonAdmin
+        } else {
+            Role::NonMember
+        };
+
+        Ok(user_role)
+    }
 }
 
 #[cfg(test)]

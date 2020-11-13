@@ -144,4 +144,14 @@ pub trait WorkspaceService<'a, 'b> {
     where
         T: RepoCreator<'b> + Send,
         'b: 'a;
+
+    async fn requesting_user_workspace_rights<T>(
+        &self,
+        repo_factory: &'a mut T,
+        workspace_id: WorkspaceId,
+        requesting_user: AuthId,
+    ) -> Result<Role>
+    where
+        T: RepoCreator<'b> + Send,
+        'b: 'a;
 }
