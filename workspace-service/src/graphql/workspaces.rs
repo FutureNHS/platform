@@ -1,7 +1,8 @@
 use crate::{
+    core::workspace::{self, Role, WorkspaceService},
     db::{self, RepoFactory},
     graphql::{users::User, RequestingUser},
-    services::workspace::{self, Role, WorkspaceService, WorkspaceServiceImpl},
+    services::workspace::WorkspaceServiceImpl,
 };
 use async_graphql::{Context, Enum, FieldResult, InputObject, Object, ID};
 use sqlx::PgPool;

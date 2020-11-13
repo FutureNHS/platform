@@ -1,7 +1,7 @@
 // sqlx::query_file_as!() causes spurious errors with this lint enabled
 #![allow(clippy::suspicious_else_formatting)]
 
-use crate::services::user::{AuthId, User, UserId, UserRepo};
+use crate::core::user::{AuthId, User, UserId, UserRepo};
 use anyhow::Result;
 use async_trait::async_trait;
 use sqlx::{types::Uuid, Postgres, Transaction};

@@ -5,11 +5,7 @@ mod teams;
 mod users;
 mod workspaces;
 
-use crate::services::{
-    team::TeamRepo,
-    user::UserRepo,
-    workspace::{self, WorkspaceRepo},
-};
+use crate::core::{team::TeamRepo, user::UserRepo, workspace::WorkspaceRepo, RepoCreator};
 use anyhow::Result;
 pub use file_versions::*;
 pub use files::{
@@ -19,7 +15,6 @@ pub use folders::{Folder, FolderRepo};
 use sqlx::{Executor, Postgres, Transaction};
 pub use teams::TeamRepoImpl;
 pub use users::{DbUser, UserRepoImpl};
-use workspace::RepoCreator;
 pub use workspaces::{DbWorkspace, WorkspaceRepoImpl};
 
 pub struct RepoFactory<'ex> {

@@ -1,7 +1,7 @@
 use super::RequestingUser;
 use crate::{
+    core::{user, RepoCreator},
     db::RepoFactory,
-    services::{self, workspace::RepoCreator},
 };
 use async_graphql::{Context, FieldResult, InputObject, Object, SimpleObject, ID};
 use sqlx::PgPool;
@@ -35,8 +35,8 @@ pub struct UpdateUser {
     pub is_platform_admin: bool,
 }
 
-impl From<services::user::User> for User {
-    fn from(user: services::user::User) -> Self {
+impl From<user::User> for User {
+    fn from(user: user::User) -> Self {
         Self {
             id: user.id.into(),
             name: user.name,

@@ -1,5 +1,5 @@
 use super::{azure, db, validation, RequestingUser};
-use crate::{db::RepoFactory, services::workspace::RepoCreator};
+use crate::{core::RepoCreator, db::RepoFactory};
 use async_graphql::{Context, FieldResult, InputObject, Object, SimpleObject, ID};
 use chrono::{DateTime, Utc};
 use fnhs_event_models::{

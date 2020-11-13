@@ -1,5 +1,6 @@
 pub mod azure;
 pub mod config;
+mod core;
 mod db;
 mod graphql;
 mod services;

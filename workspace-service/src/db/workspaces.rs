@@ -1,7 +1,7 @@
 // sqlx::query_file_as!() causes spurious errors with this lint enabled
 #![allow(clippy::suspicious_else_formatting)]
 
-use crate::services::{
+use crate::core::{
     team::TeamId,
     workspace::{Workspace, WorkspaceId, WorkspaceRepo},
 };
