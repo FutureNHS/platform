@@ -22,6 +22,7 @@ const buttonCellProps = {
   setMutationError: (() => {}) as any,
   user,
   newRole: WorkspaceMembership.Admin,
+  isAdmin: true,
 };
 
 test("renders make admin button", () => {
@@ -43,6 +44,30 @@ test("renders make member button", () => {
         newRole={WorkspaceMembership.NonAdmin}
       />
     </ThemeProvider>
+  );
+
+  expect(asFragment()).toMatchSnapshot();
+});
+
+test("does not render make admin button when isAdmin status is false", () => {
+  const { asFragment } = render(
+    <MemberStatusButtonCell
+      {...buttonCellProps}
+      newRole={WorkspaceMembership.Admin}
+      isAdmin={false}
+    />
+  );
+
+  expect(asFragment()).toMatchSnapshot();
+});
+
+test("does not render make member button when isAdmin status is false", () => {
+  const { asFragment } = render(
+    <MemberStatusButtonCell
+      {...buttonCellProps}
+      newRole={WorkspaceMembership.NonAdmin}
+      isAdmin={false}
+    />
   );
 
   expect(asFragment()).toMatchSnapshot();

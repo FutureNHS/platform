@@ -30,6 +30,7 @@ type ButtonCellProps = {
   ) => Promise<OperationResult<ChangeWorkspaceMembershipMutation>>;
   mutationError: MutationError;
   setMutationError: React.Dispatch<React.SetStateAction<MutationError>>;
+  isAdmin: boolean;
 };
 
 export const MemberStatusButtonCell: FC<ButtonCellProps> = ({
@@ -39,28 +40,31 @@ export const MemberStatusButtonCell: FC<ButtonCellProps> = ({
   changeMembership,
   setMutationError,
   mutationError,
+  isAdmin,
 }) => (
   <>
-    <Button
-      secondary
-      onClick={async () => {
-        const result = await changeMembership({
-          input: {
-            workspace: workspaceId,
-            user: user.id,
-            newRole,
-          },
-        });
-        setMutationError({
-          user,
-          error: result.error?.message,
-        });
-      }}
-    >
-      {newRole === WorkspaceMembership.Admin
-        ? "Make Administrator"
-        : "Make Member"}
-    </Button>
+    {isAdmin && (
+      <Button
+        secondary
+        onClick={async () => {
+          const result = await changeMembership({
+            input: {
+              workspace: workspaceId,
+              user: user.id,
+              newRole,
+            },
+          });
+          setMutationError({
+            user,
+            error: result.error?.message,
+          });
+        }}
+      >
+        {newRole === WorkspaceMembership.Admin
+          ? "Make Administrator"
+          : "Make Member"}
+      </Button>
+    )}
     {mutationError?.user.id === user.id && mutationError?.error && (
       <p> Oh no... {mutationError.error} </p>
     )}

@@ -1,5 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`does not render make admin button when isAdmin status is false 1`] = `<DocumentFragment />`;
+
+exports[`does not render make member button when isAdmin status is false 1`] = `<DocumentFragment />`;
+
 exports[`renders error message when user matches one in error 1`] = `
 <DocumentFragment>
   <button
