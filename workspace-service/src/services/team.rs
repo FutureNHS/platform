@@ -1,9 +1,10 @@
 use super::user::{User, UserId};
 use anyhow::Result;
+use async_trait::async_trait;
 use derive_more::{Display, From, Into};
 use uuid::Uuid;
 
-#[derive(From, Into, Display, Copy, Clone)]
+#[derive(From, Into, Display, Copy, Clone, Debug, PartialEq)]
 pub struct TeamId(Uuid);
 
 pub struct Team {
@@ -11,7 +12,8 @@ pub struct Team {
     pub title: String,
 }
 
-#[async_trait::async_trait]
+#[cfg_attr(test, mockall::automock)]
+#[async_trait]
 pub trait TeamRepo {
     async fn create(&mut self, title: &str) -> Result<Team>;
 

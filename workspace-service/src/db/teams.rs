@@ -33,13 +33,13 @@ pub struct TeamRepoImpl<'a, 'ex> {
 #[async_trait]
 impl<'a, 'ex> TeamRepo for TeamRepoImpl<'a, 'ex> {
     async fn create(&mut self, title: &str) -> Result<Team> {
-        let group = sqlx::query_file_as!(DbTeam, "sql/teams/create.sql", title)
+        let team = sqlx::query_file_as!(DbTeam, "sql/teams/create.sql", title)
             .fetch_one(&mut *self.executor)
             .await
             .context("create team")?
             .into();
 
-        Ok(group)
+        Ok(team)
     }
 
     async fn members(&mut self, id: TeamId) -> Result<Vec<User>> {

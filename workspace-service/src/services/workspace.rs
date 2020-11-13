@@ -46,7 +46,7 @@ pub enum RoleFilter {
     NonAdmin,
 }
 
-#[derive(From, Into, Display, Copy, Clone)]
+#[derive(From, Into, Display, Copy, Clone, Debug, PartialEq)]
 pub struct WorkspaceId(Uuid);
 
 #[cfg_attr(test, mockall::automock)]
@@ -64,7 +64,8 @@ pub trait RepoCreator<'a> {
         'a: 'r;
 }
 
-#[async_trait::async_trait]
+#[cfg_attr(test, mockall::automock)]
+#[async_trait]
 pub trait WorkspaceRepo {
     async fn create(
         &mut self,
@@ -111,7 +112,7 @@ pub trait WorkspaceService<'a, 'b> {
         T: RepoCreator<'b> + Send,
         'b: 'a;
 
-    async fn create<T>(
+    async fn create_workspace<T>(
         &self,
         repo_factory: &'a mut T,
         title: &str,
@@ -206,7 +207,7 @@ impl<'a, 'b> WorkspaceService<'a, 'b> for WorkspaceServiceImpl {
         Ok(users)
     }
 
-    async fn create<T>(
+    async fn create_workspace<T>(
         &self,
         repo_factory: &'a mut T,
         title: &str,
@@ -388,8 +389,98 @@ impl<'a, 'b> WorkspaceService<'a, 'b> for WorkspaceServiceImpl {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::services::user::*;
+    use crate::services::{team::*, user::*};
     use mockall::predicate::*;
+
+    #[async_std::test]
+    async fn creating_workspace_emits_an_event() -> anyhow::Result<()> {
+        let service = WorkspaceServiceImpl {};
+        let requesting_user: AuthId = Uuid::parse_str("feedface-0000-0000-0000-000000000000")
+            .unwrap()
+            .into();
+
+        let admins_team_id: TeamId = Uuid::new_v4().into();
+        let members_team_id: TeamId = Uuid::new_v4().into();
+        let workspace_id: WorkspaceId = Uuid::new_v4().into();
+
+        let mut repos = MockRepoCreator::new();
+
+        let mut user_repo = MockUserRepo::new();
+        user_repo
+            .expect_find_by_auth_id()
+            .with(eq(requesting_user))
+            .return_once(|auth_id| {
+                Ok(Some(User {
+                    auth_id,
+                    id: Uuid::new_v4().into(),
+                    email_address: "".to_string(),
+                    name: "".to_string(),
+                    is_platform_admin: true,
+                }))
+            });
+        repos.expect_user().return_once(move || Box::new(user_repo));
+
+        repos.expect_team().times(2).returning(move || {
+            let mut team_repo = MockTeamRepo::new();
+            team_repo
+                .expect_create()
+                .with(eq("my workspace Admins"))
+                .returning(move |title| {
+                    Ok(Team {
+                        id: admins_team_id,
+                        title: title.to_string(),
+                    })
+                });
+            team_repo
+                .expect_create()
+                .with(eq("my workspace Members"))
+                .returning(move |title| {
+                    Ok(Team {
+                        id: members_team_id,
+                        title: title.to_string(),
+                    })
+                });
+            Box::new(team_repo)
+        });
+
+        let mut workspace_repo = MockWorkspaceRepo::new();
+        workspace_repo
+            .expect_create()
+            .with(
+                eq("my workspace"),
+                eq("description"),
+                eq(admins_team_id),
+                eq(members_team_id),
+            )
+            .return_once(move |title, description, admins, members| {
+                Ok(Workspace {
+                    id: workspace_id,
+                    title: title.to_string(),
+                    description: description.to_string(),
+                    admins,
+                    members,
+                })
+            });
+        repos
+            .expect_workspace()
+            .return_once(move || Box::new(workspace_repo));
+
+        let workspace = service
+            .create_workspace(&mut repos, "my workspace", "description", requesting_user)
+            .await?;
+
+        assert_eq!(workspace.id, workspace_id);
+        assert_eq!(workspace.title, "my workspace");
+        assert_eq!(workspace.description, "description");
+        assert_eq!(workspace.members, members_team_id);
+        assert_eq!(workspace.admins, admins_team_id);
+
+        // assert!(events
+        //     .try_iter()
+        //     .any(|e| matches!(e.data, EventData::WorkspaceCreated(_))));
+
+        Ok(())
+    }
 
     #[async_std::test]
     async fn creating_workspace_as_non_admin_fails() -> anyhow::Result<()> {
@@ -412,8 +503,9 @@ mod test {
             });
         let mut repos = MockRepoCreator::new();
         repos.expect_user().return_once(move || Box::new(user_repo));
+
         let result = service
-            .create(&mut repos, "title", "description", requesting_user)
+            .create_workspace(&mut repos, "title", "description", requesting_user)
             .await;
 
         assert_eq!(result.err().unwrap().to_string(), "User with auth_id deadbeef-0000-0000-0000-000000000000 does not have permission to create a workspace.");

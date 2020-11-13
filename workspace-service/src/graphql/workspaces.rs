@@ -200,7 +200,7 @@ impl WorkspacesMutation {
         let mut repos = RepoFactory::new(pool.begin().await?);
 
         let new_workspace = workspace_service
-            .create(
+            .create_workspace(
                 &mut repos,
                 &new_workspace.title,
                 &new_workspace.description,
@@ -293,31 +293,6 @@ impl WorkspacesMutation {
 //     use super::*;
 //     use crate::graphql::test_mocks::*;
 //     use fnhs_event_models::EventData;
-
-//     #[async_std::test]
-//     async fn creating_workspace_emits_an_event() -> anyhow::Result<()> {
-//         let pool = mock_connection_pool()?;
-//         let (events, event_client) = mock_event_emitter();
-
-//         let workspace = create_workspace(
-//             "title",
-//             "description",
-//             &mock_admin_requesting_user().await?,
-//             &pool,
-//             &event_client,
-//         )
-//         .await
-//         .unwrap();
-
-//         assert_eq!(workspace.title, "title");
-//         assert_eq!(workspace.description, "description");
-
-//         assert!(events
-//             .try_iter()
-//             .any(|e| matches!(e.data, EventData::WorkspaceCreated(_))));
-
-//         Ok(())
-//     }
 
 //     #[async_std::test]
 //     async fn a_workspace_admin_cannot_demote_themselves_to_member() -> anyhow::Result<()> {
