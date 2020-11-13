@@ -171,7 +171,9 @@ impl<'a, 'b> WorkspaceService<'a, 'b> for WorkspaceServiceImpl {
             ));
         }
 
-        if new_role != Role::Admin && requesting_user.id == user_id {
+        if new_role != Role::Admin
+            && (!requesting_user.is_platform_admin && requesting_user.id == user_id)
+        {
             return Err(anyhow::anyhow!(
                 "user with auth_id {} cannot demote themselves to {}",
                 requesting_user.auth_id,
@@ -447,6 +449,90 @@ mod test {
 
         assert_eq!(actual, expected);
 
+        // assert_eq!(events.try_iter().count(), 0);
+
+        Ok(())
+    }
+
+    #[async_std::test]
+    async fn a_platform_admin_can_demote_themselves_to_member() -> anyhow::Result<()> {
+        let service = WorkspaceServiceImpl {};
+
+        let requesting_user: AuthId = Uuid::new_v4().into();
+        let user_id: UserId = Uuid::new_v4().into();
+        let admins_team_id: TeamId = Uuid::new_v4().into();
+        let members_team_id: TeamId = Uuid::new_v4().into();
+        let workspace_id: WorkspaceId = Uuid::new_v4().into();
+
+        let mut repos = MockRepoCreator::new();
+
+        repos.expect_user().returning(move || {
+            let mut user_repo = MockUserRepo::new();
+            user_repo
+                .expect_find_by_auth_id()
+                .with(eq(requesting_user))
+                .return_once(move |auth_id| {
+                    Ok(Some(User {
+                        auth_id,
+                        id: user_id,
+                        is_platform_admin: true,
+                        ..Default::default()
+                    }))
+                });
+            user_repo
+                .expect_find_by_id()
+                .with(eq(user_id))
+                .return_once(move |id| {
+                    Ok(Some(User {
+                        auth_id: requesting_user,
+                        id,
+                        is_platform_admin: false,
+                        ..Default::default()
+                    }))
+                });
+            Box::new(user_repo)
+        });
+
+        repos.expect_team().times(2).returning(move || {
+            let mut team_repo = MockTeamRepo::new();
+            team_repo
+                .expect_remove_member()
+                .with(eq(admins_team_id), eq(user_id))
+                .return_once(move |_, _| Ok(()));
+            team_repo
+                .expect_add_member()
+                .with(eq(members_team_id), eq(user_id))
+                .return_once(move |_, _| Ok(()));
+            Box::new(team_repo)
+        });
+
+        repos.expect_workspace().return_once(move || {
+            let mut workspace_repo = MockWorkspaceRepo::new();
+            workspace_repo
+                .expect_find_by_id()
+                .with(eq(workspace_id))
+                .return_once(move |id| {
+                    Ok(Workspace {
+                        id,
+                        admins: admins_team_id,
+                        members: members_team_id,
+                        ..Default::default()
+                    })
+                });
+            Box::new(workspace_repo)
+        });
+
+        let result = service
+            .change_workspace_membership(
+                &mut repos,
+                workspace_id,
+                user_id,
+                Role::NonAdmin,
+                requesting_user,
+            )
+            .await;
+
+        assert!(result.ok().is_some());
         // assert_eq!(events.try_iter().count(), 0);
 
         Ok(())
