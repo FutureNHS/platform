@@ -157,20 +157,14 @@ impl<'a, 'b> WorkspaceService<'a, 'b> for WorkspaceServiceImpl {
             .await?
             .ok_or_else(|| anyhow::anyhow!("user not found"))?;
 
-        let user = repo_factory.user().find_by_id(user_id).await?;
         let workspace = repo_factory.workspace().find_by_id(workspace_id).await?;
 
-        let is_workspace_admin = match user {
-            Some(user) => {
-                repo_factory
-                    .team()
-                    .is_member(workspace.admins, user.id)
-                    .await?
-            }
-            None => false,
-        };
-
-        if !requesting_user.is_platform_admin && !is_workspace_admin {
+        if !requesting_user.is_platform_admin
+            && !repo_factory
+                .team()
+                .is_member(workspace.admins, requesting_user.id)
+                .await?
+        {
             return Err(anyhow::anyhow!(
                 "user with auth_id {} does not have permission to update workspace membership",
                 requesting_user.auth_id,
@@ -378,10 +372,8 @@ mod test {
     async fn a_workspace_admin_cannot_demote_themselves_to_member() -> anyhow::Result<()> {
         let service = WorkspaceServiceImpl {};
 
-        let user_id = Uuid::new_v4();
-
-        let requesting_user: AuthId = user_id.into();
-        let user_id: UserId = user_id.into();
+        let requesting_user: AuthId = Uuid::new_v4().into();
+        let user_id: UserId = Uuid::new_v4().into();
         let admins_team_id: TeamId = Uuid::new_v4().into();
         let members_team_id: TeamId = Uuid::new_v4().into();
         let workspace_id: WorkspaceId = Uuid::new_v4().into();
