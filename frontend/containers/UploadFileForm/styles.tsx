@@ -29,6 +29,11 @@ export const FormField = styled.div`
   }
 `;
 
+export const FormFieldNoSidePadding = styled.div`
+  padding-top: 16px;
+  padding-bottom: 16px;
+`;
+
 export const StyledHeadingSection = styled.div`
   display: flex;
 `;

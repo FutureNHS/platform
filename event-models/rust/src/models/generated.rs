@@ -187,6 +187,10 @@ pub struct FolderCreatedData {
     /// The workspace that the folder is in
     #[serde(rename = "workspaceId")]
     pub workspace_id: String,
+
+    /// The role that is needed to view the folder contents
+    #[serde(rename = "roleRequired")]
+    pub role_required: String,
 }
 
 ///
@@ -211,6 +215,10 @@ pub struct FolderUpdatedData {
     /// The user that updated the folder
     #[serde(rename = "userId")]
     pub user_id: String,
+
+    /// The role that is needed to view the folder contents
+    #[serde(rename = "roleRequired")]
+    pub role_required: String,
 }
 
 ///

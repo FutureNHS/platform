@@ -30,7 +30,7 @@ const IconWrapper = styled.div`
 `;
 
 const StyledTable = styled(NHSTable)`
-  tbody tr:hover {
+  tbody tr:hover:not(&.withoutBottomBorder) {
     background: ${({ theme }) => theme.colorNhsukWhite};
   }
   td {
@@ -144,15 +144,13 @@ const TableComponent = <ItemType extends Item>({
                       const withoutBottomBorder = i < extraDetails.length - 1;
                       return (
                         <NHSTable.Row key={i}>
-                          {c.heading && (
-                            <ExtraDetailCell
-                              className={classNames({
-                                withoutBottomBorder,
-                              })}
-                            >
-                              <StyledHeading>{c.heading}</StyledHeading>
-                            </ExtraDetailCell>
-                          )}
+                          <ExtraDetailCell
+                            className={classNames({
+                              withoutBottomBorder,
+                            })}
+                          >
+                            <StyledHeading>{c.heading || " "}</StyledHeading>
+                          </ExtraDetailCell>
                           <ExtraDetailCell
                             className={classNames({
                               withoutBottomBorder,
@@ -164,7 +162,7 @@ const TableComponent = <ItemType extends Item>({
                             className={classNames({
                               withoutBottomBorder,
                             })}
-                          ></ExtraDetailCell>
+                          />
                         </NHSTable.Row>
                       );
                     })}

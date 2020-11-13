@@ -7,14 +7,14 @@ describe("Upload single file", () => {
 
     cy.get("#files")
       .attachFile("single-file-upload.txt")
-      .attachFile("multi-file-upload.txt");
+      .attachFile("multi_file_upload.txt");
     cy.get('input[name="fileData[1].title"]').should(
       "have.value",
-      "single-file-upload.txt"
+      "single-file-upload"
     );
     cy.get('input[name="fileData[0].title"]').should(
       "have.value",
-      "multi-file-upload.txt"
+      "multi file upload"
     );
 
     cy.get("form").submit();

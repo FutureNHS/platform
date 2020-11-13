@@ -16,3 +16,22 @@ query GetWorkspaceWithMembers($id: ID!) {
     }
   }
 }
+
+query RequestingUserWorkspaceRights($workspaceId: ID!) {
+  requestingUserWorkspaceRights(workspaceId: $workspaceId)
+}
+
+mutation ChangeWorkspaceMembership($input: MembershipChange!) {
+  changeWorkspaceMembership(input: $input) {
+    id
+    title
+    admins: members(filter: ADMIN) {
+      name
+      id
+    }
+    members: members(filter: NON_ADMIN) {
+      name
+      id
+    }
+  }
+}

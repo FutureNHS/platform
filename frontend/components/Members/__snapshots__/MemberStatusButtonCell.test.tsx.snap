@@ -1,0 +1,52 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders error message when user matches one in error 1`] = `
+<DocumentFragment>
+  <button
+    aria-disabled="false"
+    class="nhsuk-button nhsuk-button--secondary"
+    type="submit"
+  >
+    Make Administrator
+  </button>
+  <p>
+     Oh no... something went wrong 
+  </p>
+</DocumentFragment>
+`;
+
+exports[`renders make admin button 1`] = `
+<DocumentFragment>
+  <button
+    aria-disabled="false"
+    class="nhsuk-button nhsuk-button--secondary"
+    type="submit"
+  >
+    Make Administrator
+  </button>
+</DocumentFragment>
+`;
+
+exports[`renders make member button 1`] = `
+<DocumentFragment>
+  <button
+    aria-disabled="false"
+    class="nhsuk-button nhsuk-button--secondary"
+    type="submit"
+  >
+    Make Member
+  </button>
+</DocumentFragment>
+`;
+
+exports[`renders no error message when user does not match error 1`] = `
+<DocumentFragment>
+  <button
+    aria-disabled="false"
+    class="nhsuk-button nhsuk-button--secondary"
+    type="submit"
+  >
+    Make Administrator
+  </button>
+</DocumentFragment>
+`;

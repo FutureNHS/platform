@@ -171,8 +171,16 @@ export default function withUrqlClient(
       if (process.env.NODE_ENV !== "production") {
         exchanges.unshift(devtoolsExchange);
       }
-
+      const fetchOptions = isServerSide
+        ? {
+            headers: {
+              // @ts-ignore
+              "x-user-auth-id": ctx?.req?.user?.authId,
+            },
+          }
+        : undefined;
       return {
+        fetchOptions,
         exchanges,
         url: workspaceAPIServerUrl,
       };

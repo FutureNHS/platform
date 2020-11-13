@@ -5,6 +5,7 @@ use crate::{
     services::workspace::WorkspaceServiceImpl,
 };
 use async_graphql::{Context, Enum, FieldResult, InputObject, Object, ID};
+use fnhs_event_models::EventClient;
 use sqlx::PgPool;
 use std::convert::TryInto;
 use uuid::Uuid;
@@ -58,7 +59,7 @@ impl From<RoleFilter> for workspace::RoleFilter {
 }
 
 #[derive(Enum, Copy, Clone, Eq, PartialEq)]
-pub enum NewRole {
+pub enum WorkspaceMembership {
     /// Promote to admin
     Admin,
     /// Add as a non-admin member or demote an admin
@@ -67,12 +68,22 @@ pub enum NewRole {
     NonMember,
 }
 
-impl From<NewRole> for Role {
-    fn from(role: NewRole) -> Self {
+impl From<WorkspaceMembership> for Role {
+    fn from(role: WorkspaceMembership) -> Self {
         match role {
-            NewRole::Admin => Role::Admin,
-            NewRole::NonAdmin => Role::NonAdmin,
-            NewRole::NonMember => Role::NonMember,
+            WorkspaceMembership::Admin => Role::Admin,
+            WorkspaceMembership::NonAdmin => Role::NonAdmin,
+            WorkspaceMembership::NonMember => Role::NonMember,
+        }
+    }
+}
+
+impl From<Role> for WorkspaceMembership {
+    fn from(role: Role) -> Self {
+        match role {
+            Role::Admin => WorkspaceMembership::Admin,
+            Role::NonAdmin => WorkspaceMembership::NonAdmin,
+            Role::NonMember => WorkspaceMembership::NonMember,
         }
     }
 }
@@ -147,7 +158,7 @@ struct UpdateWorkspace {
 struct MembershipChange {
     workspace: ID,
     user: ID,
-    new_role: NewRole,
+    new_role: WorkspaceMembership,
 }
 
 #[derive(Default)]
@@ -181,6 +192,27 @@ impl WorkspacesQuery {
         repos.commit().await?;
 
         Ok(workspace.into())
+    }
+
+    // Returns the requesting user's rights for a particular workspace.
+    // Returns ADMIN if the user is_platform_admin.
+    async fn requesting_user_workspace_rights(
+        &self,
+        context: &Context<'_>,
+        workspace_id: ID,
+    ) -> FieldResult<WorkspaceMembership> {
+        todo!()
+        // let requesting_user = context.data()?;
+        // let pool = context.data()?;
+        // let event_client = context.data()?;
+
+        // requesting_user_workspace_rights(
+        //     workspace_id.try_into()?,
+        //     requesting_user,
+        //     pool,
+        //     event_client,
+        // )
+        // .await
     }
 }
 
@@ -284,10 +316,29 @@ impl WorkspacesMutation {
             .await?;
 
         repos.commit().await?;
-
+        // let event_client: &EventClient = context.data()?;
         Ok(workspace.into())
     }
 }
+
+// pub async fn requesting_user_workspace_rights(
+//     workspace_id: Uuid,
+//     requesting_user: &RequestingUser,
+//     pool: &PgPool,
+//     _event_client: &EventClient,
+// ) -> FieldResult<WorkspaceMembership> {
+//     let user = db::UserRepo::find_by_auth_id(&requesting_user.auth_id, pool)
+//         .await?
+//         .ok_or_else(|| anyhow::anyhow!("user not found"))?;
+
+//     if user.is_platform_admin {
+//         return Ok(WorkspaceMembership::Admin);
+//     }
+
+//     let user_role = WorkspaceRepo::get_user_role(workspace_id, user.id, pool).await?;
+
+//     Ok(user_role.into())
+// }
 
 // #[cfg(test)]
 // mod test {

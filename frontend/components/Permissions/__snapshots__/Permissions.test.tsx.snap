@@ -39,6 +39,7 @@ exports[`Permissions renders matching snapshot 1`] = `
       Permissions
     </h3>
     <button
+      data-cy="permissions-button"
       type="button"
     >
       <div
@@ -76,5 +77,85 @@ exports[`Permissions renders matching snapshot 1`] = `
   >
     You can set permissions for this folder. All users authorised to access a folder can view all its contents
   </p>
+  .c0 .nhsuk-radios__label,
+.c0 .nhsuk-radios__hint {
+  padding-left: 28px;
+  padding-top: 0px;
+}
+
+<div
+    hidden=""
+  >
+    <h4>
+      Viewing permissions
+    </h4>
+    <div
+      class="nhsuk-form-group"
+    >
+      <div
+        class="nhsuk-form-group"
+      >
+        <div
+          class="nhsuk-radios c0"
+          id="roleRequired"
+          role="radiogroup"
+        >
+          <div
+            class="nhsuk-radios__item"
+          >
+            <input
+              aria-describedby="all-members--hint"
+              aria-labelledby="all-members--label"
+              checked=""
+              class="nhsuk-radios__input"
+              id="all-members"
+              name="roleRequired"
+              type="radio"
+              value="PLATFORM_MEMBER"
+            />
+            <label
+              class="nhsuk-label nhsuk-radios__label"
+              for="all-members"
+              id="all-members--label"
+            >
+              Make visible to all FutureNHS members
+            </label>
+            <span
+              class="nhsuk-hint nhsuk-radios__hint"
+              id="all-members--hint"
+            >
+              This will make the folder and its contents visible to all members of FutureNHS
+            </span>
+          </div>
+          <div
+            class="nhsuk-radios__item"
+          >
+            <input
+              aria-describedby="workspace-members--hint"
+              aria-labelledby="workspace-members--label"
+              class="nhsuk-radios__input"
+              id="workspace-members"
+              name="roleRequired"
+              type="radio"
+              value="WORKSPACE_MEMBER"
+            />
+            <label
+              class="nhsuk-label nhsuk-radios__label"
+              for="workspace-members"
+              id="workspace-members--label"
+            >
+              Make visible to all members of this workspace
+            </label>
+            <span
+              class="nhsuk-hint nhsuk-radios__hint"
+              id="workspace-members--hint"
+            >
+              This will make the folder and its contents visible to members of your workspace.
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </DocumentFragment>
 `;

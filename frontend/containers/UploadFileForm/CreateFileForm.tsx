@@ -26,6 +26,7 @@ interface FormData {
   files: FileList;
   fileData: Array<{ title: string; description: string }>;
 }
+
 interface Props {
   folderId: string;
   workspaceId: string;
@@ -62,8 +63,9 @@ const CreateFileForm: FC<Props> = ({ workspaceId, folderId }) => {
       return;
     }
 
-    const filenames = Object.values(files).map((file) => file.name);
-
+    const filenames = Object.values(files).map((file) =>
+      file.name.replaceAll("_", " ").split(".").slice(0, -1).join(".")
+    );
     setValue(
       "fileData",
       filenames.map((name) => ({

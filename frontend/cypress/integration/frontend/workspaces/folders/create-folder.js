@@ -1,5 +1,5 @@
 describe("Create folder page", () => {
-  it("Shows title, renders form and submits", () => {
+  it("Shows title, renders form, selects permissions, and submits", () => {
     cy.visit(
       `/workspaces/01bb9a4d-2977-4c43-b28c-2a72b4eda453/folders/create-folder`
     );
@@ -7,6 +7,8 @@ describe("Create folder page", () => {
 
     cy.get("#title").type("New Folder title");
     cy.get("#description").type("New Folder description");
+    cy.get(`[data-cy="permissions-button"]`).click();
+    cy.get("#workspace-members").click();
     cy.get("form").submit();
   });
 

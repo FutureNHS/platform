@@ -321,6 +321,10 @@
             "workspaceId": {
               "description": "The workspace that the folder is in",
               "type": "string"
+            },
+            "roleRequired": {
+              "description": "The role that is needed to view the folder contents",
+              "type": "string"
             }
           },
           "required": [
@@ -328,7 +332,8 @@
             "folderId",
             "title",
             "userId",
-            "workspaceId"
+            "workspaceId",
+            "roleRequired"
           ]
         }
       },
@@ -364,6 +369,10 @@
             "userId": {
               "description": "The user that updated the folder",
               "type": "string"
+            },
+            "roleRequired": {
+              "description": "The role that is needed to view the folder contents",
+              "type": "string"
             }
           },
           "required": [
@@ -371,7 +380,8 @@
             "userId",
             "title",
             "workspaceId",
-            "folderId"
+            "folderId",
+            "roleRequired"
           ]
         }
       },

@@ -11,20 +11,55 @@ query GetFolderById($id: ID!) {
     id
     description
     workspace
+    roleRequired
   }
 }
 
-mutation CreateFolder($title: String!, $description: String!, $workspace: ID!) {
+enum RoleRequired {
+  PLATFORM_MEMBER
+  WORKSPACE_MEMBER
+}
+
+mutation CreateFolder(
+  $title: String!
+  $description: String!
+  $roleRequired: RoleRequired!
+  $workspace: ID!
+) {
   createFolder(
     newFolder: {
       title: $title
       description: $description
+      roleRequired: $roleRequired
       workspace: $workspace
     }
   ) {
     id
     title
     description
+    roleRequired
+    workspace
+  }
+}
+
+mutation UpdateFolder(
+  $title: String!
+  $description: String!
+  $roleRequired: RoleRequired!
+  $id: ID!
+) {
+  updateFolder(
+    folder: {
+      id: $id
+      title: $title
+      description: $description
+      roleRequired: $roleRequired
+    }
+  ) {
+    id
+    title
+    description
+    roleRequired
     workspace
   }
 }

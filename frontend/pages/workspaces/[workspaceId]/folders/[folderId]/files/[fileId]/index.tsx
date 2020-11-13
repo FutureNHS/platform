@@ -12,7 +12,11 @@ import {
 } from "../../../../../../../components/Files";
 import { Footer } from "../../../../../../../components/Footer";
 import { Head } from "../../../../../../../components/Head";
-import { DeleteIcon, UploadIcon } from "../../../../../../../components/Icon";
+import {
+  DeleteIcon,
+  EditIcon,
+  UploadIcon,
+} from "../../../../../../../components/Icon";
 import { MainHeading } from "../../../../../../../components/MainHeading";
 import { Menu } from "../../../../../../../components/Menu";
 import { NavHeader } from "../../../../../../../components/NavHeader";
@@ -140,6 +144,12 @@ const FileHomepage = () => {
                   background="light"
                   dataCy="file-options"
                   items={[
+                    {
+                      title: "Edit file details",
+                      icon: <EditIcon />,
+                      handler: `/workspaces/${workspaceId}/folders/${folderId}/files/${fileId}/update-file-details`,
+                      dataCy: "edit-file-details",
+                    },
                     {
                       title: "Upload new version",
                       icon: <UploadIcon />,

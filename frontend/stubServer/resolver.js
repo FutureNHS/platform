@@ -8,6 +8,7 @@ const folderResponse = require("../cypress/fixtures/folder-graphql-response.json
 const foldersByWorkspaceResponse = require("../cypress/fixtures/folders-by-workspace-graphql-response.json");
 const getOrCreateUserResponse = require("../cypress/fixtures/get-or-create-user-graphql-response.json");
 const membersResponse = require("../cypress/fixtures/members-graphql-response.json");
+const updateFolderResponse = require("../cypress/fixtures/update-folder-graphql-response.json");
 const workspaceResponse = require("../cypress/fixtures/workspace-graphql-response.json");
 
 // Workspace
@@ -50,6 +51,7 @@ const folderResolver = {
 
 const folderMutation = {
   createFolder: async () => createFolderResponse.data.createFolder,
+  updateFolder: async () => updateFolderResponse.data.updateFolder,
 };
 
 // User

@@ -12,9 +12,10 @@ import { MainHeading } from "../../../../components/MainHeading";
 import { NavHeader } from "../../../../components/NavHeader";
 import { Navigation } from "../../../../components/Navigation";
 import { PageLayout } from "../../../../components/PageLayout";
+import { Permissions } from "../../../../components/Permissions";
 import { Textarea } from "../../../../components/Textarea";
 import {
-  Folder,
+  RoleRequired,
   useCreateFolderMutation,
   useGetWorkspaceByIdQuery,
 } from "../../../../lib/generated/graphql";
@@ -45,6 +46,13 @@ const PageContent = styled.div`
   `}
 `;
 
+interface FolderInputs {
+  title: string;
+  description: string;
+  roleRequired: RoleRequired;
+  server?: never;
+}
+
 const StyledButton = styled(Button)`
   margin-left: 12px;
 `;
@@ -56,7 +64,7 @@ const CreateFolder: NextPage = () => {
   const titleMaxLength = useMaxLengthHelper("Title", 100);
   const descriptionMaxLength = useMaxLengthHelper("Description", 250);
 
-  const { errors, handleSubmit, register, setError } = useForm();
+  const { errors, handleSubmit, register, setError } = useForm<FolderInputs>();
 
   const [{ data, fetching, error }] = useGetWorkspaceByIdQuery({
     variables: { id: workspaceId },
@@ -69,19 +77,28 @@ const CreateFolder: NextPage = () => {
 
   const backToPreviousPage = () => router.back();
 
-  const onSubmit = async (newFolder: Folder) => {
-    createFolder({ ...newFolder, workspace: workspaceId }).then((result) => {
+  const onSubmit = async (newFolder: FolderInputs) => {
+    try {
+      const result = await createFolder({
+        ...newFolder,
+        workspace: workspaceId,
+      });
       if (result.data) {
         router.push(
           `/workspaces/${workspaceId}/folders/${result.data.createFolder.id}`
         );
       } else {
-        setError("form", {
+        setError("server", {
           type: "server",
           message: "Error creating folder",
         });
       }
-    });
+    } catch (err) {
+      setError("server", {
+        type: "server",
+        message: err,
+      });
+    }
   };
 
   return (
@@ -129,13 +146,18 @@ const CreateFolder: NextPage = () => {
               />
               {descriptionMaxLength.remainingText("description")}
             </FormField>
+            <FormField>
+              <Permissions inputRef={register()} />
+            </FormField>
             <Button type="submit" name="submitButton">
               Save and complete
             </Button>
             <StyledButton secondary type="button" onClick={backToPreviousPage}>
               Discard
             </StyledButton>
-            {errors.server && <ErrorMessage>{errors.server}</ErrorMessage>}
+            {errors.server && (
+              <ErrorMessage>{errors.server.message}</ErrorMessage>
+            )}
           </Form>
         </PageContent>
       </ContentWrapper>

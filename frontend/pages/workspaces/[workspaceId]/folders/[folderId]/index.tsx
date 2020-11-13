@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import styled from "styled-components";
 
+import { Error as ErrorComponent } from "../../../../../components/Error";
 import {
   IconCell,
   MobileModifiedAtCell,
@@ -85,6 +86,11 @@ const FolderHomepage: NextPage = () => {
     variables: { folder: folderId },
   });
 
+  const accessPermitted =
+    folder.error?.graphQLErrors[0]?.extensions?.details === "ACCESS_DENIED"
+      ? false
+      : true;
+
   const items: MenuItem[] = [
     {
       title: "Upload files to this folder",
@@ -157,42 +163,54 @@ const FolderHomepage: NextPage = () => {
             activeFolder={folderId}
           />
           <PageContent>
-            <MainHeading
-              menu={
-                <Menu
-                  background="light"
-                  items={items}
-                  dataCy="folder-options"
-                />
-              }
-            >
-              {folder.data?.folder.title || ""}
-            </MainHeading>
-            <p>{folder.data?.folder.description}</p>
-            {folder.error && <p> Oh no... {folder.error?.message} </p>}
-            {files.error && <p> Oh no... {files.error?.message} </p>}
-            {files.fetching || (!files.data && <p>Loading...</p>)}
-            {files.data && files.data.filesByFolder.length > 0 && (
+            {accessPermitted ? (
               <>
-                <MobileList
-                  tableHeading="Files"
-                  icon={IconCell}
-                  columns={[
-                    { content: mobileTitleCell },
-                    { content: MobileModifiedAtCell },
-                    { content: mobileActionsCell },
-                  ]}
-                  data={files.data.filesByFolder as File[]}
-                />
-                <Table
-                  tableHeading="Files"
-                  icon={IconCell}
-                  columns={[
-                    { heading: "Title", content: titleCell },
-                    { heading: "Last modified", content: ModifiedAtCell },
-                    { heading: "Actions", content: downloadCell },
-                  ]}
-                  data={files.data.filesByFolder as File[]}
+                <MainHeading
+                  menu={
+                    <Menu
+                      background="light"
+                      items={items}
+                      dataCy="folder-options"
+                    />
+                  }
+                >
+                  {folder.data?.folder.title || ""}
+                </MainHeading>
+                <p>{folder.data?.folder.description}</p>
+                {folder.error && <p> Oh no... {folder.error?.message} </p>}
+                {files.error && <p> Oh no... {files.error?.message} </p>}
+                {files.fetching || (!files.data && <p>Loading...</p>)}
+                {files.data && files.data.filesByFolder.length > 0 && (
+                  <>
+                    <MobileList
+                      tableHeading="Files"
+                      icon={IconCell}
+                      columns={[
+                        { content: mobileTitleCell },
+                        { content: MobileModifiedAtCell },
+                        { content: mobileActionsCell },
+                      ]}
+                      data={files.data.filesByFolder as File[]}
+                    />
+                    <Table
+                      tableHeading="Files"
+                      icon={IconCell}
+                      columns={[
+                        { heading: "Title", content: titleCell },
+                        { heading: "Last modified", content: ModifiedAtCell },
+                        { heading: "Actions", content: downloadCell },
+                      ]}
+                      data={files.data.filesByFolder as File[]}
+                    />
+                  </>
+                )}
+              </>
+            ) : (
+              <>
+                <ErrorComponent
+                  title="You do not have permission to do this."
+                  description="Please contact a Workspace Administrator to request access
+                to this folder."
                 />
               </>
             )}

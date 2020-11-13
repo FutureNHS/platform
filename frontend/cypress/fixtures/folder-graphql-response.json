@@ -4,6 +4,7 @@
       "id": "b382ae4b-4dd2-489b-8afb-9ba8c37491af",
       "title": "FutureNHS Case Study Library",
       "description": "Test folder with title FutureNHS Case Study Library",
+      "roleRequired": "PLATFORM_MEMBER",
       "workspace": "01bb9a4d-2977-4c43-b28c-2a72b4eda453"
     }
   }

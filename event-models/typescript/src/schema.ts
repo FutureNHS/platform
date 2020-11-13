@@ -157,6 +157,10 @@ export interface FolderCreated {
      * The workspace that the folder is in
      */
     workspaceId: string;
+    /**
+     * The role that is needed to view the folder contents
+     */
+    roleRequired: string;
     [k: string]: unknown;
   };
   [k: string]: unknown;
@@ -176,6 +180,10 @@ export interface FolderUpdated {
      * The user that updated the folder
      */
     userId: string;
+    /**
+     * The role that is needed to view the folder contents
+     */
+    roleRequired: string;
     [k: string]: unknown;
   };
   [k: string]: unknown;

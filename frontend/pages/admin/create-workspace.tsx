@@ -5,6 +5,7 @@ import { Input, Form, Button } from "nhsuk-react-components";
 import { useForm } from "react-hook-form/dist/index.ie11";
 import styled from "styled-components";
 
+import { Error } from "../../components/Error";
 import { Footer } from "../../components/Footer";
 import { H2 } from "../../components/H2";
 import { Head } from "../../components/Head";
@@ -111,13 +112,11 @@ export const CreateWorkspace: NextPage<InitialProps> = ({
             </>
           ) : (
             <>
-              <MainHeading>Error</MainHeading>
-              <H2 title="You do not have permission to do this." />
-              <br />
-              <p>
-                Please contact your Platform Administrator to request a
-                workspace.
-              </p>
+              <Error
+                title="You do not have permission to do this."
+                description="Please contact your Platform Administrator to request a
+                workspace."
+              />
             </>
           )}
         </PageContent>

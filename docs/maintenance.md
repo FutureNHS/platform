@@ -17,6 +17,12 @@ Our installation scripts always install the latest version of Linkerd. This mean
 
 Follow the steps with Linkerd CLI in the official upgrade documentation: https://linkerd.io/2/tasks/upgrade/
 
+## Rotate Linkerd TLS credentials
+
+Linkerd's automatic mTLS feature uses a set of TLS credentials to generate TLS certificates for proxies: a trust anchor, and an issuer certificate and private key. The trust anchor has a limited period of validity: 365 days. This means we need to rotate the credentials at least once a year.
+
+Follow the steps in the official documentation: https://linkerd.io/2/tasks/manually-rotating-control-plane-tls-credentials/
+
 ## Upgrade Argo CD
 
 We load the installation YAML file and commit it to our repository under [`infrastructure/kubernetes/argocd/install/install.yaml`](../infrastructure/kubernetes/argocd/install/install.yaml). To upgrade, update the file to the newest version:

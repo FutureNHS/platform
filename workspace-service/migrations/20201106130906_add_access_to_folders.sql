@@ -1,0 +1,3 @@
+ALTER TABLE folders
+  ADD COLUMN role_required TEXT NOT NULL DEFAULT ('PLATFORM_MEMBER');
+  

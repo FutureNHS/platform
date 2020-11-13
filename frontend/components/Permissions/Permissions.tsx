@@ -48,7 +48,11 @@ const Permissions: React.FC<PermissionsProps> = ({ inputRef }) => {
     <>
       <TitleContainer>
         <h3>Permissions</h3>
-        <button type="button" onClick={() => setExpandedState(!expanded)}>
+        <button
+          type="button"
+          data-cy="permissions-button"
+          onClick={() => setExpandedState(!expanded)}
+        >
           {expanded ? (
             <ChevronTopIcon title={`Hide permissions`} />
           ) : (
@@ -60,12 +64,7 @@ const Permissions: React.FC<PermissionsProps> = ({ inputRef }) => {
         You can set permissions for this folder. All users authorised to access
         a folder can view all its contents
       </Description>
-      {expanded && (
-        <>
-          <h4>Viewing permissions</h4>
-          <PermissionsRadio inputRef={inputRef} />
-        </>
-      )}
+      <PermissionsRadio hidden={!expanded} inputRef={inputRef} />
     </>
   );
 };
