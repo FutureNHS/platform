@@ -14,7 +14,7 @@ pub struct Workspace {
     pub admins: TeamId,
     pub members: TeamId,
 }
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, PartialEq)]
 pub enum Role {
     /// User is a workspace administrator
     Admin,
@@ -309,9 +309,10 @@ impl<'a, 'b> WorkspaceService<'a, 'b> for WorkspaceServiceImpl {
             .ok_or_else(|| anyhow::anyhow!("user not found"))?;
 
         let user = repo_factory.user().find_by_id(user_id).await?;
+        let workspace = repo_factory.workspace().find_by_id(workspace_id).await?;
+
         let is_workspace_admin = match user {
             Some(user) => {
-                let workspace = repo_factory.workspace().find_by_id(workspace_id).await?;
                 repo_factory
                     .team()
                     .is_member(workspace.admins, user.id)
@@ -327,15 +328,13 @@ impl<'a, 'b> WorkspaceService<'a, 'b> for WorkspaceServiceImpl {
             ));
         }
 
-        if requesting_user.id == user_id {
+        if new_role != Role::Admin && requesting_user.id == user_id {
             return Err(anyhow::anyhow!(
                 "user with auth_id {} cannot demote themselves to {}",
                 requesting_user.auth_id,
                 new_role
             ));
         }
-
-        let workspace = repo_factory.workspace().find_by_id(workspace_id).await?;
 
         match new_role {
             Role::Admin => {
@@ -483,7 +482,7 @@ mod test {
     }
 
     #[async_std::test]
-    async fn creating_workspace_as_non_admin_fails() -> anyhow::Result<()> {
+    async fn creating_workspace_as_non_platform_admin_fails() -> anyhow::Result<()> {
         let service = WorkspaceServiceImpl {};
         let requesting_user: AuthId = Uuid::parse_str("deadbeef-0000-0000-0000-000000000000")
             .unwrap()
@@ -509,6 +508,98 @@ mod test {
             .await;
 
         assert_eq!(result.err().unwrap().to_string(), "User with auth_id deadbeef-0000-0000-0000-000000000000 does not have permission to create a workspace.");
+
+        // assert_eq!(events.try_iter().count(), 0);
+
+        Ok(())
+    }
+
+    #[async_std::test]
+    async fn a_workspace_admin_cannot_demote_themselves_to_member() -> anyhow::Result<()> {
+        let service = WorkspaceServiceImpl {};
+
+        let user_id = Uuid::new_v4();
+
+        let requesting_user: AuthId = user_id.into();
+        let user_id: UserId = user_id.into();
+        let admins_team_id: TeamId = Uuid::new_v4().into();
+        let members_team_id: TeamId = Uuid::new_v4().into();
+        let workspace_id: WorkspaceId = Uuid::new_v4().into();
+
+        let mut repos = MockRepoCreator::new();
+
+        repos.expect_user().returning(move || {
+            let mut user_repo = MockUserRepo::new();
+            user_repo
+                .expect_find_by_auth_id()
+                .with(eq(requesting_user))
+                .return_once(move |auth_id| {
+                    Ok(Some(User {
+                        auth_id,
+                        id: user_id,
+                        email_address: "".to_string(),
+                        name: "".to_string(),
+                        is_platform_admin: false,
+                    }))
+                });
+            user_repo
+                .expect_find_by_id()
+                .with(eq(user_id))
+                .return_once(move |id| {
+                    Ok(Some(User {
+                        auth_id: requesting_user,
+                        id,
+                        email_address: "".to_string(),
+                        name: "".to_string(),
+                        is_platform_admin: false,
+                    }))
+                });
+            Box::new(user_repo)
+        });
+
+        repos.expect_team().times(1).returning(move || {
+            let mut team_repo = MockTeamRepo::new();
+            team_repo
+                .expect_is_member()
+                .with(eq(admins_team_id), eq(user_id))
+                .return_once(|_, _| Ok(true));
+            Box::new(team_repo)
+        });
+
+        repos.expect_workspace().returning(move || {
+            let mut workspace_repo = MockWorkspaceRepo::new();
+            workspace_repo
+                .expect_find_by_id()
+                .with(eq(workspace_id))
+                .return_once(move |id| {
+                    Ok(Workspace {
+                        id,
+                        title: "title".to_string(),
+                        description: "description".to_string(),
+                        admins: admins_team_id,
+                        members: members_team_id,
+                    })
+                });
+            Box::new(workspace_repo)
+        });
+
+        let result = service
+            .change_workspace_membership(
+                &mut repos,
+                workspace_id,
+                user_id,
+                Role::NonAdmin,
+                requesting_user,
+            )
+            .await;
+
+        assert_eq!(
+            result.err().unwrap().to_string(),
+            format!(
+                "user with auth_id {} cannot demote themselves to NonAdmin",
+                requesting_user
+            )
+        );
 
         // assert_eq!(events.try_iter().count(), 0);
 
