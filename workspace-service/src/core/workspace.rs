@@ -9,6 +9,10 @@ use uuid::Uuid;
 
 use super::RepoCreator;
 
+#[derive(From, Into, Default, Display, Copy, Clone, Debug, PartialEq)]
+pub struct WorkspaceId(Uuid);
+
+#[derive(Default)]
 pub struct Workspace {
     pub id: WorkspaceId,
     pub title: String,
@@ -47,9 +51,6 @@ pub enum RoleFilter {
     /// Only return Non-Admins
     NonAdmin,
 }
-
-#[derive(From, Into, Display, Copy, Clone, Debug, PartialEq)]
-pub struct WorkspaceId(Uuid);
 
 #[cfg_attr(test, mockall::automock)]
 #[async_trait]

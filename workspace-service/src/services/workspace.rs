@@ -256,10 +256,8 @@ mod test {
                 .return_once(|auth_id| {
                     Ok(Some(User {
                         auth_id,
-                        id: Uuid::new_v4().into(),
-                        email_address: "".to_string(),
-                        name: "".to_string(),
                         is_platform_admin: true,
+                        ..Default::default()
                     }))
                 });
             Box::new(user_repo)
@@ -344,10 +342,8 @@ mod test {
                 .returning(|auth_id| {
                     Ok(Some(User {
                         auth_id,
-                        id: Uuid::new_v4().into(),
-                        email_address: "".to_string(),
-                        name: "".to_string(),
                         is_platform_admin: false,
+                        ..Default::default()
                     }))
                 });
             Box::new(user_repo)
@@ -389,9 +385,8 @@ mod test {
                     Ok(Some(User {
                         auth_id,
                         id: user_id,
-                        email_address: "".to_string(),
-                        name: "".to_string(),
                         is_platform_admin: false,
+                        ..Default::default()
                     }))
                 });
             user_repo
@@ -401,9 +396,8 @@ mod test {
                     Ok(Some(User {
                         auth_id: requesting_user,
                         id,
-                        email_address: "".to_string(),
-                        name: "".to_string(),
                         is_platform_admin: false,
+                        ..Default::default()
                     }))
                 });
             Box::new(user_repo)
@@ -426,10 +420,9 @@ mod test {
                 .return_once(move |id| {
                     Ok(Workspace {
                         id,
-                        title: "title".to_string(),
-                        description: "description".to_string(),
                         admins: admins_team_id,
                         members: members_team_id,
+                        ..Default::default()
                     })
                 });
             Box::new(workspace_repo)
