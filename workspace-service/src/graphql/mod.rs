@@ -64,6 +64,7 @@ struct Mutation(
     users::UsersMutation,
 );
 
+// TODO: move this to the domain and use the AuthId newtype (or make it use a UserId instead)
 #[derive(Debug)]
 pub struct RequestingUser {
     auth_id: Uuid,
