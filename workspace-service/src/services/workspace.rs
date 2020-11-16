@@ -1,7 +1,9 @@
 use crate::core::{
     team::TeamId,
     user::{AuthId, User, UserId},
-    workspace::{Role, RoleFilter, Workspace, WorkspaceId, WorkspaceService},
+    workspace::{
+        Role, RoleFilter, Workspace, WorkspaceId, WorkspaceService, WorkspaceServiceError,
+    },
     RepoCreator,
 };
 use anyhow::Result;
@@ -146,7 +148,7 @@ impl<'a, 'b> WorkspaceService<'a, 'b> for WorkspaceServiceImpl {
         user_id: UserId,
         new_role: Role,
         requesting_user: AuthId,
-    ) -> Result<Workspace>
+    ) -> Result<Workspace, WorkspaceServiceError>
     where
         T: RepoCreator<'b> + Send,
         'b: 'a,
@@ -165,20 +167,19 @@ impl<'a, 'b> WorkspaceService<'a, 'b> for WorkspaceServiceImpl {
                 .is_member(workspace.admins, requesting_user.id)
                 .await?
         {
-            return Err(anyhow::anyhow!(
-                "user with auth_id {} does not have permission to update workspace membership",
-                requesting_user.auth_id,
-            ));
+            return Err(WorkspaceServiceError::Unauthorized {
+                auth_id: requesting_user.auth_id,
+                action: "update workspace membership".to_string(),
+            });
         }
 
         if new_role != Role::Admin
             && (!requesting_user.is_platform_admin && requesting_user.id == user_id)
         {
-            return Err(anyhow::anyhow!(
-                "user with auth_id {} cannot demote themselves to {}",
-                requesting_user.auth_id,
-                new_role
-            ));
+            return Err(WorkspaceServiceError::CannotDemoteYourself {
+                auth_id: requesting_user.auth_id,
+                action: format!("demote themselves to {}", new_role),
+            });
         }
 
         match new_role {

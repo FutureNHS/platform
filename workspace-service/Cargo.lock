@@ -4066,6 +4066,7 @@ dependencies = [
  "sqlx",
  "structopt",
  "test-case",
+ "thiserror",
  "tide",
  "tracing",
  "tracing-futures",

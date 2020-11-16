@@ -1,3 +1,4 @@
+use super::RepoCreator;
 use crate::core::{
     team::TeamId,
     user::{AuthId, User, UserId},
@@ -5,9 +6,18 @@ use crate::core::{
 use anyhow::Result;
 use async_trait::async_trait;
 use derive_more::{Display, From, Into};
+use thiserror::Error;
 use uuid::Uuid;
 
-use super::RepoCreator;
+#[derive(Error, Debug)]
+pub enum WorkspaceServiceError {
+    #[error("requesting user {auth_id} does not have permission to {action}")]
+    Unauthorized { auth_id: AuthId, action: String },
+    #[error("user with auth_id {auth_id} cannot {action}")]
+    CannotDemoteYourself { auth_id: AuthId, action: String },
+    #[error(transparent)]
+    Other(#[from] anyhow::Error),
+}
 
 #[derive(From, Into, Default, Display, Copy, Clone, Debug, PartialEq)]
 pub struct WorkspaceId(Uuid);
@@ -140,7 +150,7 @@ pub trait WorkspaceService<'a, 'b> {
         user_id: UserId,
         new_role: Role,
         requesting_user: AuthId,
-    ) -> Result<Workspace>
+    ) -> Result<Workspace, WorkspaceServiceError>
     where
         T: RepoCreator<'b> + Send,
         'b: 'a;

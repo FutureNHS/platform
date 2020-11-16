@@ -1,10 +1,12 @@
 use crate::{
-    core::workspace::{self, Role, WorkspaceService},
+    core::workspace::{self, Role, WorkspaceService, WorkspaceServiceError},
     db::{self, RepoFactory},
     graphql::{users::User, RequestingUser},
     services::workspace::WorkspaceServiceImpl,
 };
-use async_graphql::{Context, Enum, FieldResult, InputObject, Object, ID};
+use async_graphql::{
+    Context, Enum, ErrorExtensions, FieldError, FieldResult, InputObject, Object, ResultExt, ID,
+};
 use sqlx::PgPool;
 use std::convert::TryInto;
 use uuid::Uuid;
@@ -84,6 +86,22 @@ impl From<Role> for WorkspaceMembership {
             Role::NonAdmin => WorkspaceMembership::NonAdmin,
             Role::NonMember => WorkspaceMembership::NonMember,
         }
+    }
+}
+
+impl ErrorExtensions for WorkspaceServiceError {
+    fn extend(&self) -> FieldError {
+        self.extend_with(|err, e| match err {
+            WorkspaceServiceError::CannotDemoteYourself { .. } => {
+                e.set("problem", "You cannot edit your own permissions.");
+                e.set("suggestion", "Please contact another administrator.");
+            }
+            WorkspaceServiceError::Unauthorized { .. } => {
+                e.set("problem", "You do not have permission to do this.");
+                e.set("suggestion", "Please contact a workspace administrator.");
+            }
+            WorkspaceServiceError::Other(_) => {}
+        })
     }
 }
 
@@ -213,11 +231,12 @@ impl WorkspacesQuery {
                 workspace_id.into(),
                 requesting_user.auth_id.into(),
             )
-            .await?;
+            .await?
+            .into();
 
         repos.commit().await?;
 
-        Ok(membership.into())
+        Ok(membership)
     }
 }
 
@@ -318,11 +337,13 @@ impl WorkspacesMutation {
                 input.new_role.into(),
                 requesting_user.auth_id.into(),
             )
-            .await?;
+            .await
+            .extend()?
+            .into();
 
         repos.commit().await?;
         // let event_client: &EventClient = context.data()?;
-        Ok(workspace.into())
+        Ok(workspace)
     }
 }
 
