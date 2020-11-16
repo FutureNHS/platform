@@ -58,7 +58,7 @@
     "react": "16.14.0",
     "react-dom": "16.14.0",
     "react-hook-form": "^6.8.2",
-    "react-is": "^16.13.1",
+    "react-is": "^17.0.1",
     "sass": "^1.26.11",
     "sass-extract": "^2.1.0",
     "sass-extract-js": "^0.4.0",
