@@ -283,7 +283,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "704ef881f5f9bc8112d089372899aeef99431d180acd377e897ec7510ae6cf1b"
 dependencies = [
  "async-graphql",
- "tide",
+ "tide 0.14.0",
 ]
 
 [[package]]
@@ -3295,6 +3295,27 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "457aa92965e7219a7444b2891ba970136cdf07217cea5591c15f981635800336"
 dependencies = [
  "async-h1",
+ "async-sse",
+ "async-std",
+ "async-trait",
+ "futures-util",
+ "http-client",
+ "http-types",
+ "kv-log-macro",
+ "log",
+ "pin-project-lite",
+ "route-recognizer",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "tide"
+version = "0.15.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c832ca099a0645f6446b6c8900b09e3b76978dedc0d7383438698b32ff07f734"
+dependencies = [
+ "async-h1",
  "async-session",
  "async-sse",
  "async-std",
@@ -3969,7 +3990,7 @@ dependencies = [
  "sqlx",
  "structopt",
  "test-case",
- "tide",
+ "tide 0.15.0",
  "tracing",
  "tracing-futures",
  "tracing-opentelemetry",
