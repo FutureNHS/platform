@@ -1,5 +1,5 @@
 use super::{azure, db};
-use crate::{core::RepoCreator, db::RepoFactory};
+use crate::{core::RepoFactory, db::RepoFactoryImpl};
 use async_graphql::{Context, FieldResult, Object, ID};
 use fnhs_event_models::{Event, EventClient, EventPublisher as _, FileDownloadedData};
 use sqlx::PgPool;
@@ -29,7 +29,7 @@ async fn file_download_url(
     event_client: &EventClient,
     requesting_user: &super::RequestingUser,
 ) -> FieldResult<Url> {
-    let mut repos = RepoFactory::new(pool.begin().await?);
+    let mut repos = RepoFactoryImpl::new(pool.begin().await?);
     let user = repos
         .user()
         .find_by_auth_id(requesting_user.auth_id.into())

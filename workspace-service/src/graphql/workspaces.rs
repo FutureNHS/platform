@@ -1,6 +1,6 @@
 use crate::{
     core::workspace::{self, Role, WorkspaceService, WorkspaceServiceError},
-    db::{self, RepoFactory},
+    db::{self, RepoFactoryImpl},
     graphql::{users::User, RequestingUser},
     services::workspace::WorkspaceServiceImpl,
 };
@@ -132,7 +132,7 @@ impl Workspace {
     ) -> FieldResult<Vec<User>> {
         let workspace_service = context.data::<WorkspaceServiceImpl>()?;
         let pool: &PgPool = context.data()?;
-        let mut repos = RepoFactory::new(pool.begin().await?);
+        let mut repos = RepoFactoryImpl::new(pool.begin().await?);
         let members = workspace_service
             .members(
                 &mut repos,
@@ -187,7 +187,7 @@ impl WorkspacesQuery {
     async fn workspaces(&self, context: &Context<'_>) -> FieldResult<Vec<Workspace>> {
         let workspace_service = context.data::<WorkspaceServiceImpl>()?;
         let pool: &PgPool = context.data()?;
-        let mut repos = RepoFactory::new(pool.begin().await?);
+        let mut repos = RepoFactoryImpl::new(pool.begin().await?);
         let workspaces = workspace_service.find_all(&mut repos).await?;
         repos.commit().await?;
         Ok(workspaces.into_iter().map(Into::into).collect())
@@ -202,7 +202,7 @@ impl WorkspacesQuery {
     async fn get_workspace(&self, context: &Context<'_>, id: ID) -> FieldResult<Workspace> {
         let workspace_service = context.data::<WorkspaceServiceImpl>()?;
         let pool: &PgPool = context.data()?;
-        let mut repos = RepoFactory::new(pool.begin().await?);
+        let mut repos = RepoFactoryImpl::new(pool.begin().await?);
         let id: Uuid = id.try_into()?;
         let workspace = workspace_service.find_by_id(&mut repos, id.into()).await?;
 
@@ -220,7 +220,7 @@ impl WorkspacesQuery {
     ) -> FieldResult<WorkspaceMembership> {
         let workspace_service = context.data::<WorkspaceServiceImpl>()?;
         let pool: &PgPool = context.data()?;
-        let mut repos = RepoFactory::new(pool.begin().await?);
+        let mut repos = RepoFactoryImpl::new(pool.begin().await?);
         let requesting_user = context.data::<RequestingUser>()?;
         let workspace_id: Uuid = workspace_id.try_into()?;
         // let event_client = context.data()?;
@@ -254,7 +254,7 @@ impl WorkspacesMutation {
         let workspace_service = context.data::<WorkspaceServiceImpl>()?;
         let requesting_user = context.data::<RequestingUser>()?;
         let pool: &PgPool = context.data()?;
-        let mut repos = RepoFactory::new(pool.begin().await?);
+        let mut repos = RepoFactoryImpl::new(pool.begin().await?);
 
         let new_workspace = workspace_service
             .create_workspace(
@@ -279,7 +279,7 @@ impl WorkspacesMutation {
     ) -> FieldResult<Workspace> {
         let workspace_service = context.data::<WorkspaceServiceImpl>()?;
         let pool: &PgPool = context.data()?;
-        let mut repos = RepoFactory::new(pool.begin().await?);
+        let mut repos = RepoFactoryImpl::new(pool.begin().await?);
         let requesting_user = context.data::<RequestingUser>()?;
         let workspace = workspace_service
             .update(
@@ -301,7 +301,7 @@ impl WorkspacesMutation {
     async fn delete_workspace(&self, context: &Context<'_>, id: ID) -> FieldResult<Workspace> {
         let workspace_service = context.data::<WorkspaceServiceImpl>()?;
         let pool: &PgPool = context.data()?;
-        let mut repos = RepoFactory::new(pool.begin().await?);
+        let mut repos = RepoFactoryImpl::new(pool.begin().await?);
         let requesting_user = context.data::<RequestingUser>()?;
         let workspace = workspace_service
             .delete(
@@ -325,7 +325,7 @@ impl WorkspacesMutation {
     ) -> FieldResult<Workspace> {
         let workspace_service = context.data::<WorkspaceServiceImpl>()?;
         let pool: &PgPool = context.data()?;
-        let mut repos = RepoFactory::new(pool.begin().await?);
+        let mut repos = RepoFactoryImpl::new(pool.begin().await?);
         let requesting_user = context.data::<RequestingUser>()?;
         let workspace_id: Uuid = input.workspace.try_into()?;
         let user_id: Uuid = input.user.try_into()?;

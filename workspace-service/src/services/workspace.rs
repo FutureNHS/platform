@@ -4,7 +4,7 @@ use crate::core::{
     workspace::{
         Role, RoleFilter, Workspace, WorkspaceId, WorkspaceService, WorkspaceServiceError,
     },
-    RepoCreator,
+    RepoFactory,
 };
 use anyhow::Result;
 use async_trait::async_trait;
@@ -16,7 +16,7 @@ pub struct WorkspaceServiceImpl {}
 impl<'a, 'b> WorkspaceService<'a, 'b> for WorkspaceServiceImpl {
     async fn find_all<T>(&self, repo_factory: &'a mut T) -> Result<Vec<Workspace>>
     where
-        T: RepoCreator<'b> + Send,
+        T: RepoFactory<'b> + Send,
         'b: 'a,
     {
         let workspaces = repo_factory.workspace().find_all().await?;
@@ -26,7 +26,7 @@ impl<'a, 'b> WorkspaceService<'a, 'b> for WorkspaceServiceImpl {
 
     async fn find_by_id<T>(&self, repo_factory: &'a mut T, id: WorkspaceId) -> Result<Workspace>
     where
-        T: RepoCreator<'b> + Send,
+        T: RepoFactory<'b> + Send,
         'b: 'a,
     {
         let workspace = repo_factory.workspace().find_by_id(id).await?;
@@ -41,7 +41,7 @@ impl<'a, 'b> WorkspaceService<'a, 'b> for WorkspaceServiceImpl {
         filter: Option<RoleFilter>,
     ) -> Result<Vec<User>>
     where
-        T: RepoCreator<'b> + Send,
+        T: RepoFactory<'b> + Send,
         'b: 'a,
     {
         let users = match filter {
@@ -66,7 +66,7 @@ impl<'a, 'b> WorkspaceService<'a, 'b> for WorkspaceServiceImpl {
         requesting_user: AuthId,
     ) -> Result<Workspace>
     where
-        T: RepoCreator<'b> + Send,
+        T: RepoFactory<'b> + Send,
         'b: 'a,
     {
         let user = repo_factory
@@ -117,7 +117,7 @@ impl<'a, 'b> WorkspaceService<'a, 'b> for WorkspaceServiceImpl {
         _requesting_user: AuthId,
     ) -> Result<Workspace>
     where
-        T: RepoCreator<'b> + Send,
+        T: RepoFactory<'b> + Send,
         'b: 'a,
     {
         let workspace = repo_factory
@@ -134,7 +134,7 @@ impl<'a, 'b> WorkspaceService<'a, 'b> for WorkspaceServiceImpl {
         _requesting_user: AuthId,
     ) -> Result<Workspace>
     where
-        T: RepoCreator<'b> + Send,
+        T: RepoFactory<'b> + Send,
         'b: 'a,
     {
         let workspace = repo_factory.workspace().delete(id).await?;
@@ -150,7 +150,7 @@ impl<'a, 'b> WorkspaceService<'a, 'b> for WorkspaceServiceImpl {
         requesting_user: AuthId,
     ) -> Result<Workspace, WorkspaceServiceError>
     where
-        T: RepoCreator<'b> + Send,
+        T: RepoFactory<'b> + Send,
         'b: 'a,
     {
         let requesting_user = repo_factory
@@ -237,7 +237,7 @@ impl<'a, 'b> WorkspaceService<'a, 'b> for WorkspaceServiceImpl {
         requesting_user: AuthId,
     ) -> Result<Role>
     where
-        T: RepoCreator<'b> + Send,
+        T: RepoFactory<'b> + Send,
         'b: 'a,
     {
         let requesting_user = repo_factory
@@ -290,7 +290,7 @@ mod test {
         let members_team_id: TeamId = Uuid::new_v4().into();
         let workspace_id: WorkspaceId = Uuid::new_v4().into();
 
-        let mut repos = MockRepoCreator::new();
+        let mut repos = MockRepoFactory::new();
 
         repos.expect_user().return_once(move || {
             let mut user_repo = MockUserRepo::new();
@@ -376,7 +376,7 @@ mod test {
             .unwrap()
             .into();
 
-        let mut repos = MockRepoCreator::new();
+        let mut repos = MockRepoFactory::new();
 
         repos.expect_user().return_once(move || {
             let mut user_repo = MockUserRepo::new();
@@ -418,7 +418,7 @@ mod test {
         let members_team_id: TeamId = Uuid::new_v4().into();
         let workspace_id: WorkspaceId = Uuid::new_v4().into();
 
-        let mut repos = MockRepoCreator::new();
+        let mut repos = MockRepoFactory::new();
 
         repos.expect_user().returning(move || {
             let mut user_repo = MockUserRepo::new();
@@ -506,7 +506,7 @@ mod test {
         let members_team_id: TeamId = Uuid::new_v4().into();
         let workspace_id: WorkspaceId = Uuid::new_v4().into();
 
-        let mut repos = MockRepoCreator::new();
+        let mut repos = MockRepoFactory::new();
 
         repos.expect_user().returning(move || {
             let mut user_repo = MockUserRepo::new();

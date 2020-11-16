@@ -2,7 +2,7 @@ use crate::core::{
     folder::{Folder, FolderId, FolderService},
     user::AuthId,
     workspace::WorkspaceId,
-    RepoCreator,
+    RepoFactory,
 };
 use anyhow::Result;
 use async_trait::async_trait;
@@ -18,7 +18,7 @@ impl<'a, 'b> FolderService<'a, 'b> for FolderServiceImpl {
         workspace_id: WorkspaceId,
     ) -> Result<Vec<Folder>>
     where
-        T: RepoCreator<'b> + Send,
+        T: RepoFactory<'b> + Send,
         'b: 'a,
     {
         let folders = repo_factory
@@ -35,7 +35,7 @@ impl<'a, 'b> FolderService<'a, 'b> for FolderServiceImpl {
         folder_id: FolderId,
     ) -> Result<Folder>
     where
-        T: RepoCreator<'b> + Send,
+        T: RepoFactory<'b> + Send,
         'b: 'a,
     {
         let folder = repo_factory.folder().find_by_id(folder_id).await?;
@@ -53,7 +53,7 @@ impl<'a, 'b> FolderService<'a, 'b> for FolderServiceImpl {
         requesting_user: AuthId,
     ) -> Result<Folder>
     where
-        T: RepoCreator<'b> + Send,
+        T: RepoFactory<'b> + Send,
         'b: 'a,
     {
         let _user = repo_factory
@@ -93,7 +93,7 @@ impl<'a, 'b> FolderService<'a, 'b> for FolderServiceImpl {
         requesting_user: AuthId,
     ) -> Result<Folder>
     where
-        T: RepoCreator<'b> + Send,
+        T: RepoFactory<'b> + Send,
         'b: 'a,
     {
         let _user = repo_factory
@@ -117,7 +117,7 @@ impl<'a, 'b> FolderService<'a, 'b> for FolderServiceImpl {
         requesting_user: AuthId,
     ) -> Result<Folder>
     where
-        T: RepoCreator<'b> + Send,
+        T: RepoFactory<'b> + Send,
         'b: 'a,
     {
         let _user = repo_factory

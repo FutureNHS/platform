@@ -6,7 +6,7 @@ use crate::{
         },
         workspace::{Role, WorkspaceService},
     },
-    db::RepoFactory,
+    db::RepoFactoryImpl,
     services::{folder::FolderServiceImpl, workspace::WorkspaceServiceImpl},
 };
 use async_graphql::{
@@ -103,7 +103,7 @@ impl FoldersQuery {
         let workspace_service = context.data::<WorkspaceServiceImpl>()?;
         let folder_service = context.data::<FolderServiceImpl>()?;
         let pool = context.data::<PgPool>()?;
-        let mut repos = RepoFactory::new(pool.begin().await?);
+        let mut repos = RepoFactoryImpl::new(pool.begin().await?);
         let requesting_user = context.data::<RequestingUser>()?;
         // let event_client: &EventClient = context.data()?;
         let workspace_id = Uuid::parse_str(&workspace)?;
@@ -142,7 +142,7 @@ impl FoldersQuery {
         let workspace_service = context.data::<WorkspaceServiceImpl>()?;
         let folder_service = context.data::<FolderServiceImpl>()?;
         let pool = context.data::<PgPool>()?;
-        let mut repos = RepoFactory::new(pool.begin().await?);
+        let mut repos = RepoFactoryImpl::new(pool.begin().await?);
         let requesting_user = context.data::<RequestingUser>()?;
 
         let folder_id: Uuid = id.try_into()?;
@@ -181,7 +181,7 @@ impl FoldersMutation {
     ) -> FieldResult<Folder> {
         let folder_service = context.data::<FolderServiceImpl>()?;
         let pool: &PgPool = context.data()?;
-        let mut repos = RepoFactory::new(pool.begin().await?);
+        let mut repos = RepoFactoryImpl::new(pool.begin().await?);
 
         let workspace_id: Uuid = new_folder.workspace.try_into()?;
         // let event_client = context.data()?;
@@ -210,7 +210,7 @@ impl FoldersMutation {
     ) -> FieldResult<Folder> {
         let folder_service = context.data::<FolderServiceImpl>()?;
         let pool: &PgPool = context.data()?;
-        let mut repos = RepoFactory::new(pool.begin().await?);
+        let mut repos = RepoFactoryImpl::new(pool.begin().await?);
         let requesting_user: &RequestingUser = context.data()?;
         // let event_client = context.data()?;
         let folder_id: Uuid = folder.id.try_into()?;
@@ -234,7 +234,7 @@ impl FoldersMutation {
     async fn delete_folder(&self, context: &Context<'_>, id: ID) -> FieldResult<Folder> {
         let folder_service = context.data::<FolderServiceImpl>()?;
         let pool: &PgPool = context.data()?;
-        let mut repos = RepoFactory::new(pool.begin().await?);
+        let mut repos = RepoFactoryImpl::new(pool.begin().await?);
         let requesting_user: &RequestingUser = context.data()?;
         // let event_client = context.data()?;
         let folder_id: Uuid = id.try_into()?;

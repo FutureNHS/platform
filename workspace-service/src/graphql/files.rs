@@ -1,5 +1,5 @@
 use super::{azure, db, validation, RequestingUser};
-use crate::{core::RepoCreator, db::RepoFactory};
+use crate::{core::RepoFactory, db::RepoFactoryImpl};
 use async_graphql::{Context, FieldResult, InputObject, Object, SimpleObject, ID};
 use chrono::{DateTime, Utc};
 use fnhs_event_models::{
@@ -265,7 +265,7 @@ async fn create_file(
         .map_err(validation::ValidationError::from)?;
 
     let folder_id = Uuid::parse_str(&new_file.folder)?;
-    let mut repos = RepoFactory::new(pool.begin().await?);
+    let mut repos = RepoFactoryImpl::new(pool.begin().await?);
     let user = repos
         .user()
         .find_by_auth_id(requesting_user.auth_id.into())
@@ -337,7 +337,7 @@ async fn create_file_version(
         return Err("specified version is not the latest version of the file".into());
     }
 
-    let mut repos = RepoFactory::new(pool.begin().await?);
+    let mut repos = RepoFactoryImpl::new(pool.begin().await?);
     let user = repos
         .user()
         .find_by_auth_id(requesting_user.auth_id.into())
@@ -413,7 +413,7 @@ async fn delete_file(
     requesting_user: &RequestingUser,
     event_client: &EventClient,
 ) -> FieldResult<File> {
-    let mut repos = RepoFactory::new(pool.begin().await?);
+    let mut repos = RepoFactoryImpl::new(pool.begin().await?);
     let user = repos
         .user()
         .find_by_auth_id(requesting_user.auth_id.into())

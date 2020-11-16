@@ -1,4 +1,4 @@
-use super::{user::AuthId, workspace::WorkspaceId, RepoCreator};
+use super::{user::AuthId, workspace::WorkspaceId, RepoFactory};
 use anyhow::Result;
 use async_trait::async_trait;
 use derive_more::{Display, From, Into};
@@ -50,7 +50,7 @@ pub trait FolderService<'a, 'b> {
         workspace_id: WorkspaceId,
     ) -> Result<Vec<Folder>>
     where
-        T: RepoCreator<'b> + Send,
+        T: RepoFactory<'b> + Send,
         'b: 'a;
 
     async fn find_folder_by_id<T>(
@@ -59,7 +59,7 @@ pub trait FolderService<'a, 'b> {
         folder_id: FolderId,
     ) -> Result<Folder>
     where
-        T: RepoCreator<'b> + Send,
+        T: RepoFactory<'b> + Send,
         'b: 'a;
 
     async fn create_folder<T>(
@@ -72,7 +72,7 @@ pub trait FolderService<'a, 'b> {
         requesting_user: AuthId,
     ) -> Result<Folder>
     where
-        T: RepoCreator<'b> + Send,
+        T: RepoFactory<'b> + Send,
         'b: 'a;
 
     async fn update_folder<T>(
@@ -85,7 +85,7 @@ pub trait FolderService<'a, 'b> {
         requesting_user: AuthId,
     ) -> Result<Folder>
     where
-        T: RepoCreator<'b> + Send,
+        T: RepoFactory<'b> + Send,
         'b: 'a;
 
     async fn delete_folder<T>(
@@ -95,6 +95,6 @@ pub trait FolderService<'a, 'b> {
         requesting_user: AuthId,
     ) -> Result<Folder>
     where
-        T: RepoCreator<'b> + Send,
+        T: RepoFactory<'b> + Send,
         'b: 'a;
 }

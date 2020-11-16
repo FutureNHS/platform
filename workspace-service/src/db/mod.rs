@@ -6,7 +6,7 @@ mod users;
 mod workspaces;
 
 use crate::core::{
-    folder::FolderRepo, team::TeamRepo, user::UserRepo, workspace::WorkspaceRepo, RepoCreator,
+    folder::FolderRepo, team::TeamRepo, user::UserRepo, workspace::WorkspaceRepo, RepoFactory,
 };
 use anyhow::Result;
 pub use file_versions::*;
@@ -19,11 +19,11 @@ pub use teams::TeamRepoImpl;
 pub use users::UserRepoImpl;
 pub use workspaces::{DbWorkspace, WorkspaceRepoImpl};
 
-pub struct RepoFactory<'ex> {
+pub struct RepoFactoryImpl<'ex> {
     executor: Transaction<'ex, Postgres>,
 }
 
-impl<'ex> RepoFactory<'ex> {
+impl<'ex> RepoFactoryImpl<'ex> {
     pub fn new(executor: Transaction<'ex, Postgres>) -> Self {
         Self { executor }
     }
@@ -34,7 +34,7 @@ impl<'ex> RepoFactory<'ex> {
     }
 }
 
-impl<'ex> RepoCreator<'ex> for RepoFactory<'ex> {
+impl<'ex> RepoFactory<'ex> for RepoFactoryImpl<'ex> {
     fn folder<'r>(&'r mut self) -> Box<dyn FolderRepo + Send + 'r>
     where
         'ex: 'r,

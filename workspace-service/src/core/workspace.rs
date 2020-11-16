@@ -1,4 +1,4 @@
-use super::RepoCreator;
+use super::RepoFactory;
 use crate::core::{
     team::TeamId,
     user::{AuthId, User, UserId},
@@ -91,12 +91,12 @@ pub trait WorkspaceRepo {
 pub trait WorkspaceService<'a, 'b> {
     async fn find_all<T>(&self, repo_factory: &'a mut T) -> Result<Vec<Workspace>>
     where
-        T: RepoCreator<'b> + Send,
+        T: RepoFactory<'b> + Send,
         'b: 'a;
 
     async fn find_by_id<T>(&self, repo_factory: &'a mut T, id: WorkspaceId) -> Result<Workspace>
     where
-        T: RepoCreator<'b> + Send,
+        T: RepoFactory<'b> + Send,
         'b: 'a;
 
     async fn members<T>(
@@ -107,7 +107,7 @@ pub trait WorkspaceService<'a, 'b> {
         filter: Option<RoleFilter>,
     ) -> Result<Vec<User>>
     where
-        T: RepoCreator<'b> + Send,
+        T: RepoFactory<'b> + Send,
         'b: 'a;
 
     async fn create_workspace<T>(
@@ -118,7 +118,7 @@ pub trait WorkspaceService<'a, 'b> {
         requesting_user: AuthId,
     ) -> Result<Workspace>
     where
-        T: RepoCreator<'b> + Send,
+        T: RepoFactory<'b> + Send,
         'b: 'a;
 
     async fn update<T>(
@@ -130,7 +130,7 @@ pub trait WorkspaceService<'a, 'b> {
         requesting_user: AuthId,
     ) -> Result<Workspace>
     where
-        T: RepoCreator<'b> + Send,
+        T: RepoFactory<'b> + Send,
         'b: 'a;
 
     async fn delete<T>(
@@ -140,7 +140,7 @@ pub trait WorkspaceService<'a, 'b> {
         requesting_user: AuthId,
     ) -> Result<Workspace>
     where
-        T: RepoCreator<'b> + Send,
+        T: RepoFactory<'b> + Send,
         'b: 'a;
 
     async fn change_workspace_membership<T>(
@@ -152,7 +152,7 @@ pub trait WorkspaceService<'a, 'b> {
         requesting_user: AuthId,
     ) -> Result<Workspace, WorkspaceServiceError>
     where
-        T: RepoCreator<'b> + Send,
+        T: RepoFactory<'b> + Send,
         'b: 'a;
 
     async fn requesting_user_workspace_rights<T>(
@@ -162,6 +162,6 @@ pub trait WorkspaceService<'a, 'b> {
         requesting_user: AuthId,
     ) -> Result<Role>
     where
-        T: RepoCreator<'b> + Send,
+        T: RepoFactory<'b> + Send,
         'b: 'a;
 }

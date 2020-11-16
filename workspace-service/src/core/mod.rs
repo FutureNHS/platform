@@ -7,7 +7,7 @@ pub mod user;
 pub mod workspace;
 
 #[cfg_attr(test, mockall::automock)]
-pub trait RepoCreator<'a> {
+pub trait RepoFactory<'a> {
     fn folder<'r>(&'r mut self) -> Box<dyn FolderRepo + Send + 'r>
     where
         'a: 'r;
