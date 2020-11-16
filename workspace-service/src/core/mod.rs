@@ -1,6 +1,5 @@
 use self::{folder::FolderRepo, team::TeamRepo, user::UserRepo, workspace::WorkspaceRepo};
 
-pub mod file;
 pub mod folder;
 pub mod team;
 pub mod user;
