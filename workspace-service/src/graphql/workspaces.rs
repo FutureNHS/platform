@@ -5,7 +5,6 @@ use crate::{
     services::workspace::WorkspaceServiceImpl,
 };
 use async_graphql::{Context, Enum, FieldResult, InputObject, Object, ID};
-use fnhs_event_models::EventClient;
 use sqlx::PgPool;
 use std::convert::TryInto;
 use uuid::Uuid;

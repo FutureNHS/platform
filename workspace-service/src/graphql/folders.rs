@@ -1,5 +1,12 @@
 use super::{db, RequestingUser};
-use crate::{core::RepoCreator, db::RepoFactory, graphql::workspaces::WorkspaceMembership};
+use crate::{
+    core::{
+        workspace::{Role, WorkspaceService},
+        RepoCreator,
+    },
+    db::RepoFactory,
+    services::workspace::WorkspaceServiceImpl,
+};
 use async_graphql::{
     Context, Enum, Error, ErrorExtensions, FieldResult, InputObject, Object, SimpleObject, ID,
 };
@@ -94,23 +101,33 @@ impl FoldersQuery {
         context: &Context<'_>,
         workspace: ID,
     ) -> FieldResult<Vec<Folder>> {
-        todo!()
-        // let pool = context.data()?;
-        // let workspace = Uuid::parse_str(&workspace)?;
-        // let requesting_user = context.data()?;
+        let workspace_service = context.data::<WorkspaceServiceImpl>()?;
+        let pool = context.data::<PgPool>()?;
+        let mut repos = RepoFactory::new(pool.begin().await?);
+        let requesting_user = context.data::<RequestingUser>()?;
         // let event_client: &EventClient = context.data()?;
-        // let folders = db::FolderRepo::find_by_workspace(workspace, pool).await?;
-        // let user_role =
-        //     requesting_user_workspace_rights(workspace, requesting_user, pool, event_client)
-        //         .await?;
-        // Ok(folders
-        //     .into_iter()
-        //     .map(Into::into)
-        //     .filter(|folder: &Folder| {
-        //         !(folder.role_required == RoleRequired::WorkspaceMember
-        //             && user_role == WorkspaceMembership::NonMember)
-        //     })
-        //     .collect())
+        let workspace_id = Uuid::parse_str(&workspace)?;
+
+        let folders = db::FolderRepo::find_by_workspace(workspace_id, pool).await?;
+
+        let user_role = workspace_service
+            .requesting_user_workspace_rights(
+                &mut repos,
+                workspace_id.into(),
+                requesting_user.auth_id.into(),
+            )
+            .await?;
+
+        let folders = folders
+            .into_iter()
+            .map(Into::into)
+            .filter(|folder: &Folder| {
+                !(folder.role_required == RoleRequired::WorkspaceMember
+                    && user_role == Role::NonMember)
+            })
+            .collect();
+
+        Ok(folders)
     }
 
     /// Get folder by ID
@@ -120,23 +137,29 @@ impl FoldersQuery {
 
     #[graphql(entity)]
     async fn get_folder(&self, context: &Context<'_>, id: ID) -> FieldResult<Folder> {
-        todo!();
-        // let pool = context.data()?;
-        // let id = Uuid::parse_str(&id)?;
-        // let requesting_user = context.data()?;
+        let workspace_service = context.data::<WorkspaceServiceImpl>()?;
+        let pool = context.data::<PgPool>()?;
+        let mut repos = RepoFactory::new(pool.begin().await?);
+        let requesting_user = context.data::<RequestingUser>()?;
+
+        let id = Uuid::parse_str(&id)?;
         // let event_client: &EventClient = context.data()?;
-        // let folder = db::FolderRepo::find_by_id(id, pool).await?;
-        // let user_rights =
-        //     requesting_user_workspace_rights(folder.workspace, requesting_user, pool, event_client)
-        //         .await?;
-        // if folder.role_required == "WORKSPACE_MEMBER"
-        //     && user_rights == WorkspaceMembership::NonMember
-        // {
-        //     Err(Error::new("Insufficient permissions: access denied")
-        //         .extend_with(|_, e| e.set("details", "ACCESS_DENIED")))
-        // } else {
-        //     Ok(folder.into())
-        // }
+
+        let folder = db::FolderRepo::find_by_id(id, pool).await?;
+        let user_rights = workspace_service
+            .requesting_user_workspace_rights(
+                &mut repos,
+                folder.workspace.into(),
+                requesting_user.auth_id.into(),
+            )
+            .await?;
+
+        if folder.role_required == "WORKSPACE_MEMBER" && user_rights == Role::NonMember {
+            Err(Error::new("Insufficient permissions: access denied")
+                .extend_with(|_, e| e.set("details", "ACCESS_DENIED")))
+        } else {
+            Ok(folder.into())
+        }
     }
 }
 
