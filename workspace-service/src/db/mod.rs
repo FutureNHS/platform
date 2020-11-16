@@ -5,16 +5,18 @@ mod teams;
 mod users;
 mod workspaces;
 
-use crate::core::{team::TeamRepo, user::UserRepo, workspace::WorkspaceRepo, RepoCreator};
+use crate::core::{
+    folder::FolderRepo, team::TeamRepo, user::UserRepo, workspace::WorkspaceRepo, RepoCreator,
+};
 use anyhow::Result;
 pub use file_versions::*;
 pub use files::{
     CreateFileArgs, CreateFileVersionArgs, File, FileRepo, FileWithVersion, FileWithVersionRepo,
 };
-pub use folders::{Folder, FolderRepo};
+pub use folders::FolderRepoImpl;
 use sqlx::{Executor, Postgres, Transaction};
 pub use teams::TeamRepoImpl;
-pub use users::{DbUser, UserRepoImpl};
+pub use users::UserRepoImpl;
 pub use workspaces::{DbWorkspace, WorkspaceRepoImpl};
 
 pub struct RepoFactory<'ex> {
@@ -33,6 +35,15 @@ impl<'ex> RepoFactory<'ex> {
 }
 
 impl<'ex> RepoCreator<'ex> for RepoFactory<'ex> {
+    fn folder<'r>(&'r mut self) -> Box<dyn FolderRepo + Send + 'r>
+    where
+        'ex: 'r,
+    {
+        Box::new(FolderRepoImpl {
+            executor: &mut self.executor,
+        })
+    }
+
     fn team<'r>(&'r mut self) -> Box<dyn TeamRepo + Send + 'r>
     where
         'ex: 'r,
@@ -41,6 +52,7 @@ impl<'ex> RepoCreator<'ex> for RepoFactory<'ex> {
             executor: &mut self.executor,
         })
     }
+
     fn user<'r>(&'r mut self) -> Box<dyn UserRepo + Send + 'r>
     where
         'ex: 'r,
@@ -49,6 +61,7 @@ impl<'ex> RepoCreator<'ex> for RepoFactory<'ex> {
             executor: &mut self.executor,
         })
     }
+
     fn workspace<'r>(&'r mut self) -> Box<dyn WorkspaceRepo + Send + 'r>
     where
         'ex: 'r,

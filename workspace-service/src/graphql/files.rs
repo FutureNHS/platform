@@ -277,7 +277,7 @@ async fn create_file(
     )
     .await?;
 
-    let folder = db::FolderRepo::find_by_id(folder_id, pool).await?;
+    let folder = repos.folder().find_by_id(folder_id.into()).await?;
 
     let file = db::FileWithVersionRepo::create(
         db::CreateFileArgs {
@@ -348,7 +348,7 @@ async fn create_file_version(
         None => current_file.folder,
     };
 
-    let folder = db::FolderRepo::find_by_id(folder_id, pool).await?;
+    let folder = repos.folder().find_by_id(folder_id.into()).await?;
 
     let destination = match &new_version.temporary_blob_storage_path {
         Some(temporary_blob_storage_path) => {
@@ -421,7 +421,7 @@ async fn delete_file(
         .ok_or_else(|| anyhow::anyhow!("user not found"))?;
     let file = db::FileWithVersionRepo::delete(Uuid::parse_str(&id)?, user.id.into(), pool).await?;
 
-    let folder = db::FolderRepo::find_by_id(file.folder, pool).await?;
+    let folder = repos.folder().find_by_id(file.folder.into()).await?;
 
     event_client
         .publish_events(&[Event::new(

@@ -9,7 +9,7 @@ mod validation;
 mod workspaces;
 
 use super::{azure, db};
-use crate::services::workspace::WorkspaceServiceImpl;
+use crate::services::{folder::FolderServiceImpl, workspace::WorkspaceServiceImpl};
 use async_graphql::{
     http::{playground_source, GraphQLPlaygroundConfig},
     EmptySubscription, MergedObject, Schema,
@@ -31,12 +31,14 @@ impl State {
         event_client: EventClient,
         azure_config: azure::Config,
         workspace_service: WorkspaceServiceImpl,
+        folder_service: FolderServiceImpl,
     ) -> Self {
         State {
             schema: Schema::build(Query::default(), Mutation::default(), EmptySubscription)
                 .extension(tracing_ext::Tracing)
                 .data(pool)
                 .data(workspace_service)
+                .data(folder_service)
                 .data(event_client.clone())
                 .data(azure_config)
                 .finish(),

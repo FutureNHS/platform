@@ -37,7 +37,7 @@ async fn file_download_url(
         .ok_or_else(|| anyhow::anyhow!("user not found"))?;
     let id = Uuid::parse_str(&id)?;
     let file = db::FileWithVersionRepo::find_by_id(id, pool).await?;
-    let folder = db::FolderRepo::find_by_id(file.folder, pool).await?;
+    let folder = repos.folder().find_by_id(file.folder.into()).await?;
 
     event_client
         .publish_events(&[Event::new(

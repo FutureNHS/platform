@@ -1,6 +1,7 @@
 // sqlx::query_file_as!() causes spurious errors with this lint enabled
 #![allow(clippy::suspicious_else_formatting)]
 
+use super::users::DbUser;
 use crate::core::{
     team::{Team, TeamId, TeamRepo},
     user::{User, UserId},
@@ -8,8 +9,6 @@ use crate::core::{
 use anyhow::{Context, Result};
 use async_trait::async_trait;
 use sqlx::{types::Uuid, Postgres, Transaction};
-
-use super::DbUser;
 
 #[derive(Clone)]
 pub struct DbTeam {
