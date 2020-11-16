@@ -1,0 +1,32 @@
+{
+  "data": {
+    "changeWorkspaceMembership": {
+      "admins": [
+        {
+          "id": "0093085d-3520-48fb-a684-ade4db6b256a",
+          "name": "Dorian Black"
+        },
+        {
+          "id": "5c9f6118-809f-46bb-9d38-89661a6b6142",
+          "name": "Lisa Pink"
+        }
+      ],
+      "id": "0e010c70-9edb-4c70-9025-f3956e2b27c5",
+      "members": [
+        {
+          "id": "f10496cf-7853-4863-b5b7-da818929d2e3",
+          "name": "Daniel Silver"
+        },
+        {
+          "id": "e713b1d5-d939-4fd1-97e4-48b52fd45fb5",
+          "name": "Initial Admin User"
+        },
+        {
+          "id": "9e613980-8036-4b49-9e5b-ea11bef9335d",
+          "name": "Lauren Smith"
+        }
+      ],
+      "title": "Selenium Testing"
+    }
+  }
+}

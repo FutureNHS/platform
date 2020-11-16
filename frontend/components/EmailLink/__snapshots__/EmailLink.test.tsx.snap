@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EmailLink renders correctly 1`] = `
+<DocumentFragment>
+  <a
+    href="mailto:my-email-address@email.com"
+    rel="noreferrer"
+    target="_blank"
+  >
+    my-email-address@email.com
+  </a>
+</DocumentFragment>
+`;

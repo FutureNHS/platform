@@ -8,7 +8,7 @@
         "folder": "f7f24c43-d3f0-4720-8995-b087316f6b44",
         "fileType": "ppt",
         "fileName": "London Region NHS England Safeguarding Annual Review.ppt",
-        "modifiedAt": "2020-10-06T17:53:45.089829+00:00",
+        "modifiedAt": "2020-10-06T17:53:45.089829",
         "__typename": "File"
       },
       {
@@ -18,7 +18,7 @@
         "folder": "f7f24c43-d3f0-4720-8995-b087316f6b44",
         "fileType": "pdf",
         "fileName": "Midlands & East Region Safeguarding Annual Report.pdf",
-        "modifiedAt": "2020-10-06T17:53:46.371083+00:00",
+        "modifiedAt": "2020-10-06T17:53:46.371083",
         "__typename": "File"
       },
       {
@@ -28,7 +28,7 @@
         "folder": "f7f24c43-d3f0-4720-8995-b087316f6b44",
         "fileType": "doc",
         "fileName": "South East Region Safeguarding Annual Report.doc",
-        "modifiedAt": "2020-10-06T17:53:47.824181+00:00",
+        "modifiedAt": "2020-10-06T17:53:47.824181",
         "__typename": "File"
       }
     ]

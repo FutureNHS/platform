@@ -10,12 +10,14 @@ const ModifiedDate = styled.span`
 `;
 
 export const ModifiedAtCell: FC<File> = ({ modifiedAt }) => (
-  <ModifiedDate>{format(parseISO(modifiedAt), "LLL d, yyyy")}</ModifiedDate>
+  <ModifiedDate>
+    {format(parseISO(modifiedAt), "d LLL yyyy kk:mm")}
+  </ModifiedDate>
 );
 
 export const MobileModifiedAtCell: FC<File> = ({ modifiedAt }) => (
   <div>
     <h4>Last modified</h4>
-    <p>{format(parseISO(modifiedAt), "LLL d, yyyy")}</p>
+    <p>{format(parseISO(modifiedAt), "d LLL yyyy kk:mm")}</p>
   </div>
 );

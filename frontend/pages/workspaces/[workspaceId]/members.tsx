@@ -3,7 +3,9 @@ import React, { FC, useState } from "react";
 import { NextPage } from "next";
 import { useRouter } from "next/router";
 import styled from "styled-components";
+import { CombinedError } from "urql";
 
+import { EmailLink } from "../../../components/EmailLink";
 import { Footer } from "../../../components/Footer";
 import { Head } from "../../../components/Head";
 import { MainHeading } from "../../../components/MainHeading";
@@ -17,6 +19,7 @@ import {
   useGetWorkspaceWithMembersQuery,
   useChangeWorkspaceMembershipMutation,
   WorkspaceMembership,
+  useRequestingUserWorkspaceRightsQuery,
 } from "../../../lib/generated/graphql";
 import withUrqlClient from "../../../lib/withUrqlClient";
 
@@ -42,13 +45,7 @@ const CountSentence = styled.p`
 
 const nameCell: FC<User> = ({ name }) => <div>{name}</div>;
 const emailAddressCell: FC<User> = ({ emailAddress }) => (
-  <a
-    href={`mailto:${encodeURI(emailAddress)}`}
-    target="_blank"
-    rel="noreferrer"
-  >
-    {emailAddress}
-  </a>
+  <EmailLink emailAddress={emailAddress} />
 );
 
 const WorkspaceMembersPage: NextPage = () => {
@@ -60,10 +57,19 @@ const WorkspaceMembersPage: NextPage = () => {
     variables: { id },
   });
 
+  const [workspaceRights] = useRequestingUserWorkspaceRightsQuery({
+    variables: { workspaceId: id },
+  });
+
+  const isAdmin =
+    workspaceRights.data?.requestingUserWorkspaceRights === "ADMIN"
+      ? true
+      : false;
+
   const [, changeMembership] = useChangeWorkspaceMembershipMutation();
   const [mutationError, setMutationError] = useState<{
     user: User;
-    error?: string;
+    error?: CombinedError;
   } | null>(null);
 
   const buttonCellProps = {
@@ -71,18 +77,23 @@ const WorkspaceMembersPage: NextPage = () => {
     changeMembership,
     mutationError,
     setMutationError,
+    isAdmin,
   };
+
   const makeAdminButtonCell = (user: User) =>
     MemberStatusButtonCell({
       ...buttonCellProps,
       user,
       newRole: WorkspaceMembership.Admin,
+      isAdmin,
     });
+
   const makeNonAdminButtonCell = (user: User) =>
     MemberStatusButtonCell({
       ...buttonCellProps,
       user,
       newRole: WorkspaceMembership.NonAdmin,
+      isAdmin,
     });
 
   const workspaceTitle = (!fetching && data?.workspace.title) || "Loading...";
@@ -107,7 +118,7 @@ const WorkspaceMembersPage: NextPage = () => {
                   <ResponsiveTable
                     tableHeading="Administrators"
                     columns={[
-                      { heading: "Name of user", content: nameCell },
+                      { heading: "Name of User", content: nameCell },
                       { heading: "Email", content: emailAddressCell },
                     ]}
                     extraDetails={[

@@ -19,6 +19,18 @@ const TableContainer = styled.div`
       background: ${theme.colorNhsukGrey5};
   `}
   }
+
+  table {
+    table-layout: fixed;
+    border-collapse: collapse;
+    width: 100%;
+  }
+  th:first-child {
+    width: 30%;
+  }
+  th:last-child {
+    width: 10%;
+  }
 `;
 
 const IconWrapper = styled.div`
@@ -39,6 +51,9 @@ const StyledTable = styled(NHSTable)`
 `;
 
 const ContentCell = styled(NHSTable.Cell)`
+  a[href^="mailto"] {
+    word-break: break-all;
+  }
   &.withoutBottomBorder {
     border-bottom: none;
   }

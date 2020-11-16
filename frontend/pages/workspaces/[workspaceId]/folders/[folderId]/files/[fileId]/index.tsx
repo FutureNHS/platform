@@ -23,6 +23,7 @@ import { NavHeader } from "../../../../../../../components/NavHeader";
 import { Navigation } from "../../../../../../../components/Navigation";
 import { PageLayout } from "../../../../../../../components/PageLayout";
 import { MobileList, Table } from "../../../../../../../components/Table";
+import { FileInformation } from "../../../../../../../containers/FileInformation";
 import {
   File,
   useDeleteFileMutation,
@@ -196,6 +197,7 @@ const FileHomepage = () => {
                 />
               </>
             )}
+            <FileInformation workspaceId={workspaceId} />
           </PageContent>
         </ContentWrapper>
         <Footer />

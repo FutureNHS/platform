@@ -1,25 +1,51 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`does not render make admin button when isAdmin status is false 1`] = `<DocumentFragment />`;
+
+exports[`does not render make member button when isAdmin status is false 1`] = `<DocumentFragment />`;
+
 exports[`renders error message when user matches one in error 1`] = `
 <DocumentFragment>
-  <button
+  .c0 {
+  margin-bottom: 20px;
+}
+
+<button
     aria-disabled="false"
-    class="nhsuk-button nhsuk-button--secondary"
+    class="nhsuk-button nhsuk-button--secondary c0"
     type="submit"
   >
     Make Administrator
   </button>
-  <p>
-     Oh no... something went wrong 
-  </p>
+  .c0 {
+  margin-bottom: 0;
+}
+
+<span
+    class="nhsuk-error-message c0"
+    role="alert"
+  >
+    <span
+      class="nhsuk-u-visually-hidden"
+    >
+      Error: 
+    </span>
+    Something went wrong.
+    <br />
+    Try again.
+  </span>
 </DocumentFragment>
 `;
 
 exports[`renders make admin button 1`] = `
 <DocumentFragment>
-  <button
+  .c0 {
+  margin-bottom: 20px;
+}
+
+<button
     aria-disabled="false"
-    class="nhsuk-button nhsuk-button--secondary"
+    class="nhsuk-button nhsuk-button--secondary c0"
     type="submit"
   >
     Make Administrator
@@ -29,9 +55,13 @@ exports[`renders make admin button 1`] = `
 
 exports[`renders make member button 1`] = `
 <DocumentFragment>
-  <button
+  .c0 {
+  margin-bottom: 20px;
+}
+
+<button
     aria-disabled="false"
-    class="nhsuk-button nhsuk-button--secondary"
+    class="nhsuk-button nhsuk-button--secondary c0"
     type="submit"
   >
     Make Member
@@ -41,12 +71,49 @@ exports[`renders make member button 1`] = `
 
 exports[`renders no error message when user does not match error 1`] = `
 <DocumentFragment>
-  <button
+  .c0 {
+  margin-bottom: 20px;
+}
+
+<button
     aria-disabled="false"
-    class="nhsuk-button nhsuk-button--secondary"
+    class="nhsuk-button nhsuk-button--secondary c0"
     type="submit"
   >
     Make Administrator
   </button>
+</DocumentFragment>
+`;
+
+exports[`specific error message when it exists 1`] = `
+<DocumentFragment>
+  .c0 {
+  margin-bottom: 20px;
+}
+
+<button
+    aria-disabled="false"
+    class="nhsuk-button nhsuk-button--secondary c0"
+    type="submit"
+  >
+    Make Administrator
+  </button>
+  .c0 {
+  margin-bottom: 0;
+}
+
+<span
+    class="nhsuk-error-message c0"
+    role="alert"
+  >
+    <span
+      class="nhsuk-u-visually-hidden"
+    >
+      Error: 
+    </span>
+    I don't like you.
+    <br />
+    Go away.
+  </span>
 </DocumentFragment>
 `;

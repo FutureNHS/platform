@@ -1,7 +1,9 @@
 import React from "react";
 
 import { render } from "@testing-library/react";
+import { GraphQLError } from "graphql";
 import { ThemeProvider } from "styled-components";
+import { CombinedError } from "urql";
 
 import theme from "../../lib/fixtures/theme.json";
 import { WorkspaceMembership } from "../../lib/generated/graphql";
@@ -22,7 +24,10 @@ const buttonCellProps = {
   setMutationError: (() => {}) as any,
   user,
   newRole: WorkspaceMembership.Admin,
+  isAdmin: true,
 };
+
+const error: CombinedError = { name: "", message: "", graphQLErrors: [] };
 
 test("renders make admin button", () => {
   const { asFragment } = render(
@@ -48,13 +53,37 @@ test("renders make member button", () => {
   expect(asFragment()).toMatchSnapshot();
 });
 
+test("does not render make admin button when isAdmin status is false", () => {
+  const { asFragment } = render(
+    <MemberStatusButtonCell
+      {...buttonCellProps}
+      newRole={WorkspaceMembership.Admin}
+      isAdmin={false}
+    />
+  );
+
+  expect(asFragment()).toMatchSnapshot();
+});
+
+test("does not render make member button when isAdmin status is false", () => {
+  const { asFragment } = render(
+    <MemberStatusButtonCell
+      {...buttonCellProps}
+      newRole={WorkspaceMembership.NonAdmin}
+      isAdmin={false}
+    />
+  );
+
+  expect(asFragment()).toMatchSnapshot();
+});
+
 test("renders error message when user matches one in error", () => {
   const { asFragment } = render(
     <ThemeProvider theme={theme}>
       <MemberStatusButtonCell
         {...buttonCellProps}
         newRole={WorkspaceMembership.Admin}
-        mutationError={{ user, error: "something went wrong" }}
+        mutationError={{ user, error }}
       />
     </ThemeProvider>
   );
@@ -62,6 +91,27 @@ test("renders error message when user matches one in error", () => {
   expect(asFragment()).toMatchSnapshot();
 });
 
+test("specific error message when it exists", () => {
+  const specificError: CombinedError = {
+    ...error,
+    graphQLErrors: [
+      ({
+        extensions: { problem: "I don't like you.", suggestion: "Go away." },
+      } as unknown) as GraphQLError,
+    ],
+  };
+  const { asFragment } = render(
+    <ThemeProvider theme={theme}>
+      <MemberStatusButtonCell
+        {...buttonCellProps}
+        newRole={WorkspaceMembership.Admin}
+        mutationError={{ user, error: specificError }}
+      />
+    </ThemeProvider>
+  );
+
+  expect(asFragment()).toMatchSnapshot();
+});
 test("renders no error message when user does not match error", () => {
   const { asFragment } = render(
     <ThemeProvider theme={theme}>
@@ -70,7 +120,7 @@ test("renders no error message when user does not match error", () => {
         newRole={WorkspaceMembership.Admin}
         mutationError={{
           user: { ...user, id: "someone-else" },
-          error: "something went wrong",
+          error,
         }}
       />
     </ThemeProvider>
