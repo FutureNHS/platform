@@ -1,11 +1,11 @@
 use crate::{
-    db,
-    db::{Role, WorkspaceRepo},
+    core::workspace::{self, Role, WorkspaceService, WorkspaceServiceError},
+    db::{self, RepoFactoryImpl},
     graphql::{users::User, RequestingUser},
+    services::workspace::WorkspaceServiceImpl,
 };
-use async_graphql::{Context, Enum, ErrorExtensions, FieldResult, InputObject, Object, ID};
-use fnhs_event_models::{
-    Event, EventClient, EventPublisher as _, WorkspaceCreatedData, WorkspaceMembershipChangedData,
+use async_graphql::{
+    Context, Enum, ErrorExtensions, FieldError, FieldResult, InputObject, Object, ResultExt, ID,
 };
 use sqlx::PgPool;
 use std::convert::TryInto;
@@ -19,12 +19,44 @@ pub struct Workspace {
     members: Uuid,
 }
 
+impl From<workspace::Workspace> for Workspace {
+    fn from(workspace: workspace::Workspace) -> Self {
+        Workspace {
+            id: workspace.id.into(),
+            title: workspace.title,
+            description: workspace.description,
+            admins: workspace.admins.into(),
+            members: workspace.members.into(),
+        }
+    }
+}
+
 #[derive(Enum, Copy, Clone, Eq, PartialEq)]
 pub enum RoleFilter {
     /// Only return Admins
     Admin,
     /// Only return Non-Admins
     NonAdmin,
+}
+
+impl From<workspace::RoleFilter> for RoleFilter {
+    fn from(f: workspace::RoleFilter) -> Self {
+        use workspace::RoleFilter::*;
+        match f {
+            Admin => RoleFilter::Admin,
+            NonAdmin => RoleFilter::NonAdmin,
+        }
+    }
+}
+
+impl From<RoleFilter> for workspace::RoleFilter {
+    fn from(f: RoleFilter) -> Self {
+        use workspace::RoleFilter::*;
+        match f {
+            RoleFilter::Admin => Admin,
+            RoleFilter::NonAdmin => NonAdmin,
+        }
+    }
 }
 
 #[derive(Enum, Copy, Clone, Eq, PartialEq)]
@@ -57,6 +89,22 @@ impl From<Role> for WorkspaceMembership {
     }
 }
 
+impl ErrorExtensions for WorkspaceServiceError {
+    fn extend(&self) -> FieldError {
+        self.extend_with(|err, e| match err {
+            WorkspaceServiceError::CannotDemoteYourself { .. } => {
+                e.set("problem", "You cannot edit your own permissions.");
+                e.set("suggestion", "Please contact another administrator.");
+            }
+            WorkspaceServiceError::Unauthorized { .. } => {
+                e.set("problem", "You do not have permission to do this.");
+                e.set("suggestion", "Please contact a workspace administrator.");
+            }
+            WorkspaceServiceError::Other(_) => {}
+        })
+    }
+}
+
 #[Object]
 /// A workspace
 impl Workspace {
@@ -82,20 +130,26 @@ impl Workspace {
         context: &Context<'_>,
         filter: Option<RoleFilter>,
     ) -> FieldResult<Vec<User>> {
-        let pool = context.data()?;
-        let users = match filter {
-            Some(RoleFilter::Admin) => db::TeamRepo::members(self.admins, pool).await?,
-            Some(RoleFilter::NonAdmin) => {
-                db::TeamRepo::members_difference(self.members, self.admins, pool).await?
-            }
-            None => db::TeamRepo::members(self.members, pool).await?,
-        };
-        Ok(users.into_iter().map(Into::into).collect())
+        let workspace_service = context.data::<WorkspaceServiceImpl>()?;
+        let pool: &PgPool = context.data()?;
+        let mut repos = RepoFactoryImpl::new(pool.begin().await?);
+        let members = workspace_service
+            .members(
+                &mut repos,
+                self.admins.into(),
+                self.members.into(),
+                filter.map(Into::into),
+            )
+            .await?;
+
+        repos.commit().await?;
+
+        Ok(members.iter().cloned().map(Into::into).collect())
     }
 }
 
-impl From<db::Workspace> for Workspace {
-    fn from(d: db::Workspace) -> Self {
+impl From<db::DbWorkspace> for Workspace {
+    fn from(d: db::DbWorkspace) -> Self {
         Self {
             id: d.id.into(),
             title: d.title,
@@ -131,8 +185,11 @@ pub struct WorkspacesQuery;
 impl WorkspacesQuery {
     /// Get all Workspaces
     async fn workspaces(&self, context: &Context<'_>) -> FieldResult<Vec<Workspace>> {
-        let pool = context.data()?;
-        let workspaces = WorkspaceRepo::find_all(pool).await?;
+        let workspace_service = context.data::<WorkspaceServiceImpl>()?;
+        let pool: &PgPool = context.data()?;
+        let mut repos = RepoFactoryImpl::new(pool.begin().await?);
+        let workspaces = workspace_service.find_all(&mut repos).await?;
+        repos.commit().await?;
         Ok(workspaces.into_iter().map(Into::into).collect())
     }
 
@@ -143,9 +200,14 @@ impl WorkspacesQuery {
 
     #[graphql(entity)]
     async fn get_workspace(&self, context: &Context<'_>, id: ID) -> FieldResult<Workspace> {
-        let pool = context.data()?;
-        let id = Uuid::parse_str(id.as_str())?;
-        let workspace = WorkspaceRepo::find_by_id(id, pool).await?;
+        let workspace_service = context.data::<WorkspaceServiceImpl>()?;
+        let pool: &PgPool = context.data()?;
+        let mut repos = RepoFactoryImpl::new(pool.begin().await?);
+        let id: Uuid = id.try_into()?;
+        let workspace = workspace_service.find_by_id(&mut repos, id.into()).await?;
+
+        repos.commit().await?;
+
         Ok(workspace.into())
     }
 
@@ -156,17 +218,25 @@ impl WorkspacesQuery {
         context: &Context<'_>,
         workspace_id: ID,
     ) -> FieldResult<WorkspaceMembership> {
-        let requesting_user = context.data()?;
-        let pool = context.data()?;
-        let event_client = context.data()?;
+        let workspace_service = context.data::<WorkspaceServiceImpl>()?;
+        let pool: &PgPool = context.data()?;
+        let mut repos = RepoFactoryImpl::new(pool.begin().await?);
+        let requesting_user = context.data::<RequestingUser>()?;
+        let workspace_id: Uuid = workspace_id.try_into()?;
+        // let event_client = context.data()?;
 
-        requesting_user_workspace_rights(
-            workspace_id.try_into()?,
-            requesting_user,
-            pool,
-            event_client,
-        )
-        .await
+        let membership = workspace_service
+            .requesting_user_workspace_rights(
+                &mut repos,
+                workspace_id.into(),
+                requesting_user.auth_id.into(),
+            )
+            .await?
+            .into();
+
+        repos.commit().await?;
+
+        Ok(membership)
     }
 }
 
@@ -181,18 +251,23 @@ impl WorkspacesMutation {
         context: &Context<'_>,
         new_workspace: NewWorkspace,
     ) -> FieldResult<Workspace> {
-        let pool = context.data()?;
-        let event_client: &EventClient = context.data()?;
+        let workspace_service = context.data::<WorkspaceServiceImpl>()?;
         let requesting_user = context.data::<RequestingUser>()?;
+        let pool: &PgPool = context.data()?;
+        let mut repos = RepoFactoryImpl::new(pool.begin().await?);
 
-        create_workspace(
-            &new_workspace.title,
-            &new_workspace.description,
-            requesting_user,
-            pool,
-            event_client,
-        )
-        .await
+        let new_workspace = workspace_service
+            .create_workspace(
+                &mut repos,
+                &new_workspace.title,
+                &new_workspace.description,
+                requesting_user.auth_id.into(),
+            )
+            .await?;
+
+        repos.commit().await?;
+
+        Ok(new_workspace.into())
     }
 
     /// Update workspace (returns updated workspace)
@@ -202,25 +277,43 @@ impl WorkspacesMutation {
         id: ID,
         workspace: UpdateWorkspace,
     ) -> FieldResult<Workspace> {
-        // TODO: Add event
-        let pool = context.data()?;
-        let workspace = WorkspaceRepo::update(
-            Uuid::parse_str(id.as_str())?,
-            &workspace.title,
-            &workspace.description,
-            pool,
-        )
-        .await?;
+        let workspace_service = context.data::<WorkspaceServiceImpl>()?;
+        let pool: &PgPool = context.data()?;
+        let mut repos = RepoFactoryImpl::new(pool.begin().await?);
+        let requesting_user = context.data::<RequestingUser>()?;
+        let workspace = workspace_service
+            .update(
+                &mut repos,
+                Uuid::parse_str(id.as_str())?.into(),
+                &workspace.title,
+                &workspace.description,
+                requesting_user.auth_id.into(),
+            )
+            .await?;
 
+        repos.commit().await?;
+
+        // TODO: Add event
         Ok(workspace.into())
     }
 
     /// Delete workspace (returns deleted workspace)
     async fn delete_workspace(&self, context: &Context<'_>, id: ID) -> FieldResult<Workspace> {
-        // TODO: Add event
-        let pool = context.data()?;
-        let workspace = WorkspaceRepo::delete(Uuid::parse_str(id.as_str())?, pool).await?;
+        let workspace_service = context.data::<WorkspaceServiceImpl>()?;
+        let pool: &PgPool = context.data()?;
+        let mut repos = RepoFactoryImpl::new(pool.begin().await?);
+        let requesting_user = context.data::<RequestingUser>()?;
+        let workspace = workspace_service
+            .delete(
+                &mut repos,
+                Uuid::parse_str(id.as_str())?.into(),
+                requesting_user.auth_id.into(),
+            )
+            .await?;
 
+        repos.commit().await?;
+
+        // TODO: Add event
         Ok(workspace.into())
     }
 
@@ -230,562 +323,380 @@ impl WorkspacesMutation {
         context: &Context<'_>,
         input: MembershipChange,
     ) -> FieldResult<Workspace> {
-        let pool = context.data()?;
+        let workspace_service = context.data::<WorkspaceServiceImpl>()?;
+        let pool: &PgPool = context.data()?;
+        let mut repos = RepoFactoryImpl::new(pool.begin().await?);
         let requesting_user = context.data::<RequestingUser>()?;
-        let event_client: &EventClient = context.data()?;
-
-        change_workspace_membership(
-            input.workspace.try_into()?,
-            input.user.try_into()?,
-            input.new_role.into(),
-            requesting_user,
-            pool,
-            event_client,
-        )
-        .await
-    }
-}
-
-async fn create_workspace(
-    title: &str,
-    description: &str,
-    requesting_user: &RequestingUser,
-    pool: &PgPool,
-    event_client: &EventClient,
-) -> FieldResult<Workspace> {
-    let user = db::UserRepo::find_by_auth_id(&requesting_user.auth_id, pool)
-        .await?
-        .ok_or_else(|| anyhow::anyhow!("user not found"))?;
-    if !user.is_platform_admin {
-        return Err(anyhow::anyhow!(
-            "User with auth_id {} does not have permission to create a workspace.",
-            requesting_user.auth_id,
-        )
-        .into());
-    }
-
-    let workspace: Workspace = WorkspaceRepo::create(title, description, pool)
-        .await?
-        .into();
-
-    event_client
-        .publish_events(&[Event::new(
-            workspace.id.clone(),
-            WorkspaceCreatedData {
-                workspace_id: workspace.id.clone().into(),
-                // TODO: Fill this in when we have users in the db.
-                user_id: "".into(),
-                title: workspace.title.clone(),
-            },
-        )])
-        .await?;
-
-    Ok(workspace)
-}
-
-pub async fn requesting_user_workspace_rights(
-    workspace_id: Uuid,
-    requesting_user: &RequestingUser,
-    pool: &PgPool,
-    _event_client: &EventClient,
-) -> FieldResult<WorkspaceMembership> {
-    let user = db::UserRepo::find_by_auth_id(&requesting_user.auth_id, pool)
-        .await?
-        .ok_or_else(|| anyhow::anyhow!("user not found"))?;
-
-    if user.is_platform_admin {
-        return Ok(WorkspaceMembership::Admin);
-    }
-
-    let user_role = WorkspaceRepo::get_user_role(workspace_id, user.id, pool).await?;
-
-    Ok(user_role.into())
-}
-
-async fn change_workspace_membership(
-    workspace_id: Uuid,
-    user_id: Uuid,
-    role: Role,
-    requesting_user: &RequestingUser,
-    pool: &PgPool,
-    event_client: &EventClient,
-) -> FieldResult<Workspace> {
-    let user = db::UserRepo::find_by_auth_id(&requesting_user.auth_id, pool)
-        .await?
-        .ok_or_else(|| anyhow::anyhow!("user not found"))?;
-
-    if !user.is_platform_admin && !WorkspaceRepo::is_admin(workspace_id, user.id, pool).await? {
-        return Err(anyhow::anyhow!(
-            "user with auth_id {} does not have permission to update workspace membership",
-            user.auth_id,
-        )
-        .extend_with(|_, extensions| {
-            extensions.set("problem", "You do not have permission to do this.");
-            extensions.set("suggestion", "Please contact a workspace administrator.");
-        }));
-    }
-
-    if !user.is_platform_admin && user.id == user_id {
-        return Err(anyhow::anyhow!(
-            "user with auth_id {} cannot demote themselves to {}",
-            user.auth_id,
-            role
-        )
-        .extend_with(|_, extensions| {
-            extensions.set("problem", "You cannot edit your own permissions.");
-            extensions.set("suggestion", "Please contact another administrator.");
-        }));
-    }
-
-    let workspace: Workspace =
-        WorkspaceRepo::change_workspace_membership(workspace_id, user_id, role, pool)
-            .await?
+        let workspace_id: Uuid = input.workspace.try_into()?;
+        let user_id: Uuid = input.user.try_into()?;
+        let workspace = workspace_service
+            .change_workspace_membership(
+                &mut repos,
+                workspace_id.into(),
+                user_id.into(),
+                input.new_role.into(),
+                requesting_user.auth_id.into(),
+            )
+            .await
+            .extend()?
             .into();
 
-    event_client
-        .publish_events(&[Event::new(
-            workspace.id.clone(),
-            WorkspaceMembershipChangedData {
-                requesting_user_id: requesting_user.auth_id.to_string(),
-                affected_workspace_id: workspace.id.clone().into(),
-                affected_user_id: user_id.to_string(),
-                affected_role: role.to_string(),
-            },
-        )])
-        .await?;
-
-    Ok(workspace)
-}
-
-#[cfg(test)]
-mod test {
-    use super::*;
-    use crate::graphql::test_mocks::*;
-    use fnhs_event_models::EventData;
-
-    #[async_std::test]
-    async fn creating_workspace_emits_an_event() -> anyhow::Result<()> {
-        let pool = mock_connection_pool()?;
-        let (events, event_client) = mock_event_emitter();
-
-        let workspace = create_workspace(
-            "title",
-            "description",
-            &mock_admin_requesting_user().await?,
-            &pool,
-            &event_client,
-        )
-        .await
-        .unwrap();
-
-        assert_eq!(workspace.title, "title");
-        assert_eq!(workspace.description, "description");
-
-        assert!(events
-            .try_iter()
-            .any(|e| matches!(e.data, EventData::WorkspaceCreated(_))));
-
-        Ok(())
-    }
-
-    #[async_std::test]
-    async fn creating_workspace_as_non_admin_fails() -> anyhow::Result<()> {
-        let pool = mock_connection_pool()?;
-        let (events, event_client) = mock_event_emitter();
-
-        let result = create_workspace(
-            "title",
-            "description",
-            &mock_unprivileged_requesting_user().await?,
-            &pool,
-            &event_client,
-        )
-        .await;
-
-        assert_eq!(result.err().unwrap().message, "User with auth_id deadbeef-0000-0000-0000-000000000000 does not have permission to create a workspace.");
-
-        assert_eq!(events.try_iter().count(), 0);
-
-        Ok(())
-    }
-
-    #[async_std::test]
-    async fn a_workspace_admin_cannot_demote_themselves_to_member() -> anyhow::Result<()> {
-        use db::TeamRepo;
-
-        let pool = mock_connection_pool()?;
-        let (events, event_client) = mock_event_emitter();
-        let requesting_user = mock_unprivileged_requesting_user().await?;
-        let requesting_user_user = db::UserRepo::find_by_auth_id(&requesting_user.auth_id, &pool)
-            .await?
-            .ok_or_else(|| anyhow::anyhow!("user not found"))?;
-
-        let workspace = WorkspaceRepo::create("", "", &pool).await?;
-        TeamRepo::add_member(workspace.members, requesting_user_user.id, &pool).await?;
-        TeamRepo::add_member(workspace.admins, requesting_user_user.id, &pool).await?;
-        let result = change_workspace_membership(
-            workspace.id,
-            requesting_user_user.id,
-            Role::NonAdmin,
-            &requesting_user,
-            &pool,
-            &event_client,
-        )
-        .await;
-
-        assert_eq!(
-            result.err().unwrap().message,
-            format!(
-                "user with auth_id {} cannot demote themselves to NonAdmin",
-                requesting_user.auth_id
-            )
-        );
-
-        assert_eq!(events.try_iter().count(), 0);
-
-        Ok(())
-    }
-
-    #[async_std::test]
-    async fn a_workspace_admin_cannot_demote_themselves_to_non_member() -> anyhow::Result<()> {
-        use db::TeamRepo;
-
-        let pool = mock_connection_pool()?;
-        let (events, event_client) = mock_event_emitter();
-        let requesting_user = mock_unprivileged_requesting_user().await?;
-        let requesting_user_user = db::UserRepo::find_by_auth_id(&requesting_user.auth_id, &pool)
-            .await?
-            .ok_or_else(|| anyhow::anyhow!("user not found"))?;
-
-        let workspace = WorkspaceRepo::create("", "", &pool).await?;
-        TeamRepo::add_member(workspace.members, requesting_user_user.id, &pool).await?;
-        TeamRepo::add_member(workspace.admins, requesting_user_user.id, &pool).await?;
-        let result = change_workspace_membership(
-            workspace.id,
-            requesting_user_user.id,
-            Role::NonMember,
-            &requesting_user,
-            &pool,
-            &event_client,
-        )
-        .await;
-
-        assert_eq!(
-            result.err().unwrap().message,
-            format!(
-                "user with auth_id {} cannot demote themselves to NonMember",
-                requesting_user.auth_id
-            )
-        );
-
-        assert_eq!(events.try_iter().count(), 0);
-
-        Ok(())
-    }
-
-    #[async_std::test]
-    async fn a_user_cannot_add_another_if_they_are_neither_site_nor_workspace_admin(
-    ) -> anyhow::Result<()> {
-        let pool = mock_connection_pool()?;
-        let (events, event_client) = mock_event_emitter();
-        let requesting_user = mock_unprivileged_requesting_user().await?;
-
-        let workspace = WorkspaceRepo::create("", "", &pool).await?;
-        let result = change_workspace_membership(
-            workspace.id,
-            Uuid::new_v4(),
-            Role::NonAdmin,
-            &requesting_user,
-            &pool,
-            &event_client,
-        )
-        .await;
-
-        assert_eq!(
-            result.err().unwrap().message,
-            format!(
-                "user with auth_id {} does not have permission to update workspace membership",
-                requesting_user.auth_id
-            )
-        );
-
-        assert_eq!(events.try_iter().count(), 0);
-
-        Ok(())
-    }
-
-    #[async_std::test]
-    async fn a_user_cannot_add_another_if_they_are_just_a_workspace_member() -> anyhow::Result<()> {
-        use db::TeamRepo;
-
-        let pool = mock_connection_pool()?;
-        let (events, event_client) = mock_event_emitter();
-        let requesting_user = mock_unprivileged_requesting_user().await?;
-        let user = db::UserRepo::find_by_auth_id(&requesting_user.auth_id, &pool)
-            .await?
-            .ok_or_else(|| anyhow::anyhow!("user not found"))?;
-
-        let workspace = WorkspaceRepo::create("", "", &pool).await?;
-        TeamRepo::add_member(workspace.members, user.id, &pool).await?;
-
-        let result = change_workspace_membership(
-            workspace.id,
-            Uuid::new_v4(),
-            Role::Admin,
-            &requesting_user,
-            &pool,
-            &event_client,
-        )
-        .await;
-
-        assert_eq!(
-            result.err().unwrap().message,
-            format!(
-                "user with auth_id {} does not have permission to update workspace membership",
-                requesting_user.auth_id
-            )
-        );
-
-        assert_eq!(events.try_iter().count(), 0);
-
-        Ok(())
-    }
-
-    #[async_std::test]
-    async fn a_workspace_admin_can_add_another_user_as_member() -> anyhow::Result<()> {
-        use db::TeamRepo;
-
-        let pool = mock_connection_pool()?;
-        let (events, event_client) = mock_event_emitter();
-        let requesting_user = mock_unprivileged_requesting_user().await?;
-        let requesting_user_user = db::UserRepo::find_by_auth_id(&requesting_user.auth_id, &pool)
-            .await?
-            .ok_or_else(|| anyhow::anyhow!("user not found"))?;
-
-        let workspace = WorkspaceRepo::create("", "", &pool).await?;
-        TeamRepo::add_member(workspace.members, requesting_user_user.id, &pool).await?;
-        TeamRepo::add_member(workspace.admins, requesting_user_user.id, &pool).await?;
-
-        let user_id = Uuid::new_v4();
-        change_workspace_membership(
-            workspace.id,
-            user_id,
-            Role::NonAdmin,
-            &requesting_user,
-            &pool,
-            &event_client,
-        )
-        .await
-        .unwrap();
-
-        let is_admin = TeamRepo::is_member(workspace.admins, user_id, &pool)
-            .await
-            .unwrap();
-        let is_member = TeamRepo::is_member(workspace.members, user_id, &pool)
-            .await
-            .unwrap();
-
-        assert_eq!(is_admin, false, "should not be an admin");
-        assert_eq!(is_member, true, "should be a member");
-        assert_eq!(events.try_iter().count(), 1);
-
-        Ok(())
-    }
-
-    #[async_std::test]
-    async fn a_site_admin_can_make_themselves_admin() -> anyhow::Result<()> {
-        use db::TeamRepo;
-
-        let pool = mock_connection_pool()?;
-        let (events, event_client) = mock_event_emitter();
-        let requesting_user = mock_admin_requesting_user().await?;
-        let requesting_user_user = db::UserRepo::find_by_auth_id(&requesting_user.auth_id, &pool)
-            .await?
-            .ok_or_else(|| anyhow::anyhow!("user not found"))?;
-
-        let workspace = WorkspaceRepo::create("", "", &pool).await?;
-
-        let user_id = requesting_user_user.id;
-        change_workspace_membership(
-            workspace.id,
-            user_id,
-            Role::Admin,
-            &requesting_user,
-            &pool,
-            &event_client,
-        )
-        .await
-        .unwrap();
-
-        let is_admin = TeamRepo::is_member(workspace.admins, user_id, &pool)
-            .await
-            .unwrap();
-        let is_member = TeamRepo::is_member(workspace.members, user_id, &pool)
-            .await
-            .unwrap();
-
-        assert_eq!(is_admin, true, "should be an admin");
-        assert_eq!(is_member, true, "should be a member");
-        assert_eq!(events.try_iter().count(), 1);
-
-        Ok(())
-    }
-
-    #[async_std::test]
-    async fn a_workspace_admin_can_add_another_user_as_admin() -> anyhow::Result<()> {
-        use db::TeamRepo;
-
-        let pool = mock_connection_pool()?;
-        let (events, event_client) = mock_event_emitter();
-        let requesting_user = mock_unprivileged_requesting_user().await?;
-        let requesting_user_user = db::UserRepo::find_by_auth_id(&requesting_user.auth_id, &pool)
-            .await?
-            .ok_or_else(|| anyhow::anyhow!("user not found"))?;
-
-        let workspace = WorkspaceRepo::create("", "", &pool).await?;
-        TeamRepo::add_member(workspace.members, requesting_user_user.id, &pool).await?;
-        TeamRepo::add_member(workspace.admins, requesting_user_user.id, &pool).await?;
-
-        let user_id = Uuid::new_v4();
-        change_workspace_membership(
-            workspace.id,
-            user_id,
-            Role::Admin,
-            &requesting_user,
-            &pool,
-            &event_client,
-        )
-        .await
-        .unwrap();
-
-        let is_admin = TeamRepo::is_member(workspace.admins, user_id, &pool)
-            .await
-            .unwrap();
-        let is_member = TeamRepo::is_member(workspace.members, user_id, &pool)
-            .await
-            .unwrap();
-
-        assert_eq!(is_admin, true, "should be an admin");
-        assert_eq!(is_member, true, "should be a member");
-        assert_eq!(events.try_iter().count(), 1);
-
-        Ok(())
-    }
-
-    #[async_std::test]
-    async fn a_workspace_admin_can_remove_another_user_from_the_workspace() -> anyhow::Result<()> {
-        use db::TeamRepo;
-
-        let pool = mock_connection_pool()?;
-        let (events, event_client) = mock_event_emitter();
-        let requesting_user = mock_unprivileged_requesting_user().await?;
-        let requesting_user_user = db::UserRepo::find_by_auth_id(&requesting_user.auth_id, &pool)
-            .await?
-            .ok_or_else(|| anyhow::anyhow!("user not found"))?;
-
-        let workspace = WorkspaceRepo::create("", "", &pool).await?;
-        TeamRepo::add_member(workspace.members, requesting_user_user.id, &pool).await?;
-        TeamRepo::add_member(workspace.admins, requesting_user_user.id, &pool).await?;
-
-        let user_id = Uuid::new_v4();
-        change_workspace_membership(
-            workspace.id,
-            user_id,
-            Role::NonMember,
-            &requesting_user,
-            &pool,
-            &event_client,
-        )
-        .await
-        .unwrap();
-
-        let is_admin = TeamRepo::is_member(workspace.admins, user_id, &pool)
-            .await
-            .unwrap();
-        let is_member = TeamRepo::is_member(workspace.members, user_id, &pool)
-            .await
-            .unwrap();
-
-        assert_eq!(is_admin, false, "should not be an admin");
-        assert_eq!(is_member, false, "should not be a member");
-        assert_eq!(events.try_iter().count(), 1);
-
-        Ok(())
-    }
-
-    #[async_std::test]
-    async fn a_platform_admin_can_add_a_member() -> anyhow::Result<()> {
-        use db::TeamRepo;
-        const NON_ADMIN_USER: &str = "1be12ec1-41bd-4384-b86f-de10fa754c12";
-
-        let pool = mock_connection_pool()?;
-        let (events, event_client) = mock_event_emitter();
-        let requesting_user = mock_admin_requesting_user().await?;
-        let user_id = Uuid::parse_str(NON_ADMIN_USER).unwrap();
-
-        let workspace = WorkspaceRepo::create("", "", &pool).await?;
-        TeamRepo::remove_member(workspace.admins, user_id, &pool).await?;
-        TeamRepo::add_member(workspace.members, user_id, &pool).await?;
-        change_workspace_membership(
-            workspace.id,
-            user_id,
-            Role::NonAdmin,
-            &requesting_user,
-            &pool,
-            &event_client,
-        )
-        .await
-        .unwrap();
-
-        let is_admin = TeamRepo::is_member(workspace.admins, user_id, &pool)
-            .await
-            .unwrap();
-        let is_member = TeamRepo::is_member(workspace.members, user_id, &pool)
-            .await
-            .unwrap();
-
-        assert_eq!(is_admin, false, "should not be an admin");
-        assert_eq!(is_member, true, "should be a member");
-        assert_eq!(events.try_iter().count(), 1);
-
-        Ok(())
-    }
-
-    #[async_std::test]
-    async fn a_platform_admin_can_add_an_admin() -> anyhow::Result<()> {
-        use db::TeamRepo;
-        const NON_ADMIN_USER: &str = "1be12ec1-41bd-4384-b86f-de10fa754c12";
-
-        let pool = mock_connection_pool()?;
-        let (events, event_client) = mock_event_emitter();
-        let requesting_user = mock_admin_requesting_user().await?;
-        let user_id = Uuid::parse_str(NON_ADMIN_USER).unwrap();
-
-        let workspace = WorkspaceRepo::create("", "", &pool).await?;
-        TeamRepo::remove_member(workspace.admins, user_id, &pool).await?;
-        TeamRepo::add_member(workspace.members, user_id, &pool).await?;
-        change_workspace_membership(
-            workspace.id,
-            user_id,
-            Role::Admin,
-            &requesting_user,
-            &pool,
-            &event_client,
-        )
-        .await
-        .unwrap();
-
-        let is_admin = TeamRepo::is_member(workspace.admins, user_id, &pool)
-            .await
-            .unwrap();
-        let is_member = TeamRepo::is_member(workspace.members, user_id, &pool)
-            .await
-            .unwrap();
-
-        assert_eq!(is_admin, true, "should be an admin");
-        assert_eq!(is_member, true, "should be a member");
-        assert_eq!(events.try_iter().count(), 1);
-
-        Ok(())
+        repos.commit().await?;
+        // let event_client: &EventClient = context.data()?;
+        Ok(workspace)
     }
 }
+
+// #[cfg(test)]
+// mod test {
+//     use super::*;
+//     use crate::graphql::test_mocks::*;
+//     use fnhs_event_models::EventData;
+
+//     #[async_std::test]
+//     async fn a_workspace_admin_cannot_demote_themselves_to_member() -> anyhow::Result<()> {
+//         use db::TeamRepo;
+
+//         let pool = mock_connection_pool()?;
+//         let (events, event_client) = mock_event_emitter();
+//         let requesting_user = mock_unprivileged_requesting_user().await?;
+//         let requesting_user_user = user_repo
+//             .find_by_auth_id(&requesting_user.auth_id, &pool)
+//             .await?
+//             .ok_or_else(|| anyhow::anyhow!("user not found"))?;
+
+//         let workspace = WorkspaceRepo::create("", "", &pool).await?;
+//         TeamRepo::add_member(workspace.members, requesting_user_user.id, &pool).await?;
+//         TeamRepo::add_member(workspace.admins, requesting_user_user.id, &pool).await?;
+//         let result = change_workspace_membership(
+//             workspace.id,
+//             requesting_user_user.id,
+//             Role::NonAdmin,
+//             &requesting_user,
+//             &pool,
+//             &event_client,
+//         )
+//         .await;
+
+//         assert_eq!(
+//             result.err().unwrap().message,
+//             format!(
+//                 "user with auth_id {} cannot demote themselves to NonAdmin",
+//                 requesting_user.auth_id
+//             )
+//         );
+
+//         assert_eq!(events.try_iter().count(), 0);
+
+//         Ok(())
+//     }
+
+//     #[async_std::test]
+//     async fn a_workspace_admin_cannot_demote_themselves_to_non_member() -> anyhow::Result<()> {
+//         use db::TeamRepo;
+
+//         let pool = mock_connection_pool()?;
+//         let (events, event_client) = mock_event_emitter();
+//         let requesting_user = mock_unprivileged_requesting_user().await?;
+//         let requesting_user_user = user_repo
+//             .find_by_auth_id(&requesting_user.auth_id, &pool)
+//             .await?
+//             .ok_or_else(|| anyhow::anyhow!("user not found"))?;
+
+//         let workspace = WorkspaceRepo::create("", "", &pool).await?;
+//         TeamRepo::add_member(workspace.members, requesting_user_user.id, &pool).await?;
+//         TeamRepo::add_member(workspace.admins, requesting_user_user.id, &pool).await?;
+//         let result = change_workspace_membership(
+//             workspace.id,
+//             requesting_user_user.id,
+//             Role::NonMember,
+//             &requesting_user,
+//             &pool,
+//             &event_client,
+//         )
+//         .await;
+
+//         assert_eq!(
+//             result.err().unwrap().message,
+//             format!(
+//                 "user with auth_id {} cannot demote themselves to NonMember",
+//                 requesting_user.auth_id
+//             )
+//         );
+
+//         assert_eq!(events.try_iter().count(), 0);
+
+//         Ok(())
+//     }
+
+//     #[async_std::test]
+//     async fn a_user_cannot_add_another_if_they_are_neither_site_nor_workspace_admin(
+//     ) -> anyhow::Result<()> {
+//         let pool = mock_connection_pool()?;
+//         let (events, event_client) = mock_event_emitter();
+//         let requesting_user = mock_unprivileged_requesting_user().await?;
+
+//         let workspace = WorkspaceRepo::create("", "", &pool).await?;
+//         let result = change_workspace_membership(
+//             workspace.id,
+//             Uuid::new_v4(),
+//             Role::NonAdmin,
+//             &requesting_user,
+//             &pool,
+//             &event_client,
+//         )
+//         .await;
+
+//         assert_eq!(
+//             result.err().unwrap().message,
+//             format!(
+//                 "user with auth_id {} does not have permission to update workspace membership",
+//                 requesting_user.auth_id
+//             )
+//         );
+
+//         assert_eq!(events.try_iter().count(), 0);
+
+//         Ok(())
+//     }
+
+//     #[async_std::test]
+//     async fn a_user_cannot_add_another_if_they_are_just_a_workspace_member() -> anyhow::Result<()> {
+//         use db::TeamRepo;
+
+//         let pool = mock_connection_pool()?;
+//         let (events, event_client) = mock_event_emitter();
+//         let requesting_user = mock_unprivileged_requesting_user().await?;
+//         let user = user_repo
+//             .find_by_auth_id(&requesting_user.auth_id, &pool)
+//             .await?
+//             .ok_or_else(|| anyhow::anyhow!("user not found"))?;
+
+//         let workspace = WorkspaceRepo::create("", "", &pool).await?;
+//         TeamRepo::add_member(workspace.members, user.id, &pool).await?;
+
+//         let result = change_workspace_membership(
+//             workspace.id,
+//             Uuid::new_v4(),
+//             Role::Admin,
+//             &requesting_user,
+//             &pool,
+//             &event_client,
+//         )
+//         .await;
+
+//         assert_eq!(
+//             result.err().unwrap().message,
+//             format!(
+//                 "user with auth_id {} does not have permission to update workspace membership",
+//                 requesting_user.auth_id
+//             )
+//         );
+
+//         assert_eq!(events.try_iter().count(), 0);
+
+//         Ok(())
+//     }
+
+//     #[async_std::test]
+//     async fn a_workspace_admin_can_add_another_user_as_member() -> anyhow::Result<()> {
+//         use db::TeamRepo;
+
+//         let pool = mock_connection_pool()?;
+//         let (events, event_client) = mock_event_emitter();
+//         let requesting_user = mock_unprivileged_requesting_user().await?;
+//         let requesting_user_user = user_repo
+//             .find_by_auth_id(&requesting_user.auth_id, &pool)
+//             .await?
+//             .ok_or_else(|| anyhow::anyhow!("user not found"))?;
+
+//         let workspace = WorkspaceRepo::create("", "", &pool).await?;
+//         TeamRepo::add_member(workspace.members, requesting_user_user.id, &pool).await?;
+//         TeamRepo::add_member(workspace.admins, requesting_user_user.id, &pool).await?;
+
+//         let user_id = Uuid::new_v4();
+//         change_workspace_membership(
+//             workspace.id,
+//             user_id,
+//             Role::NonAdmin,
+//             &requesting_user,
+//             &pool,
+//             &event_client,
+//         )
+//         .await
+//         .unwrap();
+
+//         let is_admin = TeamRepo::is_member(workspace.admins, user_id, &pool)
+//             .await
+//             .unwrap();
+//         let is_member = TeamRepo::is_member(workspace.members, user_id, &pool)
+//             .await
+//             .unwrap();
+
+//         assert_eq!(is_admin, false, "should not be an admin");
+//         assert_eq!(is_member, true, "should be a member");
+//         assert_eq!(events.try_iter().count(), 1);
+
+//         Ok(())
+//     }
+
+//     #[async_std::test]
+//     async fn a_workspace_admin_can_add_another_user_as_admin() -> anyhow::Result<()> {
+//         use db::TeamRepo;
+
+//         let pool = mock_connection_pool()?;
+//         let (events, event_client) = mock_event_emitter();
+//         let requesting_user = mock_unprivileged_requesting_user().await?;
+//         let requesting_user_user = user_repo
+//             .find_by_auth_id(&requesting_user.auth_id, &pool)
+//             .await?
+//             .ok_or_else(|| anyhow::anyhow!("user not found"))?;
+
+//         let workspace = WorkspaceRepo::create("", "", &pool).await?;
+//         TeamRepo::add_member(workspace.members, requesting_user_user.id, &pool).await?;
+//         TeamRepo::add_member(workspace.admins, requesting_user_user.id, &pool).await?;
+
+//         let user_id = Uuid::new_v4();
+//         change_workspace_membership(
+//             workspace.id,
+//             user_id,
+//             Role::Admin,
+//             &requesting_user,
+//             &pool,
+//             &event_client,
+//         )
+//         .await
+//         .unwrap();
+
+//         let is_admin = TeamRepo::is_member(workspace.admins, user_id, &pool)
+//             .await
+//             .unwrap();
+//         let is_member = TeamRepo::is_member(workspace.members, user_id, &pool)
+//             .await
+//             .unwrap();
+
+//         assert_eq!(is_admin, true, "should be an admin");
+//         assert_eq!(is_member, true, "should be a member");
+//         assert_eq!(events.try_iter().count(), 1);
+
+//         Ok(())
+//     }
+
+//     #[async_std::test]
+//     async fn a_workspace_admin_can_remove_another_user_from_the_workspace() -> anyhow::Result<()> {
+//         use db::TeamRepo;
+
+//         let pool = mock_connection_pool()?;
+//         let (events, event_client) = mock_event_emitter();
+//         let requesting_user = mock_unprivileged_requesting_user().await?;
+//         let requesting_user_user = user_repo
+//             .find_by_auth_id(&requesting_user.auth_id, &pool)
+//             .await?
+//             .ok_or_else(|| anyhow::anyhow!("user not found"))?;
+
+//         let workspace = WorkspaceRepo::create("", "", &pool).await?;
+//         TeamRepo::add_member(workspace.members, requesting_user_user.id, &pool).await?;
+//         TeamRepo::add_member(workspace.admins, requesting_user_user.id, &pool).await?;
+
+//         let user_id = Uuid::new_v4();
+//         change_workspace_membership(
+//             workspace.id,
+//             user_id,
+//             Role::NonMember,
+//             &requesting_user,
+//             &pool,
+//             &event_client,
+//         )
+//         .await
+//         .unwrap();
+
+//         let is_admin = TeamRepo::is_member(workspace.admins, user_id, &pool)
+//             .await
+//             .unwrap();
+//         let is_member = TeamRepo::is_member(workspace.members, user_id, &pool)
+//             .await
+//             .unwrap();
+
+//         assert_eq!(is_admin, false, "should not be an admin");
+//         assert_eq!(is_member, false, "should not be a member");
+//         assert_eq!(events.try_iter().count(), 1);
+
+//         Ok(())
+//     }
+
+//     #[async_std::test]
+//     async fn a_platform_admin_can_add_a_member() -> anyhow::Result<()> {
+//         use db::TeamRepo;
+//         const NON_ADMIN_USER: &str = "1be12ec1-41bd-4384-b86f-de10fa754c12";
+
+//         let pool = mock_connection_pool()?;
+//         let (events, event_client) = mock_event_emitter();
+//         let requesting_user = mock_admin_requesting_user().await?;
+//         let user_id = Uuid::parse_str(NON_ADMIN_USER).unwrap();
+
+//         let workspace = WorkspaceRepo::create("", "", &pool).await?;
+//         TeamRepo::remove_member(workspace.admins, user_id, &pool).await?;
+//         TeamRepo::add_member(workspace.members, user_id, &pool).await?;
+//         change_workspace_membership(
+//             workspace.id,
+//             user_id,
+//             Role::NonAdmin,
+//             &requesting_user,
+//             &pool,
+//             &event_client,
+//         )
+//         .await
+//         .unwrap();
+
+//         let is_admin = TeamRepo::is_member(workspace.admins, user_id, &pool)
+//             .await
+//             .unwrap();
+//         let is_member = TeamRepo::is_member(workspace.members, user_id, &pool)
+//             .await
+//             .unwrap();
+
+//         assert_eq!(is_admin, false, "should not be an admin");
+//         assert_eq!(is_member, true, "should be a member");
+//         assert_eq!(events.try_iter().count(), 1);
+
+//         Ok(())
+//     }
+
+//     #[async_std::test]
+//     async fn a_platform_admin_can_add_an_admin() -> anyhow::Result<()> {
+//         use db::TeamRepo;
+//         const NON_ADMIN_USER: &str = "1be12ec1-41bd-4384-b86f-de10fa754c12";
+
+//         let pool = mock_connection_pool()?;
+//         let (events, event_client) = mock_event_emitter();
+//         let requesting_user = mock_admin_requesting_user().await?;
+//         let user_id = Uuid::parse_str(NON_ADMIN_USER).unwrap();
+
+//         let workspace = WorkspaceRepo::create("", "", &pool).await?;
+//         TeamRepo::remove_member(workspace.admins, user_id, &pool).await?;
+//         TeamRepo::add_member(workspace.members, user_id, &pool).await?;
+//         change_workspace_membership(
+//             workspace.id,
+//             user_id,
+//             Role::Admin,
+//             &requesting_user,
+//             &pool,
+//             &event_client,
+//         )
+//         .await
+//         .unwrap();
+
+//         let is_admin = TeamRepo::is_member(workspace.admins, user_id, &pool)
+//             .await
+//             .unwrap();
+//         let is_member = TeamRepo::is_member(workspace.members, user_id, &pool)
+//             .await
+//             .unwrap();
+
+//         assert_eq!(is_admin, true, "should be an admin");
+//         assert_eq!(is_member, true, "should be a member");
+//         assert_eq!(events.try_iter().count(), 1);
+
+//         Ok(())
+//     }
+// }

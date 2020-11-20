@@ -5,41 +5,72 @@ mod teams;
 mod users;
 mod workspaces;
 
-pub use file_versions::*;
-pub use workspaces::Role;
-
-#[cfg(not(test))]
-pub use files::FileWithVersionRepo;
-#[cfg(test)]
-pub use files::FileWithVersionRepoFake as FileWithVersionRepo;
-pub use files::{CreateFileArgs, CreateFileVersionArgs, File, FileRepo, FileWithVersion};
-
-pub use folders::Folder;
-#[cfg(not(test))]
-pub use folders::FolderRepo;
-#[cfg(test)]
-pub use folders::FolderRepoFake as FolderRepo;
-
-pub use teams::Team;
-#[cfg(not(test))]
-pub use teams::TeamRepo;
-#[cfg(test)]
-pub use teams::TeamRepoFake as TeamRepo;
-
-pub use users::User;
-#[cfg(not(test))]
-pub use users::UserRepo;
-#[cfg(test)]
-pub use users::UserRepoFake as UserRepo;
-
-pub use workspaces::Workspace;
-#[cfg(not(test))]
-pub use workspaces::WorkspaceRepo;
-#[cfg(test)]
-pub use workspaces::WorkspaceRepoFake as WorkspaceRepo;
-
+use crate::core::{
+    folder::FolderRepo, team::TeamRepo, user::UserRepo, workspace::WorkspaceRepo, RepoFactory,
+};
 use anyhow::Result;
-use sqlx::{Executor, Postgres};
+pub use file_versions::*;
+pub use files::{
+    CreateFileArgs, CreateFileVersionArgs, File, FileRepo, FileWithVersion, FileWithVersionRepo,
+};
+pub use folders::FolderRepoImpl;
+use sqlx::{Executor, Postgres, Transaction};
+pub use teams::TeamRepoImpl;
+pub use users::UserRepoImpl;
+pub use workspaces::{DbWorkspace, WorkspaceRepoImpl};
+
+pub struct RepoFactoryImpl<'ex> {
+    executor: Transaction<'ex, Postgres>,
+}
+
+impl<'ex> RepoFactoryImpl<'ex> {
+    pub fn new(executor: Transaction<'ex, Postgres>) -> Self {
+        Self { executor }
+    }
+
+    pub async fn commit(self) -> Result<()> {
+        self.executor.commit().await?;
+        Ok(())
+    }
+}
+
+impl<'ex> RepoFactory<'ex> for RepoFactoryImpl<'ex> {
+    fn folder<'r>(&'r mut self) -> Box<dyn FolderRepo + Send + 'r>
+    where
+        'ex: 'r,
+    {
+        Box::new(FolderRepoImpl {
+            executor: &mut self.executor,
+        })
+    }
+
+    fn team<'r>(&'r mut self) -> Box<dyn TeamRepo + Send + 'r>
+    where
+        'ex: 'r,
+    {
+        Box::new(TeamRepoImpl {
+            executor: &mut self.executor,
+        })
+    }
+
+    fn user<'r>(&'r mut self) -> Box<dyn UserRepo + Send + 'r>
+    where
+        'ex: 'r,
+    {
+        Box::new(UserRepoImpl {
+            executor: &mut self.executor,
+        })
+    }
+
+    fn workspace<'r>(&'r mut self) -> Box<dyn WorkspaceRepo + Send + 'r>
+    where
+        'ex: 'r,
+    {
+        Box::new(WorkspaceRepoImpl {
+            executor: &mut self.executor,
+        })
+    }
+}
 
 async fn defer_all_constraints<'c, E>(executor: E) -> Result<()>
 where

@@ -3,14 +3,13 @@ mod file_upload_urls;
 mod files;
 mod folders;
 mod schema;
-#[cfg(test)]
-mod test_mocks;
 mod tracing_ext;
 mod users;
 mod validation;
 mod workspaces;
 
 use super::{azure, db};
+use crate::services::{folder::FolderServiceImpl, workspace::WorkspaceServiceImpl};
 use async_graphql::{
     http::{playground_source, GraphQLPlaygroundConfig},
     EmptySubscription, MergedObject, Schema,
@@ -27,11 +26,19 @@ pub struct State {
 }
 
 impl State {
-    pub fn new(pool: PgPool, event_client: EventClient, azure_config: azure::Config) -> State {
+    pub fn new(
+        pool: PgPool,
+        event_client: EventClient,
+        azure_config: azure::Config,
+        workspace_service: WorkspaceServiceImpl,
+        folder_service: FolderServiceImpl,
+    ) -> Self {
         State {
             schema: Schema::build(Query::default(), Mutation::default(), EmptySubscription)
                 .extension(tracing_ext::Tracing)
                 .data(pool)
+                .data(workspace_service)
+                .data(folder_service)
                 .data(event_client.clone())
                 .data(azure_config)
                 .finish(),
@@ -57,18 +64,20 @@ struct Mutation(
     users::UsersMutation,
 );
 
+// TODO: move this to the domain and use the AuthId newtype (or make it use a UserId instead)
 #[derive(Debug)]
 pub struct RequestingUser {
     auth_id: Uuid,
 }
 
-pub async fn handle_healthz(req: Request<State>) -> tide::Result {
-    let response = if !req.state().event_client.is_configured() {
-        Response::builder(500).body("invalid event client").build()
-    } else {
-        Response::new(204)
-    };
+pub async fn handle_healthz(_req: Request<State>) -> tide::Result {
+    // let response = if !req.state().event_client.is_configured() {
+    //     Response::builder(500).body("invalid event client").build()
+    // } else {
+    //     Response::new(204)
+    // };
 
+    let response = Response::new(204);
     Ok(response)
 }
 

@@ -14,6 +14,7 @@ azure_sdk_core = "0.43.7"
 azure_sdk_storage_blob = "0.45.3"
 azure_sdk_storage_core = "0.44.4"
 chrono = "0.4.19"
+derive_more = {version = "0.99.11", features = ["from"]}
 fnhs-event-models = {path = "../event-models/rust"}
 http-types = "2.7.0"
 lazy_static = "1.4.0"
@@ -23,6 +24,7 @@ opentelemetry-application-insights = "0.4.0"
 regex = "1.4.2"
 serde_json = "1.0.59"
 structopt = "0.3.20"
+thiserror = "1.0.22"
 tide = "0.14.0"
 tracing = {version = "0.1.21", features = ["attributes"]}
 tracing-futures = "0.2.4"
@@ -48,5 +50,6 @@ git = "https://github.com/launchbadge/sqlx"
 rev = "144dcceb445e804b16258d0dd9e580d6a484a01e"
 
 [dev_dependencies]
+mockall = "0.8.3"
 percent-encoding = "2.1.0"
 test-case = "1.0.0"

@@ -1,11 +1,16 @@
 // sqlx::query_file_as!() causes spurious errors with this lint enabled
 #![allow(clippy::suspicious_else_formatting)]
 
-use anyhow::Result;
-use sqlx::{types::Uuid, PgPool};
+use crate::core::{
+    folder::{Folder, FolderId, FolderRepo},
+    workspace::WorkspaceId,
+};
+use anyhow::{Context, Result};
+use async_trait::async_trait;
+use sqlx::{types::Uuid, Postgres, Transaction};
 
 #[derive(Clone)]
-pub struct Folder {
+pub struct DbFolder {
     pub id: Uuid,
     pub title: String,
     pub description: String,
@@ -13,140 +18,103 @@ pub struct Folder {
     pub workspace: Uuid,
 }
 
-#[cfg_attr(test, allow(dead_code))]
-pub struct FolderRepo {}
+impl From<DbFolder> for Folder {
+    fn from(f: DbFolder) -> Self {
+        Self {
+            id: f.id.into(),
+            title: f.title,
+            description: f.description,
+            role_required: f.role_required,
+            workspace: f.workspace.into(),
+        }
+    }
+}
 
-#[cfg_attr(test, allow(dead_code))]
-impl FolderRepo {
-    pub async fn create(
+pub struct FolderRepoImpl<'a, 'ex> {
+    pub(crate) executor: &'a mut Transaction<'ex, Postgres>,
+}
+
+#[async_trait]
+impl<'a, 'ex> FolderRepo for FolderRepoImpl<'a, 'ex> {
+    async fn create(
+        &mut self,
         title: &str,
         description: &str,
         role_required: &str,
-        workspace: Uuid,
-        pool: &PgPool,
+        workspace: WorkspaceId,
     ) -> Result<Folder> {
+        let workspace_id: Uuid = workspace.into();
         let folder = sqlx::query_file_as!(
-            Folder,
+            DbFolder,
             "sql/folders/create.sql",
             title,
             description,
             role_required,
-            workspace,
+            workspace_id,
         )
-        .fetch_one(pool)
-        .await?;
+        .fetch_one(&mut *self.executor)
+        .await
+        .context("create folder")?
+        .into();
 
         Ok(folder)
     }
 
-    pub async fn find_by_workspace(workspace: Uuid, pool: &PgPool) -> Result<Vec<Folder>> {
-        let folders = sqlx::query_file_as!(Folder, "sql/folders/find_by_workspace.sql", workspace)
-            .fetch_all(pool)
-            .await?;
+    async fn find_by_workspace(&mut self, workspace: WorkspaceId) -> Result<Vec<Folder>> {
+        let workspace_id: Uuid = workspace.into();
+        let folders =
+            sqlx::query_file_as!(DbFolder, "sql/folders/find_by_workspace.sql", workspace_id)
+                .fetch_all(&mut *self.executor)
+                .await
+                .context("find folders for workspace")?;
+        let folders = folders.iter().cloned().map(Into::into).collect();
 
         Ok(folders)
     }
 
-    pub async fn find_by_id(id: Uuid, pool: &PgPool) -> Result<Folder> {
-        let folder = sqlx::query_file_as!(Folder, "sql/folders/find_by_id.sql", id)
-            .fetch_one(pool)
-            .await?;
+    async fn find_by_id(&mut self, id: FolderId) -> Result<Folder> {
+        let folder_id: Uuid = id.into();
+        let folder = sqlx::query_file_as!(DbFolder, "sql/folders/find_by_id.sql", folder_id)
+            .fetch_one(&mut *self.executor)
+            .await
+            .context("find folder by id")?
+            .into();
 
         Ok(folder)
     }
 
-    pub async fn update(
-        id: Uuid,
+    async fn update(
+        &mut self,
+        id: FolderId,
         title: &str,
         description: &str,
         role_required: &str,
-        pool: &PgPool,
     ) -> Result<Folder> {
+        let folder_id: Uuid = id.into();
         let folder = sqlx::query_file_as!(
-            Folder,
+            DbFolder,
             "sql/folders/update.sql",
-            id,
+            folder_id,
             title,
             description,
             role_required,
         )
-        .fetch_one(pool)
-        .await?;
+        .fetch_one(&mut *self.executor)
+        .await
+        .context("update folder")?
+        .into();
 
         Ok(folder)
     }
 
-    pub async fn delete(id: Uuid, pool: &PgPool) -> Result<Folder> {
-        let folder = sqlx::query_file_as!(Folder, "sql/folders/delete.sql", id)
-            .fetch_one(pool)
-            .await?;
+    async fn delete(&mut self, id: FolderId) -> Result<Folder> {
+        let folder_id: Uuid = id.into();
+        let folder = sqlx::query_file_as!(DbFolder, "sql/folders/delete.sql", folder_id)
+            .fetch_one(&mut *self.executor)
+            .await
+            .context("delete folder")?
+            .into();
 
-        Ok(folder)
-    }
-}
-
-#[cfg(test)]
-pub struct FolderRepoFake {}
-
-#[cfg(test)]
-impl FolderRepoFake {
-    pub async fn create(
-        title: &str,
-        description: &str,
-        role_required: &str,
-        workspace: Uuid,
-        _pool: &PgPool,
-    ) -> Result<Folder> {
-        let folder = Folder {
-            id: Uuid::new_v4(),
-            title: title.to_string(),
-            workspace,
-            description: description.to_string(),
-            role_required: role_required.to_string(),
-        };
-        Ok(folder)
-    }
-
-    pub async fn find_by_workspace(_workspace: Uuid, _pool: &PgPool) -> Result<Vec<Folder>> {
-        Ok(Vec::new())
-    }
-
-    pub async fn find_by_id(id: Uuid, _pool: &PgPool) -> Result<Folder> {
-        let folder = Folder {
-            id,
-            title: "fake folder".into(),
-            workspace: Uuid::new_v4(),
-            description: "fake folder for testing".into(),
-            role_required: "PLATFORM_MEMBER".into(),
-        };
-        Ok(folder)
-    }
-
-    pub async fn update(
-        id: Uuid,
-        title: &str,
-        description: &str,
-        role_required: &str,
-        _pool: &PgPool,
-    ) -> Result<Folder> {
-        let folder = Folder {
-            id,
-            title: title.to_string(),
-            workspace: Uuid::new_v4(),
-            description: description.to_string(),
-            role_required: role_required.to_string(),
-        };
-        Ok(folder)
-    }
-
-    pub async fn delete(id: Uuid, _pool: &PgPool) -> Result<Folder> {
-        let folder = Folder {
-            id,
-            title: "fake folder".into(),
-            workspace: Uuid::new_v4(),
-            description: "fake folder for testing".into(),
-            role_required: "PLATFORM_MEMBER".into(),
-        };
         Ok(folder)
     }
 }

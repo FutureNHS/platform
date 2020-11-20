@@ -15,10 +15,8 @@ pub struct File {
     pub latest_version: Uuid,
 }
 
-#[cfg_attr(test, allow(dead_code))]
 pub struct FileRepo {}
 
-#[cfg_attr(test, allow(dead_code))]
 impl FileRepo {
     async fn create<'c, E>(created_by: Uuid, latest_version: Uuid, executor: E) -> Result<File>
     where
@@ -115,10 +113,8 @@ pub struct CreateFileVersionArgs<'a> {
     pub version_number: i16,
 }
 
-#[cfg_attr(test, allow(dead_code))]
 pub struct FileWithVersionRepo {}
 
-#[cfg_attr(test, allow(dead_code))]
 impl FileWithVersionRepo {
     pub async fn create(args: CreateFileArgs<'_>, pool: &PgPool) -> Result<FileWithVersion> {
         let version_id = Uuid::new_v4();
@@ -199,93 +195,6 @@ impl FileWithVersionRepo {
             .fetch_one(pool)
             .await?;
 
-        Ok(file)
-    }
-}
-
-#[allow(dead_code)]
-pub struct FileWithVersionRepoFake {}
-
-#[allow(dead_code)]
-// Fake implementation for tests. If you want integration tests that exercise the database,
-// see https://doc.rust-lang.org/rust-by-example/testing/integration_testing.html.
-impl FileWithVersionRepoFake {
-    pub async fn create(args: CreateFileArgs<'_>, _pool: &PgPool) -> Result<FileWithVersion> {
-        let file = FileWithVersion {
-            id: Uuid::new_v4(),
-            title: args.title.into(),
-            description: args.description.into(),
-            folder: args.folder_id,
-            file_name: args.file_name.into(),
-            file_type: args.file_type.into(),
-            blob_storage_path: args.blob_storage_path.into(),
-            version: Uuid::new_v4(),
-            version_number: 1,
-            created_at: Utc::now(),
-            modified_at: Utc::now(),
-            deleted_at: None,
-        };
-        Ok(file)
-    }
-
-    pub async fn create_version(
-        args: CreateFileVersionArgs<'_>,
-        _pool: &PgPool,
-    ) -> Result<FileWithVersion> {
-        let file = FileWithVersion {
-            id: args.file_id,
-            title: args.title.into(),
-            description: args.description.into(),
-            folder: args.folder_id,
-            file_name: args.file_name.into(),
-            file_type: args.file_type.into(),
-            blob_storage_path: args.blob_storage_path.into(),
-            version: Uuid::new_v4(),
-            version_number: args.version_number,
-            created_at: Utc::now(),
-            modified_at: Utc::now(),
-            deleted_at: None,
-        };
-        Ok(file)
-    }
-
-    pub async fn find_by_folder(_folder: Uuid, _pool: &PgPool) -> Result<Vec<FileWithVersion>> {
-        Ok(vec![])
-    }
-
-    pub async fn find_by_id(id: Uuid, _pool: &PgPool) -> Result<FileWithVersion> {
-        let file = FileWithVersion {
-            id,
-            title: "fake file".into(),
-            description: "fake file for tests".into(),
-            folder: Uuid::parse_str("805eaaca-6c7d-40ac-bede-99b83ef838e4")?,
-            file_name: "fake.txt".into(),
-            file_type: "text/plain".into(),
-            blob_storage_path: "http://localhost:10000/devstoreaccount1/files/fake".into(),
-            version: Uuid::parse_str("393ec819-92f2-4bb3-bb1d-189d2ef8a30a")?,
-            version_number: 1,
-            created_at: Utc::now(),
-            modified_at: Utc::now(),
-            deleted_at: None,
-        };
-        Ok(file)
-    }
-
-    pub async fn delete(id: Uuid, _deleted_by: Uuid, _pool: &PgPool) -> Result<FileWithVersion> {
-        let file = FileWithVersion {
-            id,
-            title: "fake file".into(),
-            description: "fake file for tests".into(),
-            folder: Uuid::parse_str("805eaaca-6c7d-40ac-bede-99b83ef838e4")?,
-            file_name: "fake.txt".into(),
-            file_type: "text/plain".into(),
-            blob_storage_path: "http://localhost:10000/devstoreaccount1/files/fake".into(),
-            version: Uuid::parse_str("393ec819-92f2-4bb3-bb1d-189d2ef8a30a")?,
-            version_number: 1,
-            created_at: Utc::now(),
-            modified_at: Utc::now(),
-            deleted_at: Some(Utc::now()),
-        };
         Ok(file)
     }
 }
