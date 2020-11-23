@@ -9,7 +9,7 @@ async-compat = "0.1.5"
 async-graphql = {version = "2.1.0", features = ["uuid"]}
 async-graphql-tide = "2.1.0"
 async-std = {version = "1.7.0", features = ["attributes", "unstable"]}
-async-trait = "0.1.41"
+async-trait = "0.1.42"
 azure_sdk_core = "0.43.7"
 azure_sdk_storage_blob = "0.45.3"
 azure_sdk_storage_core = "0.44.4"
