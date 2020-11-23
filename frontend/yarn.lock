@@ -53,10 +53,10 @@
   dependencies:
     cross-fetch "3.0.5"
 
-"@apollo/federation@^0.20.0", "@apollo/federation@^0.20.4":
-  version "0.20.4"
-  resolved "https://registry.yarnpkg.com/@apollo/federation/-/federation-0.20.4.tgz#49baf1e94e7b9dea3e3736c9801c7c230157f94f"
-  integrity sha512-A/2BtgSytrrA2nSuCrKIlXYemfMEzCosIOD4vUjK7Y1LvNuPCBxt6mdZ+hjKrfpY4IXhZdgbtHjI5/Q2Pkqsmg==
+"@apollo/federation@^0.20.4", "@apollo/federation@^0.20.6":
+  version "0.20.6"
+  resolved "https://registry.yarnpkg.com/@apollo/federation/-/federation-0.20.6.tgz#f0b48177bb73214b256e5139736b3c9ace9aaf4a"
+  integrity sha512-ofk2bF+nRvbTZBgguSBm7lYRdbrG1w27OCRZo9qFpX9PxyQMMCB1FLOQXbeT+4QgjFuJhIZg6/LGnXd13o5uJw==
   dependencies:
     apollo-graphql "^0.6.0"
     apollo-server-env "^2.4.5"
