@@ -42,7 +42,7 @@ jobs:
 
       - name: Cache sqlx
         id: cache-sqlx
-        uses: actions/cache@v2
+        uses: actions/cache@v2.1.4
         with:
           path: |
             ~/.cargo/bin/sqlx
@@ -54,7 +54,7 @@ jobs:
         run: cargo install --git https://github.com/launchbadge/sqlx --rev 144dcceb445e804b16258d0dd9e580d6a484a01e sqlx-cli
 
       - name: Cache cargo
-        uses: actions/cache@v2
+        uses: actions/cache@v2.1.4
         with:
           path: |
             ~/.cargo/registry
