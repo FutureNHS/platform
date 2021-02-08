@@ -11,7 +11,7 @@
     "@types/selenium-webdriver": "^4.0.10",
     "browserstack": "^1.6.0",
     "browserstack-local": "^1.4.8",
-    "chai": "^4.2.0",
+    "chai": "^4.3.0",
     "dotenv": "^8.2.0",
     "mocha": "^8.2.1",
     "selenium-webdriver": "^4.0.0-alpha.7"
