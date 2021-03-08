@@ -71,7 +71,7 @@
     "@babel/preset-typescript": "^7.12.1",
     "@graphql-codegen/cli": "1.19.1",
     "@graphql-codegen/typescript": "1.17.11",
-    "@graphql-codegen/typescript-operations": "^1.17.9",
+    "@graphql-codegen/typescript-operations": "^1.17.15",
     "@graphql-codegen/typescript-urql": "^2.0.1",
     "@testing-library/jest-dom": "^5.11.5",
     "@testing-library/react": "^11.1.0",
