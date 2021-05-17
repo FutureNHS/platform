@@ -31,14 +31,14 @@ jobs:
           WORKSPACE_SERVICE_GRAPHQL_ENDPOINT: http://localhost:3001/graphql
 
       - name: Upload cypress screenshots
-        uses: actions/upload-artifact@v2.2.0
+        uses: actions/upload-artifact@v2.2.3
         if: failure()
         with:
           name: frontend-cypress-screenshots
           path: futurenhs-platform/frontend/cypress/screenshots
 
       - name: Upload cypress videos
-        uses: actions/upload-artifact@v2.2.0
+        uses: actions/upload-artifact@v2.2.3
         if: failure()
         with:
           name: frontend-cypress-videos
